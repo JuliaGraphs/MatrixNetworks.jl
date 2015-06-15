@@ -1,19 +1,26 @@
 
-# Use the new docile convention
+# Using the new docile convention
 # http://docilejl.readthedocs.org/en/latest/syntax/
 # TODO: more testing and check documentation
+# TODO: add more examples
 
 """
 Example
 -------
 
+Returns a maximum weight bipartite matching of a matrix or a matrix stored in triplet format
+Example:\n
+``bipartite_matching(sprand(5,5,0.5))``\n
+``M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])``\n
+M_out.weight\n
+M_out.cardinality\n
+M_out.match
+
 W = sprand(10,8,0.5)
 bipartite_matching(W).weight # just get the weight
 bipartite_matching(W).cardinality # just get the cardinality
-create_sparse(bipartite_matching(W)) # get the sparse matrix
-edgelist(biparitite_matching(W)) # get the edgelist
-ind = bipartite_matching_indicator(w,ei,ej,m,n)
-assert(sum(w[ind]) == bipartite_matching(w,ei,ej).weight)
+MatrixNetworks.create_sparse(bipartite_matching(W)) # get the sparse matrix
+MatrixNetworks.edgelist(bipartite_matching(W)) # get the edgelist
 
 A = sprand(5,5,0.5)
 M_out = bipartite_matching(A)
@@ -22,6 +29,7 @@ M_out.cardinality
 M_out.match
 
 """
+:bipartite_matching
 
 
 ###########################
@@ -47,6 +55,7 @@ end
 ######################
 #   helper funtions  #
 ######################
+#TODO: remove this, could be done differently
 
 function linToMat(index::Int64,rows::Int64)
     j = convert(Array{Int64,1},ceil(index/rows))
@@ -317,17 +326,9 @@ function bipartite_matching{T}(w::Array{T,1},ei::Array{Int64,1},
                                           M_setup.tripi, M_setup.m, M_setup.n)
 end
 
-"""
-Returns a maximum weight bipartite matching of a matrix or a matrix stored in triplet format
-Example:\n
-``MatrixNetworks.bipartite_matching(sprand(5,5,0.5))``\n
-``M_out = MatrixNetworks.bipartite_matching([10;12;13],[1;2;3],[3;2;4])``\n
-M_out.weight\n
-M_out.cardinality\n
-M_out.match
-"""
-bipartite_matching
-
+####################
+##    Indicator    #
+####################
 
 """
 Returns the matching indicator of a matrix stored in triplet format
@@ -350,7 +351,7 @@ end
 """
 Returns the edge list of a matching output
 Example:
-M_out = MatrixNetworks.bipartite_matching([101213],[123],[324])
+M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
 MatrixNetworks.edgelist(M_out)
 """
 :edgelist
@@ -368,8 +369,12 @@ function edgelist(M_output::matching_output)
     return (m1,m2)
 end
 
+##########
 """
 Creates and returns a sparse matrix that represents the outputed matching
+Example:
+M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
+MatrixNetworks.create_sparse(M_out)
 """
 :create_sparse
 function create_sparse(M_output::matching_output)
@@ -378,6 +383,7 @@ function create_sparse(M_output::matching_output)
     return A
 end
 
+##########
 """
 Returns an edge indicator of a given matching indicator
 """

@@ -3,14 +3,12 @@ module MatrixNetworks
 """ 
 Module ``MatrixNetworks``: Documentation on the module 
 
-- start with a sparse matrix A
+- Option 1: start with a sparse matrix A:
 - example: ``M = MatrixNetwork(A)``
-
-- start with row and column indexes for nonzeros in the matrix
+- Option 2: start with row and column indexes for nonzeros in the matrix
 - example: ``M = MatrixNetwork(ei,ej)``
 """
 MatrixNetworks
-
 
 include("MatrixNetwork.jl")
 
@@ -33,10 +31,6 @@ include("corenums.jl")
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, corenums
 
-
-# we actually don't need to use csr_to_sparse and sparse_to_csr
-# include("sparse_to_csr.jl")
-# include("csr_to_sparse.jl")
 
 
 end # end module
