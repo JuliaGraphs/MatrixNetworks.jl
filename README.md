@@ -12,4 +12,4 @@ using MatrixNetworks
 ## Example
 ? MatrixNetworks.bfs
 
-?MatrixNetworks.bipartite_matching
+? MatrixNetworks.bipartite_matching
