@@ -49,36 +49,14 @@ end
 ######################
 
 
-######################
-#   helper funtions  #
-######################
-
-function linToMat(index::Int64,rows::Int64)
-    j = convert(Array{Int64,1},ceil(index/rows))
-    i = mod(index,rows)
-    k = find( x->(x == 0), i)
-    i[k] = rows
-    return (i,j)
-end
-function linToMat(index::Array{Int64,1},rows::Int64)
-    j = convert(Array{Int64,1},ceil(index/rows))
-    i = mod(index,rows)
-    k = find( x->(x == 0), i)
-    i[k] = rows
-    return (i,j)
-end
-
-
-######################
-#   setup  funtions  #
-######################
-
-
 function bipartite_matching_setup_phase1{T}(A::SparseMatrixCSC{T,Int64})
-    linear_ids = find(A)
-    (m,n) = size(A)
-    nzv = A[linear_ids] # nonzeros(A)
-    (nzi, nzj) = linToMat(linear_ids,m)
+    nzi = A.rowval
+    nzv = A.nzval
+    nzj = zeros(Int64,length(nzi))
+    r = length(A.colptr) - 1
+    for i = 1:r
+        nzj[A.colptr[i]:A.colptr[i+1]-1] = i
+    end
     return (nzi,nzj,nzv)
 end
 
