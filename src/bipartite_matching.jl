@@ -10,23 +10,15 @@ Example
 
 Returns a maximum weight bipartite matching of a matrix or a matrix stored in triplet format
 Example:\n
-``bipartite_matching(sprand(5,5,0.5))``\n
-``M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])``\n
+W = sprand(10,8,0.5)\n
+bipartite_matching(W)\n
+M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])\n
 M_out.weight\n
 M_out.cardinality\n
-M_out.match
+M_out.match\n
+MatrixNetworks.create_sparse(bipartite_matching(W)) # get the sparse matrix\n
+MatrixNetworks.edgelist(bipartite_matching(W)) # get the edgelist\n
 
-W = sprand(10,8,0.5)
-bipartite_matching(W).weight # just get the weight
-bipartite_matching(W).cardinality # just get the cardinality
-MatrixNetworks.create_sparse(bipartite_matching(W)) # get the sparse matrix
-MatrixNetworks.edgelist(bipartite_matching(W)) # get the edgelist
-
-A = sprand(5,5,0.5)
-M_out = bipartite_matching(A)
-M_out.weight
-M_out.cardinality
-M_out.match
 
 """
 :bipartite_matching
@@ -53,36 +45,18 @@ type matching_output
 end
 
 ######################
-#   helper funtions  #
-######################
-#TODO: remove this, could be done differently
-
-function linToMat(index::Int64,rows::Int64)
-    j = convert(Array{Int64,1},ceil(index/rows))
-    i = mod(index,rows)
-    k = find( x->(x == 0), i)
-    i[k] = rows
-    return (i,j)
-end
-function linToMat(index::Array{Int64,1},rows::Int64)
-    j = convert(Array{Int64,1},ceil(index/rows))
-    i = mod(index,rows)
-    k = find( x->(x == 0), i)
-    i[k] = rows
-    return (i,j)
-end
-
-
-######################
 #   setup  funtions  #
 ######################
 
 
 function bipartite_matching_setup_phase1{T}(A::SparseMatrixCSC{T,Int64})
-    linear_ids = find(A)
-    (m,n) = size(A)
-    nzv = A[linear_ids] # nonzeros(A)
-    (nzi, nzj) = linToMat(linear_ids,m)
+    nzi = A.rowval
+    nzv = A.nzval
+    nzj = zeros(Int64,length(nzi))
+    r = length(A.colptr) - 1
+    for i = 1:r
+        nzj[A.colptr[i]:A.colptr[i+1]-1] = i
+    end
     return (nzi,nzj,nzv)
 end
 
@@ -387,7 +361,7 @@ end
 """
 Returns an edge indicator of a given matching indicator
 """
-:edge_indicator
+edge_indicator
 function edge_indicator(M_output::matching_output, ei::Vector, ej::Vector)
     assert(length(ei) == length(ej))
     ind = BitArray{1}(length(ei))
