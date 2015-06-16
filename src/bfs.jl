@@ -14,6 +14,12 @@ bfs(MatrixNetwork(sprand(5,4,0.5)),1,6)\n
 (d,dt,pred) = bfs(A,u,v) # search stops when it hits the vertex v\n
 (d,dt,pred) = bfs(A,u)\n
 
+Pkg.add("MAT")
+using MAT
+file = matopen("MatrixNetworks/data/bfs_example.mat")
+A = read(file,"A")
+close(file)
+bfs(MatrixNetwork(A),1)
 """
 
 function bfs(A::MatrixNetwork,u::Int64)
