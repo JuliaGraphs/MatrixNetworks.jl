@@ -361,7 +361,6 @@ end
 """
 Returns an edge indicator of a given matching indicator
 """
-edge_indicator
 function edge_indicator(M_output::matching_output, ei::Vector, ej::Vector)
     assert(length(ei) == length(ej))
     ind = BitArray{1}(length(ei))
