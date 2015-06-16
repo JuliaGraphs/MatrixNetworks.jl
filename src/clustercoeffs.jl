@@ -10,12 +10,7 @@ Example
 -------
 
 cc = clustercoeffs(A)
-``MatrixNetworks.clustercoeffs(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``
-
-"""
-
-
-"""
+``clustercoeffs(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``
 clustercoeffs compute undirected clustering coefficients for a graph
 clustercoeffs(A) computes a normalized, weighted clustering coefficients from a graph
 represented by a symmetric adjacency matrix A.
@@ -27,7 +22,7 @@ function clustercoeffs(A::MatrixNetworks.MatrixNetwork)
     return clustercoeffs(A, true, true);
 end
 
-function clustercoeffs(A::MatrixNetworks.MatrixNetwork,weighted::Bool,normalized::Bool)
+function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     donorm = true
     usew = true
     if !normalized
@@ -36,11 +31,11 @@ function clustercoeffs(A::MatrixNetworks.MatrixNetwork,weighted::Bool,normalized
     if !weighted
         usew = false
     end
-# TODO: fix this condition: Maybe add one more field to MatrixNetwork to save computation    
-#     if !(A.a == A'.a)
-#         #TODO: a more descriptive error stmt check if I can refer to another fn
-#         error("Only undirected (symmetric) inputs are allowed")
-#     end
+	# TODO: fix this condition: Maybe add one more field to MatrixNetwork to save computation    
+	#     if !(A.a == A'.a)
+	#         #TODO: a more descriptive error stmt check if I can refer to another fn
+	#         error("Only undirected (symmetric) inputs are allowed")
+	#     end
     
     # if usew
     #     (rp,ci,ai)=sparse_to_csr(A)

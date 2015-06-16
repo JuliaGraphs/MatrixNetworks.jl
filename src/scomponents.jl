@@ -3,17 +3,21 @@
 # http://docilejl.readthedocs.org/en/latest/syntax/
 # TODO: more testing and check documentation
 # require("MatrixNetworks.jl")
-# """
-# Example
-# -------
-# 
-# - `cc` = strong_components(A)
-# - strong_components(A).num
-# - strong_components(A).sizes
-# - strong_components(A).map
-# - strong_components_map(A)     # if you just want the map
-# - enrich(strong_components(A)) # produce additional enriched output
-# """
+"""
+Example
+-------
+
+- `cc` = strong_components(A)
+- strong_components(A).num
+- strong_components(A).sizes
+- strong_components(A).map
+- strong_components_map(A)     # if you just want the map
+- enrich(strong_components(A)) # produce additional enriched output
+
+Return information on the strongly connected components of a graph.
+The method used in Tarjan's algorithm.
+"""
+:strong_components
 
 ###########################
 ##    Type Definitions    #
@@ -140,11 +144,7 @@ MatrixNetworks.strong_components_map(ei,ej)
 strong_components_map
 strong_components_map(ei,ej) = strong_components_map(MatrixNetwork(ei,ej))
 
-"""
-Return information on the strongly connected components of a graph.
-The method used in Tarjan's algorithm.
-"""
-:strong_components
+
 
 function strong_components(A::MatrixNetwork)
     map = strong_components_map(A)

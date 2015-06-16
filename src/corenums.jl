@@ -10,19 +10,14 @@ Example
 -------
 
 (d rt) = corenums(A)
-``MatrixNetworks.corenums(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``
-
-"""
-
-
-"""
+``corenums(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``
 corenums compute the core number for each vertex in the graph and returns the core
 numbers for each vertex of the graph A along with the removal order of the vertex in the 
 tuple (d,rt)
 This function works on directed graphs but gives the in-degree core number.
 To get the out-degree core numbers call corenums(A')
 """
-:corenums
+
 function corenums(A::MatrixNetworks.MatrixNetwork)
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1

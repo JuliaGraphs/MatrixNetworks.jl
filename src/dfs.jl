@@ -14,20 +14,19 @@ Example
 (d,dt,ft, pred) = dfs(A,u,1) # continues the dfs for all components of the graph
 (d,dt,ft, pred) = dfs(A,u,[],v) # search stops when it hits vertex v
 
-``MatrixNetworks.dfs(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)),1)``
-"""
+``dfs(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)),1)``
 
-"""
 dfs compute depth first search distances and returns the distance (d), the discover (dt),
 the finish time(ft), and the predecessor array (pred) in the tuple (d,dt,ft, pred).
 
 pred[i] = 0 if vertex i is in a component not reachable from u and i != u.
 """
-function dfs(A::MatrixNetworks.MatrixNetwork,u::Int64)
+
+function dfs(A::MatrixNetwork,u::Int64)
     return dfs(A,u,0,0);
 end
 
-function dfs(A::MatrixNetworks.MatrixNetwork,u::Int64,full::Int64,target::Int64)
+function dfs(A::MatrixNetwork,u::Int64,full::Int64,target::Int64)
 
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1
