@@ -7,17 +7,17 @@
 Example
 -------
 
-- `cc` = strong_components(A)
-- strong_components(A).num
-- strong_components(A).sizes
-- strong_components(A).map
+- `cc` = scomponents(A)
+- scomponents(A).num
+- scomponents(A).sizes
+- scomponents(A).map
 - strong_components_map(A)     # if you just want the map
-- enrich(strong_components(A)) # produce additional enriched output
+- enrich(scomponents(A)) # produce additional enriched output
 
 Return information on the strongly connected components of a graph.
 The method used in Tarjan's algorithm.
 """
-:strong_components
+:scomponents
 
 ###########################
 ##    Type Definitions    #
@@ -132,7 +132,7 @@ A = sprand(5,5,0.5)
 MatrixNetworks.strong_components_map(A)
 """
 strong_components_map
-strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = strong_components(MatrixNetwork(A))
+strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
 
 
 """
@@ -146,7 +146,7 @@ strong_components_map(ei,ej) = strong_components_map(MatrixNetwork(ei,ej))
 
 
 
-function strong_components(A::MatrixNetwork)
+function scomponents(A::MatrixNetwork)
     map = strong_components_map(A)
 	number = maximum(map)
 	sizes = zeros(Int64,number);
@@ -160,9 +160,9 @@ end
 ###############################
 ##    Conversion Functions    #
 ###############################
-# TODO: double check output of enrich and strong_components
-strong_components(A::SparseMatrixCSC{Float64,Int64}) = strong_components(MatrixNetwork(A))
-strong_components(ei,ej) = strong_components(MatrixNetwork(ei,ej))
+# TODO: double check output of enrich and scomponents
+scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
+scomponents(ei,ej) = scomponents(MatrixNetwork(ei,ej))
 
 
 """ 
