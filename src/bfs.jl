@@ -1,5 +1,3 @@
-# Using the new docile convention
-# http://docilejl.readthedocs.org/en/latest/syntax/
 # TODO: more testing and check documentation
 # TODO: add more examples
 
@@ -7,14 +5,14 @@
 Example
 -------
 
-
 BFS compute breadth first search distances and returns a distance (d), 
 the discover time(dt), predecessor array (pred) in the tuple (d,dt,pred).
 pred[i] = 0 if vertex i is in a component not reachable from u and i != u.
 Example:\n
-``bfs(MatrixNetwork(sprand(5,4,0.5)),1)``\n
-``(d,dt,pred) = bfs(A,u,v)`` # search stops when it hits the vertex v\n
-``(d,dt,pred) = bfs(A,u)``
+bfs(MatrixNetwork(sprand(5,4,0.5)),1)\n
+bfs(MatrixNetwork(sprand(5,4,0.5)),1,6)\n
+(d,dt,pred) = bfs(A,u,v) # search stops when it hits the vertex v\n
+(d,dt,pred) = bfs(A,u)\n
 
 """
 
@@ -33,8 +31,8 @@ function bfs(A::MatrixNetwork,u::Int64,v::Int64)
     sq=zeros(Int64,n)
     sqt=0
     sqh=0 # search queue and search queue tail/head
-    # start bfs at u
     
+    # start bfs at u
     sqt=sqt+1
     sq[sqt]=u
     t=0
