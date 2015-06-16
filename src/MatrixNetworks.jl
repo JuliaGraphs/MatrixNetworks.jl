@@ -1,5 +1,11 @@
 module MatrixNetworks
 
+using Compat
+
+if VERSION < v"0.4-"
+    using Docile
+end
+
 """ 
 Module ``MatrixNetworks``: Documentation on the module 
 
