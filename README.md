@@ -9,12 +9,7 @@ Pkg.add("Lexicon")
 
 using Lexicon
 
-## To use the package
-import MatrixNetworks
-
-using MatrixNetworks
-
 ## Example
-? MatrixNetworks.bfs
+? bfs
 
-? MatrixNetworks.bipartite_matching
+? bipartite_matching
