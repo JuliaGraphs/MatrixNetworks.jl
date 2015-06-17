@@ -40,6 +40,10 @@ export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, corenums
 # examples:
 include("../test/bfs_test.jl")
 include("../test/bipartite_matching_test.jl")
+include("../test/clustercoeffs_test.jl")
+include("../test/corenums_test.jl")
+include("../test/dfs_test.jl")
+
 
 # export bfs_test
 
