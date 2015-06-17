@@ -44,7 +44,7 @@ include("../test/bipartite_matching_test.jl")
 include("../test/clustercoeffs_test.jl")
 include("../test/corenums_test.jl")
 include("../test/dfs_test.jl")
-include("../test/scomponents_test.jl")
+# include("../test/scomponents_test.jl")
 
 # export test cases?
 # export bfs_test
