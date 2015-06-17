@@ -48,7 +48,7 @@ Example:
 """
 :strong_components_map
 
-function strong_components_map(A::MatrixNetwork)
+function strong_components_map(A::MatrixNetworks.MatrixNetwork)
 
 	# TODO, remove the dt variable here
 	n=A.n
