@@ -1,4 +1,3 @@
-
 # Use the new docile convention
 # http://docilejl.readthedocs.org/en/latest/syntax/
 # TODO: more testing and check documentation
@@ -9,8 +8,18 @@
 Example
 -------
 
-cc = clustercoeffs(A)
-``clustercoeffs(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``
+using MAT
+
+file_path = Pkg.dir("MatrixNetworks/data/clique-10.mat")
+  
+file = matopen(file_path)
+
+A = read(file,"A")
+
+close(file)
+
+cc = clustercoeffs(A) 
+
 clustercoeffs compute undirected clustering coefficients for a graph
 clustercoeffs(A) computes a normalized, weighted clustering coefficients from a graph
 represented by a symmetric adjacency matrix A.
@@ -31,7 +40,8 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     if !weighted
         usew = false
     end
-	# TODO: fix this condition: Maybe add one more field to MatrixNetwork to save computation    
+	# TODO: fix this condition: Maybe add one more field to MatrixNetwork to save computation  
+	# because we're already performing a transpose in the very beginning  
 	#     if !(A.a == A'.a)
 	#         #TODO: a more descriptive error stmt check if I can refer to another fn
 	#         error("Only undirected (symmetric) inputs are allowed")
@@ -45,6 +55,7 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     # in julia's implementation of sparse to csr, it returns the same output so:
     #(rp,ci,ai)=sparse_to_csr(A)
     # passing a MatrixNetwork instead
+    
     (rp,ci,ai) = (A.rp,A.ci,A.a);
     if length(find(ai.<0)) != 0
         # TODO: fix error print statement
