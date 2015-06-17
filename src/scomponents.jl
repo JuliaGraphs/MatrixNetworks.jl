@@ -169,9 +169,9 @@ function enrich(rval::strong_components_output)
     ci = rval.map
     sizes = rval.sizes
     ncomp = maximum(ci)
-    A = rval.A
-    R = sparse([1:A.n],ci,1,A.n,ncomp)
-    CG = R'*A*R
+    R = sparse(collect(1:rval.A.n),ci,1,rval.A.n,ncomp)
+    A = SparseMatrixCSC(rval.A.n,rval.A.n,rval.A.rp,rval.A.ci,rval.A.vals)
+    CG = R'*A'*R
     return strong_components_rich_output(R,CG,CG)
 end
 
