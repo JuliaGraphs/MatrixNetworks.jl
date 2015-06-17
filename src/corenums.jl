@@ -9,8 +9,18 @@
 Example
 -------
 
-(d rt) = corenums(A)
-``corenums(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``
+using MAT
+
+file_path = Pkg.dir("MatrixNetworks/data/cores_example.mat")
+  
+file = matopen(file_path)
+
+A = read(file,"A")
+
+close(file)
+
+(d,rt) = corenums(MatrixNetwork(A))
+
 corenums compute the core number for each vertex in the graph and returns the core
 numbers for each vertex of the graph A along with the removal order of the vertex in the 
 tuple (d,rt)
@@ -18,7 +28,7 @@ This function works on directed graphs but gives the in-degree core number.
 To get the out-degree core numbers call corenums(A')
 """
 
-function corenums(A::MatrixNetworks.MatrixNetwork)
+function corenums(A::MatrixNetwork)
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1
     nz=length(ci)

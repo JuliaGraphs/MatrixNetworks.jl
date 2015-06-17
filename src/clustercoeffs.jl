@@ -18,7 +18,7 @@ A = read(file,"A")
 
 close(file)
 
-cc = clustercoeffs(A) 
+cc = clustercoeffs(MatrixNetwork(A))
 
 clustercoeffs compute undirected clustering coefficients for a graph
 clustercoeffs(A) computes a normalized, weighted clustering coefficients from a graph
@@ -27,7 +27,7 @@ clustercoeffs(A,weighted,normalized), with weighted and normalized boolean value
 whether the computation has to be weighted and/or normalized.
 """
 
-function clustercoeffs(A::MatrixNetworks.MatrixNetwork)
+function clustercoeffs(A::MatrixNetwork)
     return clustercoeffs(A, true, true);
 end
 
