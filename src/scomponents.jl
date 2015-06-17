@@ -128,13 +128,15 @@ end
 Example
 A = sprand(5,5,0.5)
 MatrixNetworks.strong_components_map(A)
+"""
+strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
+
+"""
 Example:
 ei = [1;2;3]
 ej = [2;4;1]
 MatrixNetworks.strong_components_map(ei,ej)
 """
-
-strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
 strong_components_map(ei,ej) = strong_components_map(MatrixNetwork(ei,ej))
 
 
@@ -154,8 +156,6 @@ end
 ##    Conversion Functions    #
 ###############################
 # TODO: double check output of enrich and scomponents
-scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
-scomponents(ei,ej) = scomponents(MatrixNetwork(ei,ej))
 
 
 """ 
@@ -170,7 +170,7 @@ function enrich(rval::strong_components_output)
     ci = rval.map
     sizes = rval.sizes
     ncomp = maximum(ci)
-    R = sparse([1:size(A,1);],ci,1,size(A,1),ncomp)
+    R = sparse([1:size(rval.A,1);],ci,1,size(rval.A,1),ncomp)
     CG = R'*A*R
     return strong_components_rich_output(R,CG,CG)
 end
