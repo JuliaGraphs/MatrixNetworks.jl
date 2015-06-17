@@ -44,7 +44,7 @@ end
 Return information on the strongly connected components of a graph that 
 is the minimum required computation.
 Example:
-``MatrixNetworks.strong_components_map(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``	
+``MatrixNetworks.strong_components_map(MatrixNetwork(sprand(5,4,0.5)))``	
 """
 function strong_components_map(A::MatrixNetwork)
 
@@ -154,8 +154,8 @@ end
 ##    Conversion Functions    #
 ###############################
 # TODO: double check output of enrich and scomponents
-# scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
-# scomponents(ei,ej) = scomponents(MatrixNetwork(ei,ej))
+scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
+scomponents(ei,ej) = scomponents(MatrixNetwork(ei,ej))
 
 
 """ 
