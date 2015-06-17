@@ -1,8 +1,8 @@
 using MAT
 
-# file_path = Pkg.dir("MatrixNetworks/data/bfs_example.mat")
+file_path = Pkg.dir("MatrixNetworks/data/bfs_example.mat")
 
-file = matopen("../data/bfs_example.mat")
+file = matopen(file_path)
 
 A = read(file,"A")
 
