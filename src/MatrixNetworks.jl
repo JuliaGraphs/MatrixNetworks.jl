@@ -37,6 +37,7 @@ include("corenums.jl")
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, corenums
 
-
+# examples:
+include("../test/bfs_test.jl")
 
 end # end module
