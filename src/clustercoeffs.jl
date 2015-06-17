@@ -56,7 +56,7 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     #(rp,ci,ai)=sparse_to_csr(A)
     # passing a MatrixNetwork instead
     
-    (rp,ci,ai) = (A.rp,A.ci,A.a);
+    (rp,ci,ai) = (A.rp,A.ci,A.vals);
     if length(find(ai.<0)) != 0
         # TODO: fix error print statement
         error("only positive edge weights allowed")
