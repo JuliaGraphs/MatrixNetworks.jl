@@ -46,8 +46,6 @@ is the minimum required computation.
 Example:
 ``MatrixNetworks.strong_components_map(MatrixNetworks.MatrixNetwork(sprand(5,4,0.5)))``	
 """
-:strong_components_map
-
 function strong_components_map(A::MatrixNetwork)
 
 	# TODO, remove the dt variable here
@@ -130,18 +128,13 @@ end
 Example
 A = sprand(5,5,0.5)
 MatrixNetworks.strong_components_map(A)
-"""
-strong_components_map
-strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
-
-
-"""
 Example:
 ei = [1;2;3]
 ej = [2;4;1]
 MatrixNetworks.strong_components_map(ei,ej)
 """
-strong_components_map
+
+strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
 strong_components_map(ei,ej) = strong_components_map(MatrixNetwork(ei,ej))
 
 
@@ -161,8 +154,8 @@ end
 ##    Conversion Functions    #
 ###############################
 # TODO: double check output of enrich and scomponents
-scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
-scomponents(ei,ej) = scomponents(MatrixNetwork(ei,ej))
+# scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
+# scomponents(ei,ej) = scomponents(MatrixNetwork(ei,ej))
 
 
 """ 

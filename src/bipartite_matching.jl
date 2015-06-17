@@ -309,7 +309,6 @@ Returns the matching indicator of a matrix stored in triplet format
 Example:
 MatrixNetworks.bipartite_matching_indicator([101213],[123],[324])
 """
-:bipartite_matching_indicator
 function bipartite_matching_indicator{T}(w::Array{T,1},ei::Array{Int64,1},
                                         ej::Array{Int64,1})
     M_setup = bipartite_matching_setup(w, ei, ei, maximum(ei), maximum(ej))
@@ -328,7 +327,6 @@ Example:
 M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
 MatrixNetworks.edgelist(M_out)
 """
-:edgelist
 function edgelist(M_output::matching_output)
     m1=zeros(Int64,M_output.cardinality)
     m2=zeros(Int64,M_output.cardinality)
@@ -350,7 +348,6 @@ Example:
 M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
 MatrixNetworks.create_sparse(M_out)
 """
-:create_sparse
 function create_sparse(M_output::matching_output)
     (in,out) = edgelist(M_output)
     A = sparse(in,out,1,M_output.m,M_output.n)

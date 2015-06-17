@@ -35,7 +35,7 @@ include("dfs.jl")
 include("clustercoeffs.jl")
 include("corenums.jl")
 # export everything to make them accessible as functions
-export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, corenums
+export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, corenums, scomponents
 
 # examples:
 include("../test/bfs_test.jl")
