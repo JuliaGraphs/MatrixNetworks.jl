@@ -165,12 +165,11 @@ This function adds the following helpers variables
 * transitive_map - a map to components that respects the transitive ordering
 * largest
 """
-:enrich
 function enrich(rval::strong_components_output)
     ci = rval.map
     sizes = rval.sizes
     ncomp = maximum(ci)
-    R = sparse([1:size(rval.A,1);],ci,1,size(rval.A,1),ncomp)
+    R = sparse([1:rval.A.n],ci,1,rval.A.n,ncomp)
     CG = R'*A*R
     return strong_components_rich_output(R,CG,CG)
 end
