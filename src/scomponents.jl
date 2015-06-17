@@ -169,7 +169,8 @@ function enrich(rval::strong_components_output)
     ci = rval.map
     sizes = rval.sizes
     ncomp = maximum(ci)
-    R = sparse([1:rval.A.n],ci,1,rval.A.n,ncomp)
+    A = rval.A
+    R = sparse([1:A.n],ci,1,A.n,ncomp)
     CG = R'*A*R
     return strong_components_rich_output(R,CG,CG)
 end
