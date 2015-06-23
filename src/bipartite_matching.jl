@@ -9,13 +9,16 @@ Returns a maximum weight bipartite matching of a matrix or a matrix stored in tr
 Example:\n
 W = sprand(10,8,0.5)\n
 bipartite_matching(W)\n
+
+ei = [1;2;3]
+ej = [3;2;4]
 M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])\n
 M_out.weight\n
 M_out.cardinality\n
 M_out.match\n
 MatrixNetworks.create_sparse(bipartite_matching(W)) # get the sparse matrix\n
-MatrixNetworks.edgelist(bipartite_matching(W)) # get the edgelist\n
-
+MatrixNetworks.edge_list(bipartite_matching(W)) # get the edgelist\n
+MatrixNetworks.edge_indicator(M_out,ei,ej)
 
 """
 :bipartite_matching
@@ -298,7 +301,7 @@ end
 """
 Returns the matching indicator of a matrix stored in triplet format
 Example:
-MatrixNetworks.bipartite_matching_indicator([101213],[123],[324])
+MatrixNetworks.bipartite_matching_indicator([10;12;13],[1;2;3],[3;2;4])
 """
 function bipartite_matching_indicator{T}(w::Array{T,1},ei::Array{Int64,1},
                                         ej::Array{Int64,1})
@@ -316,9 +319,9 @@ end
 Returns the edge list of a matching output
 Example:
 M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
-MatrixNetworks.edgelist(M_out)
+MatrixNetworks.edge_list(M_out)
 """
-function edgelist(M_output::matching_output)
+function edge_list(M_output::matching_output)
     m1=zeros(Int64,M_output.cardinality)
     m2=zeros(Int64,M_output.cardinality)
     noute=1
@@ -340,7 +343,7 @@ M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
 MatrixNetworks.create_sparse(M_out)
 """
 function create_sparse(M_output::matching_output)
-    (in,out) = edgelist(M_output)
+    (in,out) = edge_list(M_output)
     A = sparse(in,out,1,M_output.m,M_output.n)
     return A
 end
