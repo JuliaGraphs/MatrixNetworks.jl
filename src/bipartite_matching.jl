@@ -12,7 +12,7 @@ bipartite_matching(W)\n
 
 ei = [1;2;3]
 ej = [3;2;4]
-M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])\n
+M_out = bipartite_matching([10;12;13],ei,ej)\n
 M_out.weight\n
 M_out.cardinality\n
 M_out.match\n
