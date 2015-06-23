@@ -1,6 +1,3 @@
-
-# Using the new docile convention
-# http://docilejl.readthedocs.org/en/latest/syntax/
 # TODO: more testing and check documentation
 # TODO: add more examples
 
@@ -50,13 +47,7 @@ end
 
 
 function bipartite_matching_setup_phase1{T}(A::SparseMatrixCSC{T,Int64})
-    nzi = A.rowval
-    nzv = A.nzval
-    nzj = zeros(Int64,length(nzi))
-    r = length(A.colptr) - 1
-    for i = 1:r
-        nzj[A.colptr[i]:A.colptr[i+1]-1] = i
-    end
+    (nzi,nzj,nzv) = findnz(A)
     return (nzi,nzj,nzv)
 end
 

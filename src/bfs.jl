@@ -1,5 +1,5 @@
-# TODO: more testing and check documentation
-# TODO: add more examples
+# TODO: more testing and better documentation
+
 """
 BFS compute breadth first search distances and returns a distance (d), 
 the discover time(dt), predecessor array (pred) in the tuple (d,dt,pred).

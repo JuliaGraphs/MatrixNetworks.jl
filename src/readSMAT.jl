@@ -4,7 +4,7 @@ function readSMAT(filename)
                convert(Array{Int64,1},rows[:,1]), 
                convert(Array{Int64,1},rows[:,2]), 
                rows[:,3],
-               parseint(header[1]), 
-               parseint(header[2])
+               parse(Int,header[1]), 
+               parse(Int,header[2])
                )
 end
