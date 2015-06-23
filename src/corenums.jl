@@ -1,31 +1,19 @@
-
-# Use the new docile convention
-# http://docilejl.readthedocs.org/en/latest/syntax/
-# TODO: more testing and check documentation
+# TODO: more testing and more documentation
 # TODO: add more examples
-# TODO support struct
 
 """
-Example
--------
-
-using MAT
-
-file_path = Pkg.dir("MatrixNetworks/data/cores_example.mat")
-  
-file = matopen(file_path)
-
-A = read(file,"A")
-
-close(file)
-
-(d,rt) = corenums(MatrixNetwork(A))
-
 corenums compute the core number for each vertex in the graph and returns the core
 numbers for each vertex of the graph A along with the removal order of the vertex in the 
 tuple (d,rt)
 This function works on directed graphs but gives the in-degree core number.
 To get the out-degree core numbers call corenums(A')
+
+Example
+-------
+
+file_path = Pkg.dir("MatrixNetworks/data/cores_example.smat")\n
+A = readSMAT(file_path)\n
+(d,rt) = corenums(MatrixNetwork(A))
 """
 
 function corenums(A::MatrixNetwork)
@@ -95,4 +83,23 @@ function corenums(A::MatrixNetwork)
         end
     end
     return (d,rt)
+end
+
+############################
+### Additional functions ###
+############################
+
+## CSC:
+function corenums(A::SparseMatrixCSC{Float64,Int64})
+    return corenums(MatrixNetwork(A))
+end
+
+## Triplet Format:
+function corenums(ei::Vector{Int64},ej::Vector{Int64})
+    return corenums(MatrixNetwork(ei,ej))
+end
+
+## CSR sparse matrices:
+function corenums(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64)
+    return corenums(MatrixNetwork(n,rp,ci,vals))
 end

@@ -1,8 +1,5 @@
-# Use the new docile convention
-# http://docilejl.readthedocs.org/en/latest/syntax/
-# TODO: more testing and check documentation
+# TODO: more testing and more documentation
 # TODO: add more examples
-# TODO support struct
 
 """
 clustercoeffs compute undirected clustering coefficients for a graph
