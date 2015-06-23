@@ -6,25 +6,16 @@ BFS compute breadth first search distances and returns a distance (d),
 the discover time(dt), predecessor array (pred) in the tuple (d,dt,pred).
 pred[i] = 0 if vertex i is in a component not reachable from u and i != u.
 Example:\n
-bfs(MatrixNetwork(sprand(5,4,0.5)),1)\n
-bfs(MatrixNetwork(sprand(5,4,0.5)),1,6)\n
 (d,dt,pred) = bfs(A,u,v) # search stops when it hits the vertex v\n
 (d,dt,pred) = bfs(A,u)\n
 
 Example
 -------
-file_path = Pkg.dir("MatrixNetworks/data/bfs_example.smat")
-
-A = readSMAT(file_path)
-
-return bfs(MatrixNetwork(A),1)
+file_path = Pkg.dir("MatrixNetworks/data/bfs_example.smat")\n
+A = readSMAT(file_path)\n
+(d,dt,pred) = bfs(MatrixNetwork(A),1)\n
+OR: (d,dt,pred) = bfs(A,1)
 """
-
-function bfs(A::MatrixNetwork,u::Int64)
-    return bfs(A,u,0)
-end
-
-
 
 function bfs(A::MatrixNetwork,u::Int64,v::Int64)
     (rp,ci) = (A.rp,A.ci)
@@ -63,4 +54,39 @@ function bfs(A::MatrixNetwork,u::Int64,v::Int64)
         end
     end
     return (d,dt,pred)
+end
+
+############################
+### Additional functions ###
+############################
+
+function bfs(A::MatrixNetwork,u::Int64)
+    return bfs(A,u,0)
+end
+
+## CSC sparse matrices:
+function bfs(A::SparseMatrixCSC{Float64,Int64})
+    retrun bfs(MatrixNetwork(A))
+end
+
+function bfs(A::SparseMatrixCSC{Float64,Int64},u::Int64)
+    retrun bfs(MatrixNetwork(A),u)
+end
+
+## Triplet Format:
+function bfs(ei::Vector{Int64},ej::Vector{Int64})
+    retrun bfs(MatrixNetwork(ei,ej))
+end
+
+function bfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64)
+    retrun bfs(MatrixNetwork(ei,ej),u)
+end
+
+## CSR sparse matrices:
+function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64)
+    retrun bfs(MatrixNetwork(n,rp,ci,vals))
+end
+
+function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64,u::Int64)
+    retrun bfs(MatrixNetwork(n,rp,ci,vals),u)
 end
