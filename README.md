@@ -13,3 +13,14 @@ using Lexicon
 ? bfs
 
 ? bipartite_matching
+
+## To run test cases:
+Pkg.test("MatrixNetworks")
+
+## Some examples:
+```
+    file_path = Pkg.dir("MatrixNetworks/data/clique-10.smat")
+    A = readSMAT(file_path)
+    cc = clustercoeffs(MatrixNetwork(A))
+```
+
