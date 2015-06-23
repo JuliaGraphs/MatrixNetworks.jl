@@ -66,7 +66,7 @@ end
 
 ## CSC sparse matrices:
 function bfs(A::SparseMatrixCSC{Float64,Int64})
-    retrun bfs(MatrixNetwork(A))
+    return bfs(MatrixNetwork(A))
 end
 
 function bfs(A::SparseMatrixCSC{Float64,Int64},u::Int64)
