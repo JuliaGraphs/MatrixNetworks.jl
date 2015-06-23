@@ -1,6 +1,5 @@
 # TODO: more testing and check documentation
 # TODO: add more examples
-include("MatrixNetwork.jl")
 """
 BFS compute breadth first search distances and returns a distance (d), 
 the discover time(dt), predecessor array (pred) in the tuple (d,dt,pred).
@@ -70,23 +69,23 @@ function bfs(A::SparseMatrixCSC{Float64,Int64})
 end
 
 function bfs(A::SparseMatrixCSC{Float64,Int64},u::Int64)
-    retrun bfs(MatrixNetwork(A),u)
+    return bfs(MatrixNetwork(A),u)
 end
 
 ## Triplet Format:
 function bfs(ei::Vector{Int64},ej::Vector{Int64})
-    retrun bfs(MatrixNetwork(ei,ej))
+    return bfs(MatrixNetwork(ei,ej))
 end
 
 function bfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64)
-    retrun bfs(MatrixNetwork(ei,ej),u)
+    return bfs(MatrixNetwork(ei,ej),u)
 end
 
 ## CSR sparse matrices:
 function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64)
-    retrun bfs(MatrixNetwork(n,rp,ci,vals))
+    return bfs(MatrixNetwork(n,rp,ci,vals))
 end
 
 function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64,u::Int64)
-    retrun bfs(MatrixNetwork(n,rp,ci,vals),u)
+    return bfs(MatrixNetwork(n,rp,ci,vals),u)
 end
