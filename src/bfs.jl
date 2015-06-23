@@ -2,9 +2,6 @@
 # TODO: add more examples
 
 """
-Example
--------
-
 BFS compute breadth first search distances and returns a distance (d), 
 the discover time(dt), predecessor array (pred) in the tuple (d,dt,pred).
 pred[i] = 0 if vertex i is in a component not reachable from u and i != u.
@@ -14,17 +11,16 @@ bfs(MatrixNetwork(sprand(5,4,0.5)),1,6)\n
 (d,dt,pred) = bfs(A,u,v) # search stops when it hits the vertex v\n
 (d,dt,pred) = bfs(A,u)\n
 
+Example
+-------
+
 using MAT
 
-file_path = Pkg.dir("MatrixNetworks/data/bfs_example.mat")
+file_path = Pkg.dir("MatrixNetworks/data/bfs_example.smat")
 
-file = matopen(file_path)
+A = readSMAT(file_path)
 
-A = read(file,"A")
-
-close(file)
-
-bfs(MatrixNetwork(A),1)
+return bfs(MatrixNetwork(A),1)
 """
 
 function bfs(A::MatrixNetwork,u::Int64)
