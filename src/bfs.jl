@@ -13,9 +13,6 @@ bfs(MatrixNetwork(sprand(5,4,0.5)),1,6)\n
 
 Example
 -------
-
-using MAT
-
 file_path = Pkg.dir("MatrixNetworks/data/bfs_example.smat")
 
 A = readSMAT(file_path)
