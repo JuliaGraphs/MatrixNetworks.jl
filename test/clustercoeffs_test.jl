@@ -1,9 +1,7 @@
-using MAT
+include("../src/readSMAT.jl")
 function clustercoeffs_test()
-    file_path = Pkg.dir("MatrixNetworks/data/clique-10.mat")
-    file = matopen(file_path)
-    A = read(file,"A")
-    close(file)
+    file_path = Pkg.dir("MatrixNetworks/data/clique-10.smat")
+    A = readSMAT(file_path)
     cc = clustercoeffs(MatrixNetwork(A))
     return cc;
 end

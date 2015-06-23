@@ -1,4 +1,3 @@
-using MAT
 function bipartite_matching_test()
     W = sprand(10,8,0.5)
     bipartite_matching(W)

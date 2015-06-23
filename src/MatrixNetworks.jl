@@ -39,11 +39,11 @@ export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs,
 corenums, scomponents, strong_components_map
 
 # examples:
-include("../test/bfs_test.jl")
-include("../test/bipartite_matching_test.jl")
-include("../test/clustercoeffs_test.jl")
-include("../test/corenums_test.jl")
-include("../test/dfs_test.jl")
+# include("../test/bfs_test.jl")
+# include("../test/bipartite_matching_test.jl")
+# include("../test/clustercoeffs_test.jl")
+# include("../test/corenums_test.jl")
+# include("../test/dfs_test.jl")
 # include("../test/scomponents_test.jl")
 
 # export test cases?

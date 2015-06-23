@@ -1,9 +1,7 @@
-using MAT
+include("../src/readSMAT.jl")
 function scomponents_test()
-    file_path = Pkg.dir("MatrixNetworks/data/core_examples.mat")
-    file = matopen(file_path)
-    A = read(file,"A")
-    close(file)
+    file_path = Pkg.dir("MatrixNetworks/data/core_examples.smat")
+    A = readSMAT(file_path)
     return scomponents(MatrixNetwork(A))
 #     scomponents(A).num
 #     scomponents(A).sizes

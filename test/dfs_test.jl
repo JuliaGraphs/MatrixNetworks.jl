@@ -1,8 +1,6 @@
-using MAT
+include("../src/readSMAT.jl")
 function dfs_test()
-    file_path = Pkg.dir("MatrixNetworks/data/dfs_example.mat")
-    file = matopen(file_path)
-    A = read(file,"A")
-    close(file)
+    file_path = Pkg.dir("MatrixNetworks/data/dfs_example.smat")
+    A = readSMAT(file_path)
     return (dfs(MatrixNetwork(A),1))
 end
