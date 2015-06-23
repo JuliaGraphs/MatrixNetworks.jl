@@ -1,5 +1,5 @@
-# TODO: more testing and check documentation
-# TODO: add more examples
+# TODO: more testing and better documentation
+# TODO: add more examples if needed
 
 """
 Example
