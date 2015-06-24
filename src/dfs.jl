@@ -1,40 +1,18 @@
-
-# Use the new docile convention
-# http://docilejl.readthedocs.org/en/latest/syntax/
-# TODO: more testing and check documentation
-# TODO: add more examples
-# TODO support struct
-
+# TODO: more testing and better documentation
 
 """
-Example
--------
-
-using MAT
-
-file_path = Pkg.dir("MatrixNetworks/data/dfs_example.mat")
-
-file = matopen(file_path)
-
-A = read(file,"A")
-
-close(file)
-
-dfs(MatrixNetwork(A),1)
-
 DFS compute depth first search distances and returns the distance (d), the discover (dt),
-the finish time(ft), and the predecessor array (pred) in the tuple (d,dt,ft, pred).
-
+the finish time(ft), and the predecessor array (pred) in the tuple (d,dt,ft, pred).\n
 pred[i] = 0 if vertex i is in a component not reachable from u and i != u.
 
 
-
-
+Example
+-------
+file_path = Pkg.dir("MatrixNetworks/data/dfs_example.smat")\n
+A = readSMAT(file_path)\n
+(d,dt,ft,pred) = dfs(MatrixNetwork(A),1)\n
+OR: (d,dt,ft,pred)  = dfs(A,1)
 """
-
-function dfs(A::MatrixNetwork,u::Int64)
-    return dfs(A,u,0,0);
-end
 
 function dfs(A::MatrixNetwork,u::Int64,full::Int64,target::Int64)
 
@@ -100,4 +78,38 @@ function dfs(A::MatrixNetwork,u::Int64,full::Int64,target::Int64)
     end
     return (d,dt,ft,pred)
 end
-    
+
+############################
+### Additional functions ###
+############################
+
+function dfs(A::MatrixNetwork,u::Int64)
+    return dfs(A,u,0,0);
+end
+
+## CSC sparse matrices:
+function dfs(A::SparseMatrixCSC{Float64,Int64},u::Int64)
+    return dfs(MatrixNetwork(A),u)
+end
+
+function bfs(A::SparseMatrixCSC{Float64,Int64},u::Int64,full::Int64,target::Int64)
+    return dfs(MatrixNetwork(A),u,full,target)
+end
+
+## Triplet Format:
+function dfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64)
+    return dfs(MatrixNetwork(ei,ej),u)
+end
+
+function dfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64,full::Int64,target::Int64)
+    return dfs(MatrixNetwork(ei,ej),u,full,target)
+end
+
+## CSR sparse matrices:
+function dfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64,u::Int64)
+    return dfs(MatrixNetwork(n,rp,ci,vals),u)
+end
+
+function dfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64,u::Int64,full::Int64,target::Int64)
+    return dfs(MatrixNetwork(n,rp,ci,vals),u,full,target)
+end

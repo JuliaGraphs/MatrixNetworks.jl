@@ -13,7 +13,7 @@ Example
 
 file_path = Pkg.dir("MatrixNetworks/data/cores_example.smat")\n
 A = readSMAT(file_path)\n
-(d,rt) = corenums(MatrixNetwork(A))
+(d,rt) = corenums(A)
 """
 
 function corenums(A::MatrixNetwork)
