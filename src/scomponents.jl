@@ -9,7 +9,7 @@ Example
 - file_path = Pkg.dir("MatrixNetworks/data/cores_example.smat")
 - A = readSMAT(file_path)
 - cc = scomponents(A)
-- scomponents(A).num
+- scomponents(A).number
 - scomponents(A).sizes
 - scomponents(A).map
 - strong_components_map(A)     # if you just want the map
@@ -157,6 +157,19 @@ scomponents(ei::Vector{Int64},ej::Vector{Int64}) = scomponents(MatrixNetwork(ei,
 # CSR
 scomponents(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64) = scomponents(MatrixNetwork(n,rp,ci,vals))
 
+
+########################################################
+##    Conversion Functions for strong_components_map   #
+########################################################
+# CSC:
+strong_components_map(A::SparseMatrixCSC{Float64,Int64}) 
+                                       = strong_components_map(MatrixNetwork(A))
+# Triplet:
+strong_components_map(ei::Vector{Int64},ej::Vector{Int64}) 
+                                       = strong_components_map(MatrixNetwork(ei,ej))
+# CSR
+strong_components_map(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64) 
+                                       = strong_components_map(MatrixNetwork(n,rp,ci,vals))
 
 """ 
 This function adds the following helpers variables
