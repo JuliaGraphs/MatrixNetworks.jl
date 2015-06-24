@@ -38,7 +38,7 @@ include("readSMAT.jl")
 
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
-corenums, scomponents, strong_components_map, readSMAT
+corenums, scomponents, strong_components_map, readSMAT, enrich
 
 # examples:
 # include("../test/bfs_test.jl")
