@@ -50,7 +50,7 @@ strong_components_map(A)     # if you just want the map
 enrich(cc) # produce additional enriched output
 ```
 
-Can work on ei,ej:\n
+Can work on ei,ej:
 ```
 ei = [1;2;3]
 ej = [2;4;1]
