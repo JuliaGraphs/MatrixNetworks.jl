@@ -38,3 +38,22 @@ MatrixNetworks.edge_list(bipartite_matching(W)) # get the edgelist
 MatrixNetworks.edge_indicator(M_out,ei,ej)
 ```
 
+### scomponents:
+```
+file_path = Pkg.dir("MatrixNetworks/data/cores_example.smat")
+A = readSMAT(file_path)
+cc = scomponents(A)
+cc.number
+cc.sizes
+cc.map
+strong_components_map(A)     # if you just want the map
+enrich(cc) # produce additional enriched output
+```
+
+Can work on ei,ej:\n
+```
+ei = [1;2;3]
+ej = [2;4;1]
+scomponents(ei,ej)
+```
+
