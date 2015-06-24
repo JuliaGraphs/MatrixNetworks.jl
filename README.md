@@ -29,12 +29,12 @@ cc = clustercoeffs(MatrixNetwork(A))
 ```
 ei = [1;2;3]
 ej = [3;2;4]
-M_out = bipartite_matching([10;12;13],ei,ej)\n
-M_out.weight\n
-M_out.cardinality\n
-M_out.match\n
-MatrixNetworks.create_sparse(bipartite_matching(W)) # get the sparse matrix\n
-MatrixNetworks.edge_list(bipartite_matching(W)) # get the edgelist\n
+M_out = bipartite_matching([10;12;13],ei,ej)
+M_out.weight
+M_out.cardinality
+M_out.match
+MatrixNetworks.create_sparse(bipartite_matching(W)) # get the sparse matrix
+MatrixNetworks.edge_list(bipartite_matching(W)) # get the edgelist
 MatrixNetworks.edge_indicator(M_out,ei,ej)
 ```
 
