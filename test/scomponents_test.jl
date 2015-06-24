@@ -1,6 +1,6 @@
 include("../src/readSMAT.jl")
 function scomponents_test()
-    file_path = Pkg.dir("MatrixNetworks/data/core_examples.smat")
+    file_path = Pkg.dir("MatrixNetworks/data/cores_example.smat")
     A = readSMAT(file_path)
     return scomponents(MatrixNetwork(A))
 #     scomponents(A).num

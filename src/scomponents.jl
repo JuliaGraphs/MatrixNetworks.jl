@@ -1,22 +1,33 @@
+# TODO: more testing and better documentation
 
-# Use the new docile convention
-# http://docilejl.readthedocs.org/en/latest/syntax/
-# TODO: more testing and check documentation
-# require("MatrixNetworks.jl")
 """
+Return information on the strongly connected components of a graph.
+The method used in Tarjan's algorithm.
+
 Example
 -------
-
-- `cc` = scomponents(A)
+- file_path = Pkg.dir("MatrixNetworks/data/cores_example.smat")
+- A = readSMAT(file_path)
+- cc = scomponents(A)
 - scomponents(A).num
 - scomponents(A).sizes
 - scomponents(A).map
 - strong_components_map(A)     # if you just want the map
 - enrich(scomponents(A)) # produce additional enriched output
 
-Return information on the strongly connected components of a graph.
-The method used in Tarjan's algorithm.
+Can work on ei,ej:\n
+Example:
+ei = [1;2;3]
+ej = [2;4;1]
+scomponents(ei,ej)
+
+Can work on sparse matrix A:
+Example
+A = sprand(5,5,0.5)
+scomponents(A)
+
 """
+
 :scomponents
 
 ###########################
@@ -120,26 +131,9 @@ function strong_components_map(A::MatrixNetwork)
     return sci
 end
 
-###############################
-##    Conversion Functions    #
-###############################
-
-"""
-Example
-A = sprand(5,5,0.5)
-MatrixNetworks.strong_components_map(A)
-"""
-strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
-
-"""
-Example:
-ei = [1;2;3]
-ej = [2;4;1]
-MatrixNetworks.strong_components_map(ei,ej)
-"""
-strong_components_map(ei,ej) = strong_components_map(MatrixNetwork(ei,ej))
-
-
+######################
+##    scomponents    #
+######################
 
 function scomponents(A::MatrixNetwork)
     map = strong_components_map(A)
@@ -155,7 +149,13 @@ end
 ###############################
 ##    Conversion Functions    #
 ###############################
-# TODO: double check output of enrich and scomponents
+
+# CSC:
+scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
+# Triplet:
+scomponents(ei::Vector{Int64},ej::Vector{Int64}) = scomponents(MatrixNetwork(ei,ej))
+# CSR
+scomponents(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64) = scomponents(MatrixNetwork(n,rp,ci,vals))
 
 
 """ 
@@ -172,7 +172,7 @@ function enrich(rval::strong_components_output)
     R = sparse(collect(1:rval.A.n),ci,1,rval.A.n,ncomp)
     A = SparseMatrixCSC(rval.A.n,rval.A.n,rval.A.rp,rval.A.ci,rval.A.vals)
     CG = R'*A'*R
-    return strong_components_rich_output(R,CG,CG)
+    return strong_components_rich_output(R,A,CG)
 end
 
 
