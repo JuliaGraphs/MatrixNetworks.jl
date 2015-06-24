@@ -16,7 +16,7 @@ A = readSMAT(file_path)\n
 
 function floydwarshall(A::MatrixNetwork)
 
-    (rp,ci,ai) = (A.rp,A.ci,A.vals)
+    (ri,ci,ai) = (A.rp,A.ci,A.vals)
     nz = length(ai)
     n = A.n
     D = Inf*ones(Float64,n,n)
