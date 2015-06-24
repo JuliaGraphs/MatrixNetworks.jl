@@ -3,6 +3,8 @@
 ## To install package:
 Pkg.clone("https://github.com/nassarhuda/MatrixNetworks.jl.git")
 
+https://travis-ci.org/nassarhuda/MatrixNetworks.jl.svg?branch=master
+
 using MatrixNetworks
 ## To be able to see documentation make sure package Lexicon is installed:
 Pkg.add("Lexicon")
