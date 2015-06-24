@@ -1,4 +1,4 @@
-[![Build Result] (https://travis-ci.org/nassarhuda/MatrixNetworks.jl.svg?branch=master)](https://travis-ci.org/nassarhuda/MatrixNetworks.jl.svg?branch=master)
+[![Build Result] (https://travis-ci.org/nassarhuda/MatrixNetworks.jl.svg?branch=master)](https://travis-ci.org/nassarhuda/MatrixNetworks.jl)
  
 
 # MatrixNetworks
