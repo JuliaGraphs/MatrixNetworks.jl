@@ -12,13 +12,13 @@ Example
 file_path = Pkg.dir("MatrixNetworks/data/all_shortest_paths_example.smat")\n
 A = readSMAT(file_path)\n
 (D,P) = floydwarshall(MatrixNetwork(A))\n
-OR: (d,dt,pred) = bfs(A,1)
 """
 
 function floydwarshall(A::MatrixNetwork)
 
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
     nz = length(ai)
+    n = A.n
     D = Inf*ones(Float64,n,n)
     
     #TODO: check: always compute P or give the option of just computing D?
