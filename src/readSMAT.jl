@@ -1,4 +1,4 @@
-function readSMAT(filename::ASCIIString)
+function readSMAT(filename::AbstractString)
     (rows,header) = readdlm(filename;header=true)
     A = sparse(
                convert(Array{Int64,1},rows[:,1])+1, 
