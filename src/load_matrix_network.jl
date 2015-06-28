@@ -45,7 +45,7 @@
 # end
 
 include("readSMAT.jl")
-function load_matrix_network(name::ASCIIString)
+function load_matrix_network(name::AbstractString)
     basename = joinpath(Pkg.dir("MatrixNetworks"),"data")
     smatfile = joinpath(basename,"$(name).smat")
     meta_xy = joinpath(basename,"metadata","$(name).xy.smat")
@@ -53,7 +53,7 @@ function load_matrix_network(name::ASCIIString)
     if isfile(smatfile)
         if isfile(meta_xy) && isfile(meta_labels)
             xy = readdlm(meta_xy)
-            labels = readdlm(meta_lables)
+            labels = readdlm(meta_labels)
             return (readSMAT(smatfile),xy,labels)
         else
             return readSMAT(smatfile)
