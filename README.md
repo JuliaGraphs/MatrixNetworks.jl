@@ -19,6 +19,16 @@ using Lexicon
 
 ## To run test cases:
 Pkg.test("MatrixNetworks")
+ 
+## Data available:
+### For a full list of all datasets
+```
+matrix_network_datasets()
+```
+### Loading data:
+```
+ load_matrix_network("clique-10")
+```
 
 ## Some examples:
 ### clustercoeffs
