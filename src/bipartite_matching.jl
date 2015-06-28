@@ -27,7 +27,7 @@ MatrixNetworks.edge_indicator(M_out,ei,ej)
 ###########################
 ##    Type Definitions    #
 ###########################
-type matching_setup
+type Matching_setup
     rp::Array{Int64,1}
     ci::Array{Int64,1}
     ai::Array{Float64,1}
@@ -36,7 +36,7 @@ type matching_setup
     n::Int64
 end
 
-type matching_output
+type Matching_output
     m::Int64
     n::Int64
     weight::Float64
@@ -103,7 +103,7 @@ function bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
         end # reset indicator
     end
     
-    M_setup = matching_setup(rp,ci,ai,[],m,n)
+    M_setup = Matching_setup(rp,ci,ai,[],m,n)
     return M_setup
 end
 
@@ -161,7 +161,7 @@ function bipartite_matching_setup{T}(x::Array{T,1},ei::Array{Int64,1},
             colind[ci[rpi]]=0 
         end # reset indicator
     end
-    M_setup = matching_setup(rp,ci,ai,tripi,m,n)
+    M_setup = Matching_setup(rp,ci,ai,tripi,m,n)
     return M_setup
 end
 
@@ -263,7 +263,7 @@ function bipartite_matching_primal_dual{T}(rp::Array{Int64,1}, ci::Array{Int64,1
         end
     end
 
-    M_output = matching_output(m,n,val,noute,match1)
+    M_output = Matching_output(m,n,val,noute,match1)
     return M_output
 end
 
@@ -321,7 +321,7 @@ Example:
 M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
 MatrixNetworks.edge_list(M_out)
 """
-function edge_list(M_output::matching_output)
+function edge_list(M_output::Matching_output)
     m1=zeros(Int64,M_output.cardinality)
     m2=zeros(Int64,M_output.cardinality)
     noute=1
@@ -342,7 +342,7 @@ Example:
 M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
 MatrixNetworks.create_sparse(M_out)
 """
-function create_sparse(M_output::matching_output)
+function create_sparse(M_output::Matching_output)
     (in,out) = edge_list(M_output)
     A = sparse(in,out,1,M_output.m,M_output.n)
     return A
@@ -352,7 +352,7 @@ end
 """
 Returns an edge indicator of a given matching indicator
 """
-function edge_indicator(M_output::matching_output, ei::Vector, ej::Vector)
+function edge_indicator(M_output::Matching_output, ei::Vector, ej::Vector)
     assert(length(ei) == length(ej))
     ind = BitArray{1}(length(ei))
     for i=1:length(ei)
