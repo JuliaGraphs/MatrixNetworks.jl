@@ -59,8 +59,8 @@ Example:
 """
 function strong_components_map(A::MatrixNetwork)
 
-	# TODO, remove the dt variable here
-	n=A.n
+    # TODO, remove the dt variable here
+    n=A.n
     sci=zeros(Int64,n)
     cn=1
     root=zeros(Int64,n)
