@@ -21,17 +21,17 @@ using Lexicon
 Pkg.test("MatrixNetworks")
  
 ## Data available:
-### For a full list of all datasets
+### For a full list of all datasets:
 ```
 matrix_network_datasets()
 ```
-### Loading data:
+### Loading data example:
 ```
  load_matrix_network("clique-10")
 ```
 
 ## Some examples:
-### clustercoeffs
+### clustercoeffs:
 ```
 file_path = Pkg.dir("MatrixNetworks/data/clique-10.smat")
 A = readSMAT(file_path)
