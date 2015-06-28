@@ -41,9 +41,9 @@ type Strong_components_output
 end
 
 type Strong_components_rich_output
-    reduction_matrix # the reduction matrix (restriction matrix)
-    transitive_order
-    transitive_map
+    reduction_matrix::SparseMatrixCSC{Int64,Int64} # the reduction matrix (restriction matrix)
+    transitive_order::SparseMatrixCSC{Int64,Int64}
+    transitive_map::SparseMatrixCSC{Int64,Int64}
 end
 
 ####################
