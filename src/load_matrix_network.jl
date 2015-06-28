@@ -44,7 +44,7 @@
 #                )
 # end
 
-include("readSMAT")
+include("readSMAT.jl")
 function load_matrix_network(name::ASCIIString)
     basename = joinpath(Pkg.dir("MatrixNetworks"),"data")
     smatfile = joinpath(basename,"$(name).smat")
