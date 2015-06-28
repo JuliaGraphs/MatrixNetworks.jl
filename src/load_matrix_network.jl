@@ -54,9 +54,9 @@ function load_matrix_network(name::ASCIIString)
         if isfile(meta_xy) && isfile(meta_labels)
             xy = readdlm(meta_xy)
             labels = readdlm(meta_lables)
-            return (readSMAT(basename),xy,labels)
+            return (readSMAT(smatfile),xy,labels)
         else
-            return readSMAT(basename)
+            return readSMAT(smatfile)
         end
     else
         error(@sprintf "The example datafile '%s' does not seem to exist where it should\n" name)
