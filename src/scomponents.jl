@@ -33,14 +33,14 @@ scomponents(A)
 ###########################
 ##    Type Definitions    #
 ###########################
-type strong_components_output
-    map    # The indicator map
-    sizes  # Array of sizes corresponding to map
-    number # Int64
-    A      # MatrixNetwork
+type Strong_components_output
+    map::Vector{Int64}    # The indicator map
+    sizes::Vector{Int64}  # Array of sizes corresponding to map
+    number::Int64         # Int64
+    A::MatrixNetwork      # MatrixNetwork
 end
 
-type strong_components_rich_output
+type Strong_components_rich_output
     reduction_matrix # the reduction matrix (restriction matrix)
     transitive_order
     transitive_map
@@ -156,7 +156,7 @@ function scomponents(A::MatrixNetwork)
         sizes[map[i]] += 1;
     end
     
-    return strong_components_output(map, sizes, number, A)
+    return Strong_components_output(map, sizes, number, A)
 end
 
 ###############################
@@ -177,14 +177,14 @@ This function adds the following helpers variables
 * transitive_map - a map to components that respects the transitive ordering
 * largest
 """
-function enrich(rval::strong_components_output)
+function enrich(rval::Strong_components_output)
     ci = rval.map
     sizes = rval.sizes
     ncomp = maximum(ci)
     R = sparse(collect(1:rval.A.n),ci,1,rval.A.n,ncomp)
     A = SparseMatrixCSC(rval.A.n,rval.A.n,rval.A.rp,rval.A.ci,rval.A.vals)
     CG = R'*A'*R
-    return strong_components_rich_output(R,A,CG)
+    return Strong_components_rich_output(R,A,CG)
 end
 
 
