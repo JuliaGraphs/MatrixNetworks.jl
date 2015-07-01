@@ -135,7 +135,7 @@ end
 ##    Conversion Functions for strong_components_map   #
 ########################################################
 # CSC:
-strong_components_map(A::SparseMatrixCSC{Float64,Int64}) = 
+strong_components_map{T}(A::SparseMatrixCSC{T,Int64}) = 
                                         strong_components_map(MatrixNetwork(A))
 # Triplet:
 strong_components_map(ei::Vector{Int64},ej::Vector{Int64}) = 
