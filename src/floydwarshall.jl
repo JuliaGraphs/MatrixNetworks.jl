@@ -35,7 +35,7 @@ function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
         end
     end
     
-    ids = sub2ind(n,1:n,1:n)
+    ids = sub2ind((n,n),1:n,1:n)
     D[ids] = 0 # set diagonal to 0
 
 #     for i=1:n
