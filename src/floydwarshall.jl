@@ -19,7 +19,7 @@ function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
     (ri,ci,ai) = findnz(A)
     nz = length(ai)
     n = A.n
-    D = Inf*ones(Float64,n,n)
+    D = Inf*ones(Int64,n,n)
     
     #TODO: check: always compute P or give the option of just computing D?
     
