@@ -42,7 +42,7 @@ include("matrix_network_datasets.jl")
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
 corenums, scomponents, strong_components_map, readSMAT, enrich,
-floydwarshall, load_matrix_network, matrix_network_datasets
+floydwarshall, load_matrix_network, matrix_network_datasets, load_matrix_network_metadata
 
 # examples:
 # include("../test/bfs_test.jl")

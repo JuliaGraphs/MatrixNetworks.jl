@@ -166,7 +166,7 @@ function bipartite_matching_setup{T}(x::Array{T,1},ei::Array{Int64,1},
 end
 
 function bipartite_matching_primal_dual{T}(rp::Array{Int64,1}, ci::Array{Int64,1}, 
-                    ai::Array{T,1}, tripi::Array{Int64,1}, m::Int64, n::Int64)
+                    ai::Array{T,1}, m::Int64, n::Int64)
     
     # variables used for the primal-dual algorithm
     alpha=zeros(Float64,m)
@@ -276,7 +276,7 @@ end
 function bipartite_matching{T}(A::SparseMatrixCSC{T,Int64})
     M_setup = bipartite_matching_setup(A)
     return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
-                                         M_setup.tripi, M_setup.m, M_setup.n)
+                                          M_setup.m, M_setup.n)
 end
 
 
@@ -284,14 +284,14 @@ function bipartite_matching{T}(w::Array{T,1},ei::Array{Int64,1},
                                         ej::Array{Int64,1},m::Int64,n::Int64)
     M_setup = bipartite_matching_setup(w,ei,ej,m,n)
     return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
-                                          M_setup.tripi, M_setup.m, M_setup.n)
+                                          M_setup.m, M_setup.n)
 end
 
 function bipartite_matching{T}(w::Array{T,1},ei::Array{Int64,1},
                                         ej::Array{Int64,1})
     M_setup = bipartite_matching_setup(w,ei,ej,maximum(ei),maximum(ej))
     return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
-                                          M_setup.tripi, M_setup.m, M_setup.n)
+                                          M_setup.m, M_setup.n)
 end
 
 ####################
@@ -307,7 +307,7 @@ function bipartite_matching_indicator{T}(w::Array{T,1},ei::Array{Int64,1},
                                         ej::Array{Int64,1})
     M_setup = bipartite_matching_setup(w, ei, ei, maximum(ei), maximum(ej))
     M_out = bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
-                                           M_setup.tripi, M_setup.m, M_setup.n)
+                                           M_setup.m, M_setup.n)
     return edge_indicator(M_out,ei, ej)
 end
 
