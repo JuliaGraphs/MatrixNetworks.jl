@@ -64,11 +64,11 @@ function bfs(A::MatrixNetwork,u::Int64)
 end
 
 ## CSC sparse matrices:
-function bfs(A::SparseMatrixCSC{Float64,Int64})
+function bfs{T}(A::SparseMatrixCSC{T,Int64})
     return bfs(MatrixNetwork(A))
 end
 
-function bfs(A::SparseMatrixCSC{Float64,Int64},u::Int64)
+function bfs{T}(A::SparseMatrixCSC{T,Int64},u::Int64)
     return bfs(MatrixNetwork(A),u)
 end
 
@@ -82,10 +82,10 @@ function bfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64)
 end
 
 ## CSR sparse matrices:
-function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64)
+function bfs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64)
     return bfs(MatrixNetwork(n,rp,ci,vals))
 end
 
-function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64,u::Int64)
+function bfs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,u::Int64)
     return bfs(MatrixNetwork(n,rp,ci,vals),u)
 end
