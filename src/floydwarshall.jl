@@ -53,7 +53,7 @@ function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
         end
     end
     
-    if any(diag(D))<0
+    if any(find(diag(D)).<0)
         warn("floydwarshall:negativeCycle","negative weight cycle detected")
     end
     
