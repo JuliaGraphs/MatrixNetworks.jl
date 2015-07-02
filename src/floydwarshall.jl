@@ -14,9 +14,9 @@ A = readSMAT(file_path)\n
 (D,P) = floydwarshall(MatrixNetwork(A))\n
 """
 
-function floydwarshall(A::MatrixNetwork)
+function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
 
-    (ri,ci,ai) = (A.rp,A.ci,A.vals)
+    (ri,ci,ai) = findnz(A)
     nz = length(ai)
     n = A.n
     D = Inf*ones(Float64,n,n)
