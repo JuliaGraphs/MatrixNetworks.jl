@@ -30,7 +30,6 @@ end
 
 function floydwarshall_phase2{T}(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{T})
 
-    (ri,ci,ai) = findnz(A)
     nz = length(ai)
     n = A.n
     D = Inf*ones(Int64,n,n)
