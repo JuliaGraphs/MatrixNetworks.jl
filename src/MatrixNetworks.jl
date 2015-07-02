@@ -18,7 +18,7 @@ MatrixNetworks
 
 include("MatrixNetwork.jl")
 
-function MatrixNetwork(A::SparseMatrixCSC{Float64,Int64})
+function MatrixNetwork{T}(A::SparseMatrixCSC{T,Int64})
     At = A'
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
@@ -34,10 +34,8 @@ include("bfs.jl")
 include("dfs.jl")
 include("clustercoeffs.jl")
 include("corenums.jl")
-include("readSMAT.jl")
 include("floydwarshall.jl")
-include("load_matrix_network.jl")
-include("matrix_network_datasets.jl")
+include("manage_data.jl")
 
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
@@ -51,8 +49,7 @@ floydwarshall, load_matrix_network, matrix_network_datasets, load_matrix_network
 # include("../test/corenums_test.jl")
 # include("../test/dfs_test.jl")
 # include("../test/scomponents_test.jl")
-
-# export test cases?
+# export test cases
 # export bfs_test
 
 end # end module

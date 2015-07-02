@@ -1,4 +1,15 @@
-include("readSMAT.jl")
+function readSMAT(filename::AbstractString)
+    (rows,header) = readdlm(filename;header=true)
+    A = sparse(
+               convert(Array{Int64,1},rows[1:parse(Int,header[3]),1])+1, 
+               convert(Array{Int64,1},rows[1:parse(Int,header[3]),2])+1, 
+               rows[1:parse(Int,header[3]),3],
+               parse(Int,header[1]), 
+               parse(Int,header[2])
+               )
+    return A
+end
+
 function load_matrix_network(name::AbstractString)
     basename = joinpath(Pkg.dir("MatrixNetworks"),"data")
     smatfile = joinpath(basename,"$(name).smat")
@@ -24,3 +35,14 @@ function load_matrix_network_metadata(name::AbstractString)
         error(@sprintf "The example datafile '%s' does not seem to exist where it should\n" name)
     end
 end
+
+function matrix_network_datasets()
+    datasets_location = joinpath(Pkg.dir("MatrixNetworks"),"data")
+    content = readdir(datasets_location)
+    smat_files = filter(x->contains(x,".smat"),content)
+    for i = 1:length(smat_files)
+        smat_files[i] = smat_files[i][1:end-5]
+    end
+    return smat_files
+end
+

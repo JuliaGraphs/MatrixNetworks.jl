@@ -103,7 +103,7 @@ end
 ### Additional functions ###
 ############################
 # sparse matrices:
-function clustercoeffs(A::SparseMatrixCSC{Float64,Int64},weighted::Bool,normalized::Bool)
+function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
     donorm = true
     usew = true
     if !normalized
@@ -178,7 +178,7 @@ function clustercoeffs(A::SparseMatrixCSC{Float64,Int64},weighted::Bool,normaliz
     return cc
 end
 
-function clustercoeffs(A::SparseMatrixCSC{Float64,Int64})
+function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
     return clustercoeffs(A, true, true);
 end
 
@@ -192,10 +192,10 @@ function clustercoeffs(ei::Vector{Int64},ej::Vector{Int64},weighted::Bool,normal
 end
 
 ## CSR sparse matrices:
-function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64)
-    return bfs(MatrixNetwork(n,rp,ci,vals))
+function clustercoeffs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64)
+    return clustercoeffs(MatrixNetwork(n,rp,ci,vals))
 end
 
-function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64,weighted::Bool,normalized::Bool)
-    return bfs(MatrixNetwork(n,rp,ci,vals),weighted,normalized)
+function clustercoeffs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,weighted::Bool,normalized::Bool)
+    return clustercoeffs(MatrixNetwork(n,rp,ci,vals),weighted,normalized)
 end

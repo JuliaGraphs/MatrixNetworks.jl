@@ -90,7 +90,7 @@ end
 ############################
 
 ## CSC:
-function corenums(A::SparseMatrixCSC{Float64,Int64})
+function corenums{T}(A::SparseMatrixCSC{T,Int64})
     return corenums(MatrixNetwork(A))
 end
 
@@ -100,6 +100,6 @@ function corenums(ei::Vector{Int64},ej::Vector{Int64})
 end
 
 ## CSR sparse matrices:
-function corenums(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64)
+function corenums{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64)
     return corenums(MatrixNetwork(n,rp,ci,vals))
 end

@@ -55,7 +55,7 @@ end
 Return information on the strongly connected components of a graph that 
 is the minimum required computation.
 Example:
-``strong_components_map(MatrixNetwork(sprand(5,4,0.5)))``	
+``strong_components_map(MatrixNetwork(sprand(5,4,0.1)))``	
 """
 function strong_components_map(A::MatrixNetwork)
 
@@ -141,7 +141,7 @@ strong_components_map{T}(A::SparseMatrixCSC{T,Int64}) =
 strong_components_map(ei::Vector{Int64},ej::Vector{Int64}) = 
                                         strong_components_map(MatrixNetwork(ei,ej))
 # CSR
-strong_components_map(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64) = 
+strong_components_map{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) = 
                                         strong_components_map(MatrixNetwork(n,rp,ci,vals))
 
 ######################
@@ -164,11 +164,11 @@ end
 ###############################
 
 # CSC:
-scomponents(A::SparseMatrixCSC{Float64,Int64}) = scomponents(MatrixNetwork(A))
+scomponents{T}(A::SparseMatrixCSC{T,Int64}) = scomponents(MatrixNetwork(A))
 # Triplet:
 scomponents(ei::Vector{Int64},ej::Vector{Int64}) = scomponents(MatrixNetwork(ei,ej))
 # CSR
-scomponents(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{Float64},n::Int64) = scomponents(MatrixNetwork(n,rp,ci,vals))
+scomponents{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) = scomponents(MatrixNetwork(n,rp,ci,vals))
 
 """ 
 This function adds the following helpers variables
