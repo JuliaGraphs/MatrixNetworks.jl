@@ -20,18 +20,17 @@ A = readSMAT(file_path)\n
 
 function floydwarshall_phase1(A::MatrixNetwork)
     (nzi,nzj,nzv) = csr_to_sprase(A.rp,A,ci,A.vals,A.n)
-    return (nzi,nzj,nzv)
+    return (nzi,nzj,nzv,A.n)
 end
 
 function floydwarshall_phase1{T}(A::SparseMatrixCSC{T,Int64})
     (ri,ci,ai) = findnz(A)
-    return (ri,ci,ai)
+    return (ri,ci,ai,A.n)
 end
 
-function floydwarshall_phase2{T}(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{T})
+function floydwarshall_phase2{T}(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{T},n::Int64)
 
     nz = length(ai)
-    n = A.n
     D = Inf*ones(Int64,n,n)
     
     #TODO: check: always compute P or give the option of just computing D?
