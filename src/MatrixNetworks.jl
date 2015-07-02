@@ -29,6 +29,7 @@ function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64})
 end
 
 include("scomponents.jl")
+include("csr_to_sparse.jl")
 include("bipartite_matching.jl")
 include("bfs.jl")
 include("dfs.jl")
@@ -40,7 +41,8 @@ include("manage_data.jl")
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
 corenums, scomponents, strong_components_map, readSMAT, enrich,
-floydwarshall, load_matrix_network, matrix_network_datasets, load_matrix_network_metadata
+floydwarshall, load_matrix_network, matrix_network_datasets, 
+load_matrix_network_metadata, csr_to_sparse
 
 # examples:
 # include("../test/bfs_test.jl")
