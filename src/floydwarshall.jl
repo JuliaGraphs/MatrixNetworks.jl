@@ -28,7 +28,7 @@ function floydwarshall_phase1{T}(A::SparseMatrixCSC{T,Int64})
     return (ri,ci,ai)
 end
 
-function floydwarshall_pahse2{T}(ri::Vector{Int64},ci::{Int64},ai::{T})
+function floydwarshall_pahse2{T}(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{T})
 
     (ri,ci,ai) = findnz(A)
     nz = length(ai)
