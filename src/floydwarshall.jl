@@ -11,10 +11,24 @@ Example
 -------
 file_path = Pkg.dir("MatrixNetworks/data/all_shortest_paths_example.smat")\n
 A = readSMAT(file_path)\n
-(D,P) = floydwarshall(MatrixNetwork(A))\n
+(D,P) = floydwarshall(A)\n
 """
+:floydwarshall
 
-function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
+
+## setup functions:
+
+function floydwarshall_phase1(A::MatrixNetwork)
+    (nzi,nzj,nzv) = csr_to_sprase(A.rp,A,ci,A.vals,A.n)
+    return (nzi,nzj,nzv)
+end
+
+function floydwarshall_phase1{T}(A::SparseMatrixCSC{T,Int64})
+    (ri,ci,ai) = findnz(A)
+    return (ri,ci,ai)
+end
+
+function floydwarshall_pahse2{T}(ri::Vector{Int64},ci::{Int64},ai::{T})
 
     (ri,ci,ai) = findnz(A)
     nz = length(ai)
@@ -57,5 +71,19 @@ function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
         warn("floydwarshall:negativeCycle","negative weight cycle detected")
     end
     
+    return (D,P)
+end
+
+
+## floyd warshall
+function floydwarshall(A::MatrixNetwork)
+    (nzi,nzj,nzv) = floydwarshall_phase1(A)
+    (D,P) = floydwarshall_phase2(nzi,nzj,nzv)
+    return (D,P)
+end
+
+function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
+    (nzi,nzj,nzv) = floydwarshall_phase1(A)
+    (D,P) = floydwarshall_phase2(nzi,nzj,nzv)
     return (D,P)
 end
