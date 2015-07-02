@@ -15,11 +15,11 @@ A = readSMAT(file_path)\n
 """
 :floydwarshall
 
-
+include("csr_to_sparse.jl")
 ## setup functions:
 
 function floydwarshall_phase1(A::MatrixNetwork)
-    (nzi,nzj,nzv) = csr_to_sprase(A.rp,A,ci,A.vals,A.n)
+    (nzi,nzj,nzv) = csr_to_sprase(A.rp,A.ci,A.vals,A.n)
     return (nzi,nzj,nzv,A.n)
 end
 
@@ -75,13 +75,13 @@ end
 
 ## floyd warshall
 function floydwarshall(A::MatrixNetwork)
-    (nzi,nzj,nzv) = floydwarshall_phase1(A)
-    (D,P) = floydwarshall_phase2(nzi,nzj,nzv)
+    (nzi,nzj,nzv,n) = floydwarshall_phase1(A)
+    (D,P) = floydwarshall_phase2(nzi,nzj,nzv,n)
     return (D,P)
 end
 
 function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
-    (nzi,nzj,nzv) = floydwarshall_phase1(A)
-    (D,P) = floydwarshall_phase2(nzi,nzj,nzv)
+    (nzi,nzj,nzv,n) = floydwarshall_phase1(A)
+    (D,P) = floydwarshall_phase2(nzi,nzj,nzv,n)
     return (D,P)
 end
