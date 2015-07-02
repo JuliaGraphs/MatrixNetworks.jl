@@ -19,7 +19,7 @@ include("csr_to_sparse.jl")
 ## setup functions:
 
 function floydwarshall_phase1(A::MatrixNetwork)
-    (nzi,nzj,nzv) = csr_to_sprase(A.rp,A.ci,A.vals,A.n)
+    (nzi,nzj,nzv) = csr_to_sparse(A.rp,A.ci,A.vals,A.n)
     return (nzi,nzj,nzv,A.n)
 end
 
