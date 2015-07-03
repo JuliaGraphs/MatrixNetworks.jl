@@ -3,6 +3,10 @@
 # TODO: more testing and check documentation
 
 """
+
+csr_to_sparse converts a matrix from compressed sparse row to a sparse matrix A
+it returns the arrays that feed the sparse function in julia.
+
 Example
 -------
 
@@ -21,13 +25,7 @@ A = sparse(nzi,nzj,nzv,length(rp)-1,maximum(ci))
 ##################
 #	Functions    #
 ##################
-
-"""
-csr_to_sparse converts a matrix from compressed sparse row to a sparse matrix A
-it returns the arrays that feed the sparse function in julia.
-"""
-:csr_to_sparse
-function csr_to_sparse{T}(rp::Array{Int64,1},ci::Array{Int64,1},ai::Array{T,1},varargin...)
+function csr_to_sparse{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T},varargin...)
     if length(varargin)==0
         nrows = length(rp)-1;
     else

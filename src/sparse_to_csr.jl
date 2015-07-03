@@ -3,6 +3,10 @@
 # TODO: more testing and check documentation
 
 """
+sparse_to_csr converts a sparse matrix into compressed row storage arrays
+and returns the row pointer (rp), column index (ci) and value index (ai) arrays 
+of a compressed sparse representation of the matrix A (or its triplet format storage)
+
 Example
 -------
 
@@ -18,12 +22,7 @@ v = [8;9;10];
 #################
 #   Functions   #
 #################
-"""
-sparse_to_csr converts a sparse matrix into compressed row storage arrays
-and returns the row pointer (rp), column index (ci) and value index (ai) arrays 
-of a compressed sparse representation of the matrix A (or its triplet format storage)
-"""
-:sparse_to_csr
+
 function sparse_to_csr{T}(A::SparseMatrixCSC{T,Int64})
     At = A';
     return (At.colptr,At.rowval,At.nzval,At.m);
