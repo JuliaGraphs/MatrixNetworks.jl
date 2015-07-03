@@ -29,7 +29,7 @@ function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64})
 end
 
 include("scomponents.jl")
-include("csr_to_sparse.jl")
+# include("csr_to_sparse.jl")
 # include("sparse_to_csr.jl")
 # include("bipartite_matching.jl")
 # include("bfs.jl")
