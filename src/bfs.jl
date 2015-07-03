@@ -16,7 +16,7 @@ A = readSMAT(file_path)\n
 OR: (d,dt,pred) = bfs(A,1)
 """
 
-function bfs(A::MatrixNetwork,u::Int64,v::Int64)
+function bfs(A::MatrixNetwork,u::Int64,t::Int64)
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1
     d=-1*ones(Int64,n)
@@ -46,7 +46,7 @@ function bfs(A::MatrixNetwork,u::Int64,v::Int64)
                 dt[w]=t
                 t=t+1
                 pred[w]=v
-                if w==v
+                if w==t
                     return (d,dt,pred)
                 end
             end
