@@ -7,7 +7,7 @@
 """
 Example: 
 A = load_matrix_network("dfs_example")
-(Acc,p) = larges_component(A)
+(Acc,p) = largest_component(A)
 """
 
 

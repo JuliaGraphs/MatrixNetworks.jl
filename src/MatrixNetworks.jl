@@ -38,14 +38,14 @@ include("clustercoeffs.jl")
 include("corenums.jl")
 include("floydwarshall.jl")
 include("manage_data.jl")
-include("largest_component.jl")
+# include("largest_component.jl")
 
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
 corenums, scomponents, strong_components_map, readSMAT, enrich,
 floydwarshall, load_matrix_network, matrix_network_datasets, 
-load_matrix_network_metadata, csr_to_sparse, sparse_to_csr,
-largest_component
+load_matrix_network_metadata, csr_to_sparse, sparse_to_csr
+# largest_component
 
 # examples:
 # include("../test/bfs_test.jl")
