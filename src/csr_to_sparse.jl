@@ -23,13 +23,21 @@ A = sparse(nzi,nzj,nzv,length(rp)-1,maximum(ci))
 ##################
 #	Functions    #
 ##################
-function csr_to_sparse{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T},varargin...)
-    if length(varargin)==0
-        nrows = length(rp)-1;
-    else
-        nrows = varargin[1];
+function csr_to_sparse{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T})
+    nrows = length(rp)-1
+    ncols = length(ci)
+    nzi = zeros(Int64,ncols)
+    for i=1:nrows
+        for j=rp[i]:rp[i+1]-1
+            nzi[j] = i;
+        end
     end
+    nzj = ci;
+    nzv = ai;
+    return (nzi,nzj,nzv)
+end 
 
+function csr_to_sparse{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T},nrows::Int64)
     ncols = length(ci);
     nzi = zeros(Int64,ncols);
     for i=1:nrows
