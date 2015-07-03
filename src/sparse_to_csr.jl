@@ -29,7 +29,7 @@ function sparse_to_csr{T}(A::SparseMatrixCSC{T,Int64})
 end
 
 function sparse_to_csr{T}(nzi::Array{Int64,1},nzj::Array{Int64,1},
-                            nzv::Array{T,1},varargin...) 
+                            nzv::Array{T,1}) 
     At = sparse(nzj,nzi,nzv)
     return (At.colptr,At.rowval,At.nzval,At.m)
 end
