@@ -33,8 +33,7 @@ matrix_network_datasets()
 ## Some examples:
 ### clustercoeffs:
 ```
-file_path = Pkg.dir("MatrixNetworks/data/clique-10.smat")
-A = readSMAT(file_path)
+A = load_matrix_network("clique-10")
 cc = clustercoeffs(MatrixNetwork(A))
 ```
 
@@ -53,8 +52,7 @@ MatrixNetworks.edge_indicator(M_out,ei,ej)
 
 ### scomponents:
 ```
-file_path = Pkg.dir("MatrixNetworks/data/cores_example.smat")
-A = readSMAT(file_path)
+A = load_matrix_network("cores_example")
 cc = scomponents(A)
 cc.number
 cc.sizes
