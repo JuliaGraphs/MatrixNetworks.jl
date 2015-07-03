@@ -31,20 +31,20 @@ end
 include("scomponents.jl")
 # include("csr_to_sparse.jl")
 # include("sparse_to_csr.jl")
-# include("bipartite_matching.jl")
-# include("bfs.jl")
-# include("dfs.jl")
-# include("clustercoeffs.jl")
-# include("corenums.jl")
-# include("floydwarshall.jl")
-# include("manage_data.jl")
-# include("largest_component.jl")
+include("bipartite_matching.jl")
+include("bfs.jl")
+include("dfs.jl")
+include("clustercoeffs.jl")
+include("corenums.jl")
+include("floydwarshall.jl")
+include("manage_data.jl")
+include("largest_component.jl")
 
-# export everything to make them accessible as functions
-# export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
-# corenums, scomponents, strong_components_map, readSMAT, enrich,
-# floydwarshall, load_matrix_network, matrix_network_datasets, 
-# load_matrix_network_metadata, csr_to_sparse, largest_component
+export everything to make them accessible as functions
+export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
+corenums, scomponents, strong_components_map, readSMAT, enrich,
+floydwarshall, load_matrix_network, matrix_network_datasets, 
+load_matrix_network_metadata, largest_component
 
 # examples:
 # include("../test/bfs_test.jl")
