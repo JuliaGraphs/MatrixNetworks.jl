@@ -65,7 +65,7 @@ function floydwarshall_phase2{T}(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{
         end
     end
     
-    if any(find(diag(D)).<0)
+    if any(diag(D).<0)
         warn("floydwarshall:negativeCycle","negative weight cycle detected")
     end
     
