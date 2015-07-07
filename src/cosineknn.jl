@@ -18,9 +18,9 @@ cosineknn compute the k-nearest neighbors similarity metric between the
 vertices of A or the upper half of a bipartite graph A
 """
 
-function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
-    (rp,ci,ai)=sparse_to_csr(A)
-    (rpt,cit,ait)=sparse_to_csr(A')
+function cosineknn{T}(A::SparseMatrixCSC{T,Int64},K::Int64)
+    (rp,ci,ai) = sparse_to_csr(A)
+    (rpt,cit,ait) = sparse_to_csr(A')
     (m,n) = size(A)
     # accumarray
     rn = zeros(Float64,maximum(cit))
@@ -28,14 +28,16 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
         rn[cit[i]] += ait[i]^2
     end
     rn = sqrt(rn)
-    rn[rn.>eps()] = 1./rn[rn>eps()] # do division once
+    
+    
+    rn[rn.>eps()] = 1./rn[rn.>eps()] # do division once
     
     si = zeros(Int64,m*K)
-    si = zeros(Int64,m*K)
-    sv = zeros(Int64,m*K)
+    sj = zeros(Int64,m*K)
+    sv = zeros(Float64,m*K)
     nused = 0
     
-    dwork = zeros(Int64,m)
+    dwork = zeros(Float64,m)
     iwork = zeros(Int64,m)
     iused = zeros(Int64,m)
     
@@ -53,9 +55,7 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
             # find all columns j in row i
             j = ci[ri]
             aij = ai[ri]*rn[i]
-            
             for rit = rpt[j]:rpt[j+1]-1
-            
                 # find all rows k in column j
                 k = cit[rit]
                 if k == i
@@ -64,7 +64,7 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
                 akj = ait[rit]*rn[k]
                 if iwork[k]>0
                     # we already have a non-zero between row i and row k
-                    dwork[iwork[k]] = dwork[iwork[k]] + aij*akj
+                    dwork[iwork[k]] += aij*akj
                 else
                     # we need to add a non-zero betwen row i and row k
                     curused = curused + 1
@@ -79,10 +79,10 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
         if curused < K
             sperm = 1:curused
         else
-            sperm = sortperm(dwork[1:curused])
+            sperm = sortperm(dwork[1:curused],rev=true)
         end
     
-        for k = 1:minimum(K,length(sperm))
+        for k = 1:min(K,length(sperm))
             nused = nused + 1
             si[nused] = i
             sj[nused] = iused[sperm[k]]
@@ -100,8 +100,7 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
     sj = sj[1:nused]
     sv = sv[1:nused]
     
-    S = sparse(si,sj,sv,n,n)
+    S = sparse(si,sj,sv,m,m)
     
     return S
-    
 end
