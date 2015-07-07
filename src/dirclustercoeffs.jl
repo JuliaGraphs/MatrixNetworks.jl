@@ -1,42 +1,35 @@
-function dirclustercoeffs(A,weighted,normalized)
-# % DIRCLUSTERCOEFFS Compute clustering coefficients for a directed graph
-# %
-# % cc=dirclustercoeffs(A) returns the directed clustering coefficients
-# % (which generalize the clustering coefficients of an undirected graph, 
-# % and so calling this function on an undirected graph will produce the same
-# % answer as clustercoeffs, but less efficiently.)
-# %
-# % This function implements the algorithm from Fagiolo, Phys Rev. E. 76
-# % 026107 (doi:10:1103/PhysRevE.76.026107).  
-# %
-# % [cc,cccyc,ccmid,ccin,ccout,nf]=dirclusteringcoeffs(A) returns different 
-# % components of the clustering coefficients corresponding to cycles,
-# % middles, in triangles, and out triangles.  See the manuscript for a 
-# % description of the various types of triangles counted in the above
-# % metrics.
-# %
-# % See also CLUSTERCOEFFS
-# %
-# % Example:
-# %   load_gaimc_graph('celegans'); % load the C elegans nervous system network
-# %   cc=dirclustercoeffs(A);
-# %   [maxval maxind]=max(cc)
-# %   labels(maxind) % most clustered vertex in the nervous system
-# 
-# % David F. Gleich
-# % Copyright, Stanford University, 2008-2009
-# 
-# % History
-# % 2008-04-22: Initial coding
-# % 2009-05-15: Documentation and example
-# 
-# #TODO: support MatrixNetworks
+# TODO: support MatrixNetworks
+# TODO: better test sample that involves the labels (refer to .m file)
+# TODO: support missing normalized and weighted variables
 # if ~exist('normalized','var') || isempty(normalized), normalized=true; end
 # if ~exist('weighted','var') || isempty(weighted), weighted=true; end
 
+"""
+DIRCLUSTERCOEFFS Compute clustering coefficients for a directed graph
+
+cc=dirclustercoeffs(A) returns the directed clustering coefficients
+(which generalize the clustering coefficients of an undirected graph, 
+and so calling this function on an undirected graph will produce the same
+answer as clustercoeffs, but less efficiently.)
+
+This function implements the algorithm from Fagiolo, Phys Rev. E. 76
+026107 (doi:10:1103/PhysRevE.76.026107).  
+
+(cc,cccyc,ccmid,ccin,ccout,nf) = dirclusteringcoeffs(A) returns different 
+components of the clustering coefficients corresponding to cycles,
+middles, in triangles, and out triangles.  See the manuscript for a 
+description of the various types of triangles counted in the above
+metrics.
+
+Example:
+  A = load_matrix_network("celegans") # load the C elegans nervous system network
+  (cc,cccyc,ccmid,ccin,ccout,nf) = dirclustercoeffs(A,true,true)
+"""
+
 ###########################
 ###########################
 
+function dirclustercoeffs(A,weighted,normalized)
     donorm = true
     usew = true
     
@@ -54,49 +47,32 @@ function dirclustercoeffs(A,weighted,normalized)
         (rp,ci) = sparse_to_csr(A)
         (cp,ri) = sparse_to_csr(A') 
     end
-     
-
-# if isstruct(A)
-#     rp=A.rp; ci=A.ci; %ofs=A.offset;
-#     cp=A.cp; ri=A.ri; % get 
-#     if usew, ai=A.ai; ati=A.ati; end
-# else
-#     if usew, [rp ci ai]=sparse_to_csr(A); [cp ri ati]=sparse_to_csr(A'); 
-#     else [rp ci]=sparse_to_csr(A);  [cp ri]=sparse_to_csr(A'); 
-#     end
+    
     if any(ai.<0)
         error("only positive edge weights allowed")
     end
-# end
 
-    n=length(rp)-1
+    n = length(rp)-1
     # initialize all the variables
-    
-    cc = zeros(Int64,n)
+    cc = zeros(Float64,n)
     ind = BitArray(n)
-    cache = zeros(Int64,n)
+    cache = zeros(Float64,n)
     degs = zeros(Int64,n)
-    cccyc = zeros(Int64,n)
-    ccmid = zeros(Int64,n)
-    ccin = zeros(Int64,n)
-    ccout = zeros(Int64,n)
+    cccyc = zeros(Float64,n)
+    ccmid = zeros(Float64,n)
+    ccin = zeros(Float64,n)
+    ccout = zeros(Float64,n)
     nf = zeros(Int64,n)
     
-#     false(n,1); cache=zeros(n,1); degs=zeros(n,1);
-# if nargout>1, cccyc=zeros(n,1); end
-# if nargout>2, ccmid=zeros(n,1); end
-# if nargout>3, ccin=zeros(n,1); end
-# if nargout>4, ccout=zeros(n,1); end
-# if nargout>5, nf=zeros(n,1); end
     # precompute degrees
     for v = 1:n
-        for rpi=rp[v]:rp[v+1]-1 
-            w=ci[rpi]
-            if v==w
-               continue
-            else 
-               degs[w] = degs[w] + 1
-               degs[v] = degs[v] + 1
+        for rpi = rp[v]:rp[v+1]-1
+            w = ci[rpi]
+            if v == w
+                continue
+            else
+                degs[w] = degs[w] + 1
+                degs[v] = degs[v] + 1
             end
         end
     end
@@ -118,134 +94,135 @@ function dirclustercoeffs(A,weighted,normalized)
             if usew
                 ew = ati[cpi]
             end
-        if v!=w
-           ind[w] = 1
-           cache[w] = ew^(1/3)
+            if v != w
+                ind[w] = 1
+                cache[w] = ew^(1/3)
+            end
         end
-    end
-    # count cycles (cycles are out->out->out)
-    for rpi = rp[v]:rp[v+1]-1
-        w = ci[rpi]
-        if v == w
-            continue
-        end # discount self-loop
-        if usew
-            ew = ai[rpi]^(1/3)
-        end
-        for rpi2 = rp[w]:rp[w+1]-1
-            x = ci[rpi2]
-            if x == w
+        # count cycles (cycles are out->out->out)
+        for rpi = rp[v]:rp[v+1]-1
+            w = ci[rpi]
+            if v == w
                 continue
+            end # discount self-loop
+            if usew
+                ew = ai[rpi]^(1/3)
             end
-            if x == v
-                bilatedges = bilatedges+1
+            for rpi2 = rp[w]:rp[w+1]-1
+                x = ci[rpi2]
+                if x == w
+                    continue
+                end
+                if x == v
+                    bilatedges = bilatedges + 1
+                    continue
+                end
+                if ind[x] == 1
+                    if usew
+                        ew2 = ai[rpi2]
+                    end
+                    curcccyc = curcccyc + ew*ew2^(1/3) * cache[x]
+                end
+            end
+        end
+        # count middle-man circuits (out->in->out)
+        for rpi = rp[v]:rp[v+1]-1
+            w = ci[rpi]
+            if v == w
                 continue
+            end # discount self-loop
+            if usew
+                ew = ai[rpi]^(1/3)
             end
-            if ind[x] == 1
-                if usew 
-                    ew2 = ai[rpi2]
+            for cpi = cp[w]:cp[w+1]-1
+                x=ri[cpi]
+                if x==w
+                    continue
                 end
-                curcccyc = curcccyc + ew*ew2^(1/3) * cache[x]
-            end
-        end
-    end
-    # count middle-man circuits (out->in->out)
-    for rpi=rp[v]:rp[v+1]-1
-        w=ci[rpi]
-        if v == w
-            continue
-        end # discount self-loop
-        if usew
-            ew = ai[rpi]^(1/3)
-        end
-        
-        for cpi = cp[w]:cp[w+1]-1
-            x=ri[cpi]
-            if x==w
-            continue
-            end
-            if ind[x]
-                if usew
-                ew2=ati[cpi]
+                if ind[x] == 1
+                    if usew
+                        ew2 = ati[cpi]
+                    end
+                    curccmid=curccmid+ew*ew2^(1/3)*cache[x]
                 end
-                curccmid=curccmid+ew*ew2^(1/3)*cache[x]
             end
         end
-    end
-    # count in-link circuits (in->out->out)
-    for cpi=cp[v]:cp[v+1]-1
-        w=ri[cpi] 
-        if v==w
-        continue
-        end # discount self-loop
-        if usew
-        ew=ati[cpi]^(1/3)
-        end
-        for rpi2=rp[w]:rp[w+1]-1
-            x=ci[rpi2] 
-            if x==w
-            continue
+        # count in-link circuits (in->out->out)
+        for cpi = cp[v]:cp[v+1]-1
+            w = ri[cpi]
+            if v == w
+                continue
+            end # discount self-loop
+            if usew
+                ew = ati[cpi]^(1/3)
             end
-            if ind[x]
-                if usew
-                ew2=ai[rpi2] end
-                curccin=curccin+ew*ew2^(1/3)*cache[x]
-            end
-        end
-    end
-    # reset and reinit the cache for outlinks
-    for cpi=cp[v]:cp[v+1]-1
-    w=ri[cpi]
-    ind[w]=0
-    end % reset indicator
-    
-    for rpi=rp[v]:rp[v+1]-1
-        w=ci[rpi] 
-        if usew
-        ew=ai[rpi]
-         end
-        if v!=w
-        ind[w]=1
-        cache[w]=ew^(1/3); end
-    end
-    # count out-link circuits (out->out->in)
-    for rpi=rp[v]:rp[v+1]-1
-        w=ci[rpi]
-        if v==w
-        continue
-        end # discount self-loop
-        if usew
-        ew=ai[rpi]^(1/3)
-        end
-        for rpi2=rp[w]:rp[w+1]-1
-            x=ci[rpi2] 
-            if x==w
-            continue
-            end
-            if ind[x]==1
-                if usew 
-                ew2=ai[rpi2]
+            for rpi2 = rp[w]:rp[w+1]-1
+                x = ci[rpi2]
+                if x == w
+                    continue
                 end
-                curccout=curccout+ew*ew2^(1/3)*cache[x]
+                if ind[x] == 1
+                    if usew
+                        ew2 = ai[rpi2]
+                    end
+                    curccin = curccin + ew*ew2^(1/3) * cache[x]
+                end
             end
         end
+        # reset and reinit the cache for outlinks
+        for cpi = cp[v]:cp[v+1]-1
+            w = ri[cpi]
+            ind[w]=0
+        end # reset indicator
+        for rpi = rp[v]:rp[v+1]-1
+            w = ci[rpi]
+            if usew
+                ew = ai[rpi]
+            end
+            if v != w
+                ind[w] = 1
+                cache[w] = ew^(1/3)
+            end
+        end
+        # count out-link circuits (out->out->in)
+        for rpi = rp[v]:rp[v+1]-1
+            w = ci[rpi]
+            if v == w
+                continue
+            end # discount self-loop
+            if usew
+                ew = ai[rpi]^(1/3)
+            end
+            for rpi2 = rp[w]:rp[w+1]-1
+                x = ci[rpi2]
+                if x == w
+                    continue
+                end
+                if ind[x] == 1
+                    if usew
+                        ew2 = ai[rpi2]
+                    end
+                    curccout = curccout+ew*ew2^(1/3) * cache[x]
+                end
+            end
+        end
+        for rpi = rp[v]:rp[v+1]-1
+            w = ci[rpi]
+            ind[w] = 0
+        end # reset indicator
+        # store the values
+        nf_a = degs[v]*(degs[v]-1) - 2*bilatedges
+        curcc = curcccyc + curccmid + curccin + curccout
+        if nf_a>0 && donorm
+            curcc = curcc/nf_a
+        end
+        cc[v] = curcc
+        cccyc[v] = curcccyc
+        ccmid[v] = curccmid
+        ccin[v] = curccin
+        ccout[v] = curccout
+        nf[v] = nf_a
+
     end
-    for rpi=rp[v]:rp[v+1]-1
-    w=ci[rpi]
-    ind[w)=0
-    end # reset indicator
-    # store the values
-    nf=degs[v]*(degs[v]-1) - 2*bilatedges;
-    curcc=curcccyc+curccmid+curccin+curccout;
-    if nf>0 && donorm
-    curcc=curcc/nf
-    end
-    cc[v]=curcc
-    cccyc[v]=curcccyc
-    ccmid[v]=curccmid
-    ccin[v]=curccin
-    ccout[v]=curccout
-    nf[v]=nf
-    
-    return(cc,cccyc,ccmid,ccin,ccout,nf)
+    return (cc,cccyc,ccmid,ccin,ccout,nf)
 end
