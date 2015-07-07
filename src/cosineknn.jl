@@ -96,9 +96,9 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},K::Int64)
         end
     end
     
-    si = si[1:nused]
-    sj = sj[1:nused]
-    sv = sv[1:nused]
+    ei = si[1:nused]
+    ej = sj[1:nused]
+    ev = sv[1:nused]
     
     S = sparse(si,sj,sv,m,m)
     
