@@ -64,7 +64,7 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
                 akj = ait[rit]*rn[k]
                 if iwork[k]>0
                     # we already have a non-zero between row i and row k
-                    dwork[iwork[k] = dwork[iwork[k]] + aij*akj
+                    dwork[iwork[k]] = dwork[iwork[k]] + aij*akj
                 else
                     # we need to add a non-zero betwen row i and row k
                     curused = curused + 1
