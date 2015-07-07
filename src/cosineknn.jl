@@ -12,7 +12,7 @@
 Example
 -------
 
-S = corenums(A)
+S = cosineknn(A)
 
 cosineknn compute the k-nearest neighbors similarity metric between the
 vertices of A or the upper half of a bipartite graph A

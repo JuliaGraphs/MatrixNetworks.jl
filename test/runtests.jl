@@ -4,7 +4,7 @@ using Compat
 using Lint
 
 all_tests = ["dfs_test", "bfs_test", "bipartite_matching_test", "clustercoeffs_test", 
-             "scomponents_test"]
+             "scomponents_test","corenums_test"]
 
 for t in all_tests
     test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", "$(t).jl")
