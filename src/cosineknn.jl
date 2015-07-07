@@ -28,7 +28,7 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},k::Int64)
         rn[cit[i]] += ait[i]^2
     end
     rn = sqrt(rn)
-    rn[rn.>eps()] = 1./rn[rn>eps(1)] # do division once
+    rn[rn.>eps()] = 1./rn[rn>eps()] # do division once
     
     si = zeros(Int64,m*K)
     si = zeros(Int64,m*K)
