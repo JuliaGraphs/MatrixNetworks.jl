@@ -20,7 +20,7 @@ function dijkstra{T}(A::SparseMatrixCSC{T,Int64},u::Int64)
     L = zeros(Int64,n)
     pred = zeros(Int64,length(rp)-1)
     
-    n=1
+    n = 1
     T[n] = u
     L[u] = n # oops, n is now the size of the heap
     
@@ -32,8 +32,8 @@ function dijkstra{T}(A::SparseMatrixCSC{T,Int64},u::Int64)
         T[1] = ntop
         L[ntop] = 1
         n = n - 1 # pop the head off the heap
-        k=1
-        kt=ntop # move element T[1] down the heap
+        k = 1
+        kt = ntop # move element T[1] down the heap
         while true
             i = 2*k
             if i > n
@@ -89,44 +89,45 @@ function dijkstra{T}(A::SparseMatrixCSC{T,Int64},u::Int64)
                         break
                     end          # end of heap
                     if i == n
-                    it = T[i]    # only one child, so skip
-                else            # pick the smallest child
-                    lc = T[i]
-                    rc = T[i+1]
-                    it = lc
-                    if d[rc] < d[lc]
-                        i = i+1
-                        it = rc
-                    end # right child is smaller
+                        it = T[i]    # only one child, so skip
+                    else            # pick the smallest child
+                        lc = T[i]
+                        rc = T[i+1]
+                        it = lc
+                        if d[rc] < d[lc]
+                            i = i+1
+                            it = rc
+                        end # right child is smaller
+                    end
+                    if d[kt] < d[it]
+                        break      # at correct place, so end
+                    else
+                        T[k] = it
+                        L[it] = k
+                        T[i] = kt
+                        L[kt] = i
+                        k = i # swap
+                    end
                 end
-                if d[kt] < d[it]
-                    break      # at correct place, so end
-                else
-                    T[k] = it
-                    L[it] = k
-                    T[i] = kt
-                    L[kt] = i
-                    k = i # swap
-                end
-            end
-            # move the element up the heap
-            j = k
-            tj = T[j]
-            while j > 1                      # j==1 => element at top of heap
-                j2 = int(floor(j/2))
-                tj2 = T[j2]    # parent element
-                if d[tj2] < d[tj]
-                    break      # parent is smaller, so done
-                else                         # parent is larger, so swap
-                    T[j2] = tj
-                    L[tj] = j2
-                    T[j] = tj2
-                    L[tj2] = j
-                    j=j2
+                # move the element up the heap
+                j = k
+                tj = T[j]
+                while j > 1                      # j==1 => element at top of heap
+                    j2 = int(floor(j/2))
+                    tj2 = T[j2]    # parent element
+                    if d[tj2] < d[tj]
+                        break      # parent is smaller, so done
+                    else                         # parent is larger, so swap
+                        T[j2] = tj
+                        L[tj] = j2
+                        T[j] = tj2
+                        L[tj2] = j
+                        j=j2
+                    end
                 end
             end
         end
     end
+    return (d,pred)
 end
-# end missing
-# [d pred]=
+
