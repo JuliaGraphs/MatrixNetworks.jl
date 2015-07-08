@@ -1,4 +1,4 @@
-function dijkstra{T}(A::SparseMatrixCSC{T,Int64},u::Int64)
+function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
 
 # 
 # if isstruct(A), 
