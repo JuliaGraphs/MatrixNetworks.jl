@@ -113,7 +113,7 @@ function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
                 j = k
                 tj = T[j]
                 while j > 1                      # j==1 => element at top of heap
-                    j2 = int(floor(j/2))
+                    j2 = round(Int,floor(j/2))
                     tj2 = T[j2]    # parent element
                     if d[tj2] < d[tj]
                         break      # parent is smaller, so done
