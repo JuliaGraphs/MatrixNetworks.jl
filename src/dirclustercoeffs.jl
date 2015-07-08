@@ -3,6 +3,16 @@
 # TODO: support missing normalized and weighted variables
 # if ~exist('normalized','var') || isempty(normalized), normalized=true; end
 # if ~exist('weighted','var') || isempty(weighted), weighted=true; end
+# if isstruct(A)
+#     rp=A.rp; ci=A.ci; %ofs=A.offset;
+#     cp=A.cp; ri=A.ri; % get 
+#     if usew, ai=A.ai; ati=A.ati; end
+# else
+#     if usew, [rp ci ai]=sparse_to_csr(A); [cp ri ati]=sparse_to_csr(A'); 
+#     else [rp ci]=sparse_to_csr(A);  [cp ri]=sparse_to_csr(A'); 
+#     end
+# end
+
 
 """
 DIRCLUSTERCOEFFS Compute clustering coefficients for a directed graph
@@ -29,7 +39,7 @@ Example:
 ###########################
 ###########################
 
-function dirclustercoeffs(A,weighted,normalized)
+function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
     donorm = true
     usew = true
     
