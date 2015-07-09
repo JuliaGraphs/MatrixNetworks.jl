@@ -1,4 +1,4 @@
-function mst_prim(A,full,u)
+function mst_prim(A::SparseMatrixCSC{Float64,Int64},full::Bool,u::Int64)
 
 # 
 # % David F. Gleich
@@ -115,7 +115,7 @@ function mst_prim(A,full,u)
                         kt = T[k]
                     end
                     # update the heap, move the element down in the heap
-                    while 1 && !onlyup
+                    while true && !onlyup
                         i = 2*k
                         if i > n
                             break
@@ -171,7 +171,7 @@ function mst_prim(A,full,u)
         end
     end
     ti = zeros(Int64,nmstedges)
-    tj = ti
+    tj = copy(ti)
     tv = zeros(Int64,nmstedges)
     k = 1
     for i = 1:nverts
