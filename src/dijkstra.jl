@@ -1,5 +1,6 @@
-function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
-
+#TODO: documentation
+#TODO: support different input
+#TODO: provide example
 # 
 # if isstruct(A), 
 #     rp=A.rp; ci=A.ci; ai=A.ai; 
@@ -8,6 +9,7 @@ function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
 #     ; check=1;
 # end
 
+function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
 
     (rp,ci,ai) = sparse_to_csr(A)
     if any(ai.<0)
