@@ -1,35 +1,31 @@
-function mst_prim(A::SparseMatrixCSC{Float64,Int64},full::Bool,u::Int64)
+"""
+MST_PRIM Compute a minimum spanning tree with Prim's algorithm
 
-# 
-# % David F. Gleich
-# % Copyright, Stanford University, 2008-2009
-# 
-# %  History:
-# %  2009-05-02: Added example
-# %  2009-11-25: Fixed bug with target 
-# 
-# % TODO: Add example
+T = mst_prim_matrix(A) computes a minimum spanning tree T using Prim's algorithm
+for the spanning tree of a graph with non-negative edge weights.
 
-# if ~exist('full','var') || isempty(full), full=0; end
-# if ~exist('u','var') || isempty(u), u=1; end
-# 
-# if isstruct(A), 
-#     rp=A.rp; ci=A.ci; ai=A.ai; 
-#     check=0;
-# else
-#     [rp ci ai]=sparse_to_csr(A); 
-#     check=1;
-# end
-# if check && any(ai)<0, error('gaimc:prim', ...
-#         'prim''s algorithm cannot handle negative edge weights.'); 
-# end
-# if check && ~isequal(A,A'), error('gaimc:prim', ...
-#         'prim''s algorithm requires an undirected graph.'); 
-# end
-# TODO: support different structure
-    (rp,ci,ai) = sparse_to_csr(A)
-    if !isequal(A,A')
-        error("matrix should be undirected")
+T = mst_prim_matrix(A,false) produces an MST for just the component at A containing
+vertex 1.  T = mst_prim_matrix(A,0,u) produces the MST for the component
+containing vertex u.
+
+(ti,tj,tv) = mst_prim(...) returns the edges from the matrix and does not
+convert to a sparse matrix structure.  This saves a bit of work and is
+required when there are 0 edge weights.
+
+Example:
+--------
+A = load_matrix_network("airports")
+A = -A #convert to travel time
+A = max(A,A')
+A = sparse(A)
+(ti,tj,tv) = mst_prim(A)
+
+"""
+function mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
+    
+    (rp,ci,ai) = (A.rp,A.ci,A.vals)
+    if any(ai.<0)
+        error("prim''s algorithm cannot handle negative edge weights.")
     end
     nverts = length(rp) - 1
     d = Inf*ones(Float64,nverts)
@@ -188,14 +184,32 @@ function mst_prim(A::SparseMatrixCSC{Float64,Int64},full::Bool,u::Int64)
             k = k + 1
         end
     end
-#     if nargout==1,
-#     T = sparse(ti,tj,tv,nverts,nverts);
-#     T = T + T';
-#     varargout{1} = T;
-# else
-#     varargout = {ti, tj, tv};
-# end
-    return (ti,tj,tv)
-    # create a helper function to do the sparse matrix as output
-end
+
+    return (ti,tj,tv,nverts)
     
+end
+
+### Support more input:
+mst_prim(A::MatrixNetwork) = mst_prim(A,false,1)
+mst_prim(A::MatrixNetwork,full::Bool) = mst_prim(A,full,1)
+
+### Support sparse matrices:
+
+mst_prim{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim(MatrixNetwork(A),full,1)
+mst_prim{T}(A::SparseMatrixCSC{T,Int64},full::Bool) = mst_prim(MatrixNetwork(A),full,1)
+mst_prim{T}(A::SparseMatrixCSC{T,Int64}) = mst_prim(MatrixNetwork(A),false,1)
+
+
+### Output modifiers:
+function mst_prim_matrix(A::MatrixNetwork,full::Bool,u::Int64)
+    (ti,tj,tv,nverts) = mst_prim(A,full,u)
+    T = sparse(ti,tj,tv,nverts,nverts)
+    T = T + T'
+    return T
+end
+mst_prim_matrix(A::MatrixNetwork) = mst_prim_matrix(A,false,1)
+mst_prim_matrix(A::MatrixNetwork,full::Bool) = mst_prim_matrix(A,full,1)
+
+mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim_matrix(MatrixNetwork(A),full,1)
+mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64},full::Bool) = mst_prim_matrix(MatrixNetwork(A),full,1)
+mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64}) = mst_prim_matrix(MatrixNetwork(A),false,1)
