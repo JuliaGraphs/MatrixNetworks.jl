@@ -7,7 +7,7 @@ all_tests = ["dfs", "bfs", "bipartite_matching", "clustercoeffs",
              "scomponents","corenums","mst_prim"]
 
 for t in all_tests
-    test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", join(["$(t)", "_test",".jl"])
+    test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", join(["$(t)", "_test",".jl"]))
     println("running $(test_path) ...")
     include(test_path)
 end
