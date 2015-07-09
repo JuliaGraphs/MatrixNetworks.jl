@@ -8,7 +8,7 @@ T = mst_prim_matrix(A,false) produces an MST for just the component at A contain
 vertex 1.  T = mst_prim_matrix(A,0,u) produces the MST for the component
 containing vertex u.
 
-(ti,tj,tv) = mst_prim(...) returns the edges from the matrix and does not
+(ti,tj,tv,nverts) = mst_prim(...) returns the edges from the matrix and does not
 convert to a sparse matrix structure.  This saves a bit of work and is
 required when there are 0 edge weights.
 
@@ -18,9 +18,9 @@ A = load_matrix_network("airports")
 A = -A #convert to travel time
 A = max(A,A')
 A = sparse(A)
-(ti,tj,tv) = mst_prim(A)
-
+(ti,tj,tv,nverts) = mst_prim(A)
 """
+:mst_prim
 function mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
     
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
@@ -195,7 +195,7 @@ mst_prim(A::MatrixNetwork,full::Bool) = mst_prim(A,full,1)
 
 ### Support sparse matrices:
 
-mst_prim{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim(MatrixNetwork(A),full,1)
+mst_prim{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim(MatrixNetwork(A),full,u)
 mst_prim{T}(A::SparseMatrixCSC{T,Int64},full::Bool) = mst_prim(MatrixNetwork(A),full,1)
 mst_prim{T}(A::SparseMatrixCSC{T,Int64}) = mst_prim(MatrixNetwork(A),false,1)
 
@@ -210,6 +210,6 @@ end
 mst_prim_matrix(A::MatrixNetwork) = mst_prim_matrix(A,false,1)
 mst_prim_matrix(A::MatrixNetwork,full::Bool) = mst_prim_matrix(A,full,1)
 
-mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim_matrix(MatrixNetwork(A),full,1)
+mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim_matrix(MatrixNetwork(A),full,u)
 mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64},full::Bool) = mst_prim_matrix(MatrixNetwork(A),full,1)
 mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64}) = mst_prim_matrix(MatrixNetwork(A),false,1)

@@ -3,11 +3,11 @@ using Base.Test
 using Compat
 using Lint
 
-all_tests = ["dfs_test", "bfs_test", "bipartite_matching_test", "clustercoeffs_test", 
-             "scomponents_test","corenums_test"]
+all_tests = ["dfs", "bfs", "bipartite_matching", "clustercoeffs", 
+             "scomponents","corenums","mst_prim"]
 
 for t in all_tests
-    test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", "$(t).jl")
+    test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", join(["$(t)", "_test",".jl"])
     println("running $(test_path) ...")
     include(test_path)
 end
