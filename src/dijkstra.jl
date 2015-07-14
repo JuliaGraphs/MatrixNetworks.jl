@@ -85,7 +85,7 @@ function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
                     kt = T[k]
                 end
                 # update the heap, move the element down in the heap
-                while true && !onlyup
+                while !onlyup
                     i = 2 * k
                     if i > n
                         break

@@ -1,16 +1,8 @@
-
-
-#####################
-#	Documentation 	#
-#####################
-
 """
 Example: 
 A = load_matrix_network("dfs_example")
 (Acc,p) = largest_component(A)
 """
-
-
 
 function largest_component{T}(A::SparseMatrixCSC{T,Int64})
     return largest_component(A,false)

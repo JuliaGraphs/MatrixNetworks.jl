@@ -32,7 +32,7 @@ function mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
     T = zeros(Int64,nverts)
     L = zeros(Int64,nverts)
     pred = zeros(Int64,length(rp)-1)
-    
+    v = T[1]
     # enter the main dijkstra loop
     for iter = 1:nverts
         if iter == 1
@@ -111,7 +111,7 @@ function mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
                         kt = T[k]
                     end
                     # update the heap, move the element down in the heap
-                    while true && !onlyup
+                    while !onlyup
                         i = 2*k
                         if i > n
                             break
