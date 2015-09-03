@@ -10,8 +10,8 @@
 """
 Example
 -------
-
-S = cosineknn(A)
+A = load_matrix_network("bfs_example")
+S = cosineknn(A,2)
 
 cosineknn compute the k-nearest neighbors similarity metric between the
 vertices of A or the upper half of a bipartite graph A
