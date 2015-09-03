@@ -17,14 +17,14 @@ cosineknn compute the k-nearest neighbors similarity metric between the
 vertices of A or the upper half of a bipartite graph A
 """
 
-function cosineknn{T}(A::SparseMatrixCSC{T,Int64})
+function cosineknn{T}(A::SparseMatrixCSC{T,Int64},K::Int64)
     (rp,ci,ai) = sparse_to_csr(A)
     (rpt,cit,ait) = sparse_to_csr(A')
     (m,n) = size(A)
-    return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m)
+    return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m,K)
 end
 
-function cosineknn(A::MatrixNetwork)
+function cosineknn(A::MatrixNetwork,K::Int64)
     # for the original matrix
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
     # for the transposed matrix:
@@ -35,7 +35,7 @@ function cosineknn(A::MatrixNetwork)
     At = MatrixNetwork(M)
     (rpt,cit,ait) = sparse_to_csr(At)
     m = A.n
-    return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m)
+    return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m,K)
 
 end
 
