@@ -2,7 +2,6 @@
 # http://docilejl.readthedocs.org/en/latest/syntax/
 # TODO: more testing and check documentation
 # TODO: add more examples
-# TODO support MatrixNetworks input
 # TODO support other similarity functions
 # TODO allow option for diagonal similarity too
 # TODO allow option for triplet output
@@ -22,6 +21,27 @@ function cosineknn{T}(A::SparseMatrixCSC{T,Int64},K::Int64)
     (rp,ci,ai) = sparse_to_csr(A)
     (rpt,cit,ait) = sparse_to_csr(A')
     (m,n) = size(A)
+    return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m)
+end
+
+function cosineknn(A::MatrixNetwork)
+    # for the original matrix
+    (rp,ci,ai) = (A.rp,A.ci,A.vals)
+    # for the transposed matrix:
+    M = sprand(A.n,A.n,0.0)
+    M.colptr = A.rp
+    M.rowval = A.ci
+    M.nzval = A.vals
+    At = MatrixNetwork(M)
+    (rpt,cit,ait) = sparse_to_csr(At)
+    m = A.n
+    return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m)
+
+end
+
+function cosineknn_internal(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{Float64},
+                rpt::Vector{Int64},cit::Vector{Int64},ait::Vector{Float64},m::Int64)
+
     # accumarray
     rn = zeros(Float64,maximum(cit))
     for i = 1:length(ait)

@@ -31,15 +31,15 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     end
 
     M = sprand(A.n,A.n,0.0)
-    M.colptr = A.rp;
-    M.rowval = A.ci;
-    M.nzval = A.vals;
+    M.colptr = A.rp
+    M.rowval = A.ci
+    M.nzval = A.vals
     
     if !(M' == M)
         error("Only undirected (symmetric) inputs are allowed")
     end
     
-    (rp,ci,ai) = (A.rp,A.ci,A.vals);
+    (rp,ci,ai) = (A.rp,A.ci,A.vals)
     if length(find(ai.<0)) != 0
         error("only positive edge weights allowed")
     end
