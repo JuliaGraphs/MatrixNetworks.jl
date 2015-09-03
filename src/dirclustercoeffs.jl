@@ -221,17 +221,17 @@ function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normaliz
             ind[w] = 0
         end # reset indicator
         # store the values
-        nf_a = degs[v]*(degs[v]-1) - 2*bilatedges
+        curnf = degs[v]*(degs[v]-1) - 2*bilatedges
         curcc = curcccyc + curccmid + curccin + curccout
-        if nf_a>0 && donorm
-            curcc = curcc/nf_a
+        if nf.>0 && donorm
+            curcc = curcc/curnf
         end
         cc[v] = curcc
         cccyc[v] = curcccyc
         ccmid[v] = curccmid
         ccin[v] = curccin
         ccout[v] = curccout
-        nf[v] = nf_a
+        nf[v] = curnf
 
     end
     return (cc,cccyc,ccmid,ccin,ccout,nf)

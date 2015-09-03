@@ -32,14 +32,14 @@ function mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
     T = zeros(Int64,nverts)
     L = zeros(Int64,nverts)
     pred = zeros(Int64,length(rp)-1)
-    v = T[1]
+    
     # enter the main dijkstra loop
     for iter = 1:nverts
         if iter == 1
             root = u
         else
             root = mod(u+iter-1,nverts) + 1
-            if L[v] > 0
+            if L[root] > 0
                 continue
             end
         end
