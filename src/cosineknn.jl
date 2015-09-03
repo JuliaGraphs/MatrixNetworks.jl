@@ -17,7 +17,7 @@ cosineknn compute the k-nearest neighbors similarity metric between the
 vertices of A or the upper half of a bipartite graph A
 """
 
-function cosineknn{T}(A::SparseMatrixCSC{T,Int64},K::Int64)
+function cosineknn{T}(A::SparseMatrixCSC{T,Int64})
     (rp,ci,ai) = sparse_to_csr(A)
     (rpt,cit,ait) = sparse_to_csr(A')
     (m,n) = size(A)
@@ -40,7 +40,7 @@ function cosineknn(A::MatrixNetwork)
 end
 
 function cosineknn_internal(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{Float64},
-                rpt::Vector{Int64},cit::Vector{Int64},ait::Vector{Float64},m::Int64)
+                rpt::Vector{Int64},cit::Vector{Int64},ait::Vector{Float64},m::Int64,K::Int64)
 
     # accumarray
     rn = zeros(Float64,maximum(cit))
