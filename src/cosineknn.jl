@@ -33,7 +33,7 @@ function cosineknn(A::MatrixNetwork,K::Int64)
     M.rowval = A.ci
     M.nzval = A.vals
     At = MatrixNetwork(M)
-    (rpt,cit,ait) = sparse_to_csr(At)
+    (rpt,cit,ait) = (At.rp,At.ci,At.vals)
     m = A.n
     return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m,K)
 
