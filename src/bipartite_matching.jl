@@ -354,10 +354,10 @@ Returns an edge indicator of a given matching indicator
 """
 function edge_indicator(M_output::Matching_output, ei::Vector, ej::Vector)
     assert(length(ei) == length(ej))
-    ind = BitArray{1}(length(ei))
+    ind = zeros(Int64,length(ei))
     for i=1:length(ei)
         if M_output.match[ei[i]] == ej[i]
-            ind[i] = true
+            ind[i] = 1
         end
     end
     return ind
