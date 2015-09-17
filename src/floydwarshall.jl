@@ -9,8 +9,7 @@ algorithm will throw an error. P is the matrix of predecessors.
 
 Example
 -------
-file_path = Pkg.dir("MatrixNetworks/data/all_shortest_paths_example.smat")\n
-A = readSMAT(file_path)\n
+A = load_matrix_network("all_shortest_paths_example")\n
 (D,P) = floydwarshall(A)\n
 """
 :floydwarshall
@@ -49,10 +48,6 @@ function floydwarshall_phase2{T}(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{
     
     ids = sub2ind((n,n),1:n,1:n)
     D[ids] = 0 # set diagonal to 0
-
-#     for i=1:n
-#         D[i,i] = 0
-#     end # set diagonal to 0
     
     for k=1:n
         for i=1:n

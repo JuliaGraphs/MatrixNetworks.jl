@@ -1,17 +1,5 @@
 # TODO: support MatrixNetworks
 # TODO: better test sample that involves the labels (refer to .m file)
-# TODO: support missing normalized and weighted variables
-# if ~exist('normalized','var') || isempty(normalized), normalized=true; end
-# if ~exist('weighted','var') || isempty(weighted), weighted=true; end
-# if isstruct(A)
-#     rp=A.rp; ci=A.ci; %ofs=A.offset;
-#     cp=A.cp; ri=A.ri; % get 
-#     if usew, ai=A.ai; ati=A.ati; end
-# else
-#     if usew, [rp ci ai]=sparse_to_csr(A); [cp ri ati]=sparse_to_csr(A'); 
-#     else [rp ci]=sparse_to_csr(A);  [cp ri]=sparse_to_csr(A'); 
-#     end
-# end
 
 
 """
@@ -39,6 +27,14 @@ Example:
 ###########################
 ###########################
 
+function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool)
+    return dirclustercoeffs(A,weighted,true)
+end
+
+function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
+    return dirclustercoeffs(A,true,true)
+end
+
 function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
     donorm = true
     usew = true
@@ -65,7 +61,7 @@ function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normaliz
     n = length(rp)-1
     # initialize all the variables
     cc = zeros(Float64,n)
-    ind = BitArray(n)
+    ind = zeros(Bool,n)
     cache = zeros(Float64,n)
     degs = zeros(Int64,n)
     cccyc = zeros(Float64,n)
@@ -223,7 +219,7 @@ function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normaliz
         # store the values
         curnf = degs[v]*(degs[v]-1) - 2*bilatedges
         curcc = curcccyc + curccmid + curccin + curccout
-        if all(nf.>0) && donorm
+        if curnf>0 && donorm
             curcc = curcc/curnf
         end
         cc[v] = curcc
