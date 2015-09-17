@@ -223,7 +223,7 @@ function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normaliz
         # store the values
         curnf = degs[v]*(degs[v]-1) - 2*bilatedges
         curcc = curcccyc + curccmid + curccin + curccout
-        if nf.>0 && donorm
+        if all(nf.>0) && donorm
             curcc = curcc/curnf
         end
         cc[v] = curcc
