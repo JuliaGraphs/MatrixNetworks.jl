@@ -43,7 +43,7 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     if length(find(ai.<0)) != 0
         error("only positive edge weights allowed")
     end
-    return clustercoeffs_setup(donorm,rp,ci,ai)
+    return clustercoeffs_phase2(donorm,rp,ci,ai)
 end
 
 function clustercoeffs_phase2(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
