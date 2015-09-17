@@ -48,7 +48,6 @@ end
 #   setup  funtions  #
 ######################
 
-
 function bipartite_matching_setup_phase1{T}(A::SparseMatrixCSC{T,Int64})
     (nzi,nzj,nzv) = findnz(A)
     return (nzi,nzj,nzv)
@@ -107,6 +106,7 @@ function bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
     return M_setup
 end
 
+
 function bipartite_matching_setup{T}(x::Array{T,1},ei::Array{Int64,1},
                                         ej::Array{Int64,1},m::Int64,n::Int64)
     (nzi,nzj,nzv) = (ei,ej,x)
@@ -164,6 +164,10 @@ function bipartite_matching_setup{T}(x::Array{T,1},ei::Array{Int64,1},
     M_setup = Matching_setup(rp,ci,ai,tripi,m,n)
     return M_setup
 end
+
+##################
+#   primal-dual  #
+##################
 
 function bipartite_matching_primal_dual{T}(rp::Array{Int64,1}, ci::Array{Int64,1}, 
                     ai::Array{T,1}, m::Int64, n::Int64)

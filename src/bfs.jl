@@ -10,8 +10,7 @@ Example:\n
 
 Example
 -------
-file_path = Pkg.dir("MatrixNetworks/data/bfs_example.smat")\n
-A = readSMAT(file_path)\n
+A = load_matrix_network("celegans")\n
 (d,dt,pred) = bfs(MatrixNetwork(A),1)\n
 OR: (d,dt,pred) = bfs(A,1)
 """

@@ -11,7 +11,7 @@ Module ``MatrixNetworks``: Documentation on the module
 
 - Option 1: start with a sparse matrix A:
 - example: ``M = MatrixNetwork(A)``
-- Option 2: start with row and column indexes for nonzeros in the matrix
+- Option 2: start with row and column indexes for the nonzeros in the matrix
 - example: ``M = MatrixNetwork(ei,ej)``
 """
 MatrixNetworks
@@ -45,21 +45,13 @@ include("dijkstra.jl")
 include("mst_prim.jl")
 
 # export everything to make them accessible as functions
-export MatrixNetwork, bipartite_matching, bfs, dfs, clustercoeffs, 
+export MatrixNetwork, bipartite_matching, edge_indicator, 
+bipartite_matching_setup, bfs, dfs, clustercoeffs, 
 corenums, scomponents, strong_components_map, readSMAT, enrich,
 load_matrix_network, matrix_network_datasets, csr_to_sparse,
 load_matrix_network_metadata, floydwarshall, largest_component,
 sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim,
 mst_prim_matrix
 
-# examples:
-# include("../test/bfs_test.jl")
-# include("../test/bipartite_matching_test.jl")
-# include("../test/clustercoeffs_test.jl")
-# include("../test/corenums_test.jl")
-# include("../test/dfs_test.jl")
-# include("../test/scomponents_test.jl")
-# export test cases
-# export bfs_test
 
 end # end module

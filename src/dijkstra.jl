@@ -1,13 +1,6 @@
 #TODO: documentation
 #TODO: support different input
-#TODO: provide example
-# 
-# if isstruct(A), 
-#     rp=A.rp; ci=A.ci; ai=A.ai; 
-#     check=0;
-# else
-#     ; check=1;
-# end
+#TODO: provide example and documentation
 
 function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
 
