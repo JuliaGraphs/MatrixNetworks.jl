@@ -1,4 +1,4 @@
-# TODO: support MatrixNetworks
+# TODO: support MatrixNetwork input
 # TODO: better test sample that involves the labels (refer to .m file)
 
 
@@ -20,8 +20,10 @@ description of the various types of triangles counted in the above
 metrics.
 
 Example:
-  A = load_matrix_network("celegans") # load the C elegans nervous system network
-  (cc,cccyc,ccmid,ccin,ccout,nf) = dirclustercoeffs(A,true,true)
+  (A,xy,labels) = load_matrix_network_metadata("celegans"); # load the C elegans nervous system network\n
+  (cc, cccyc, ccmid, ccin, ccout, nf) = dirclustercoeffs(A, true, true);\n
+  (maxval, maxind) = findmax(cc);\n
+  labels[maxind]
 """
 
 ###########################

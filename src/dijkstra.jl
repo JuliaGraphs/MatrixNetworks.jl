@@ -1,10 +1,43 @@
 #TODO: documentation
-#TODO: support different input
 #TODO: provide example and documentation
 
-function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
+"""
+DIJKSTRA documentation here
 
+Example
+-------
+
+# Find the minimum travel time between Los Angeles (LAX) and
+# Rochester Minnesota (RST).
+
+(A,xy,labels) = load_matrix_network_metadata("airports");\n
+A = -A; # fix funny encoding of airport data\n
+lax = 247; rst = 355;\n
+(d,pred) = dijkstra(A,lax);\n
+@printf("Minimum time: %d\n",d[rst]); #Print the path\n
+@printf("Path:\n");\n
+u = rst;\n
+while(u != lax)\n
+    @printf("%s <-- ", labels[u])\n
+    u = pred[u];\n
+    if (u == lax)\n
+        @printf("%s\n", labels[lax])\n
+    end\n
+end
+"""
+
+function dijkstra(A::MatrixNetwork,u::Int64)
+    (rp,ci,ai) = (A.rp, A.ci, A.vals)
+    return dijkstra_internal(rp,ci,ai,u)
+end
+
+function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
     (rp,ci,ai) = sparse_to_csr(A)
+    return dijkstra_internal(rp,ci,ai,u)
+end
+
+function dijkstra_internal{F}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{F},u::Int64)
+
     if any(ai.<0)
         error("dijkstra''s algorithm cannot handle negative edge weights")
     end

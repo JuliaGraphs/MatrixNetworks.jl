@@ -11,8 +11,7 @@ whether the computation has to be weighted and/or normalized.\n
 Example
 -------
 
-file_path = Pkg.dir("MatrixNetworks/data/clique-10.smat")\n
-A = readSMAT(file_path)\n
+A = load_matrix_network("clique-10")\n
 cc = clustercoeffs(MatrixNetwork(A))
 """
 
@@ -43,11 +42,11 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     if length(find(ai.<0)) != 0
         error("only positive edge weights allowed")
     end
-    return clustercoeffs_phase2(donorm,rp,ci,ai)
+    return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
 end
 
 function clustercoeffs_phase2(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
-                                          ai::Vector{Float64})
+                                          ai::Vector{Float64},usew::Bool)
     n = length(rp) - 1
     cc = zeros(Float64,n)
     # ind = falses(n,1)
@@ -126,7 +125,7 @@ function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized:
     if length(find(ai.<0)) != 0
         error("only positive edge weights allowed")
     end
-    return clustercoeffs_setup(donorm,rp,ci,ai)
+    return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
 end
 
 function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
