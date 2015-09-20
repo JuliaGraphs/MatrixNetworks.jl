@@ -1,22 +1,4 @@
 """
-MST_PRIM
---------
-compute a minimum spanning tree with Prim's algorithm.\n
-T = mst_prim_matrix(A) computes a minimum spanning tree T using Prim's algorithm
-for the spanning tree of a graph with non-negative edge weights.
-
-T = mst_prim_matrix(A,false) produces an MST for just the component at A containing
-vertex 1.  T = mst_prim_matrix(A,0,u) produces the MST for the component
-containing vertex u.
-
-(ti,tj,tv,nverts) = mst_prim(A) returns the edges from the matrix and does not
-convert to a sparse matrix structure.  This saves a bit of work and is
-required when there are 0 edge weights.
-
-Functions
----------
-- (ti,tj,tv,nverts) = mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
-"""
 SCOMPONENTS
 -----------
 compute the strongly connected components of a graph
@@ -40,22 +22,25 @@ Functions
 
 Example
 -------
-A = load_matrix_network("cores_example")
-cc = scomponents(A)
-scomponents(A).number
-scomponents(A).sizes
-scomponents(A).map
+A = load_matrix_network("cores_example")\\
+cc = scomponents(A)\n
+scomponents(A).number   
+
+scomponents(A).sizes      
+
+scomponents(A).map  
+
 strong_components_map(A)     # if you just want the map
 enrich(scomponents(A)) # produce additional enriched output
 
 Can work on ei,ej\n
 ei = [1;2;3]
 ej = [2;4;1]
-scomponents(ei,ej)
+cc = scomponents(ei,ej)
 
 Can work on sparse matrix A\n
 A = sprand(5,5,0.5)
-scomponents(A)
+cc = scomponents(A)
 """
 
 :scomponents
