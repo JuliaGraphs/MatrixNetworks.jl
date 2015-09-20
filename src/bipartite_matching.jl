@@ -1,26 +1,42 @@
-# TODO: more testing and better documentation
-# TODO: add more examples if needed
-
+#TODO: more detailed documentation?
 """
+BIPARTITE MATCHING
+------------------
+return a maximum weight bipartite matching of a matrix or a matrix stored in triplet format
+
+Functions
+---------
+- Matching_Setup = bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
+- Matching_Setup = bipartite_matching_setup{T}(x::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64},m::Int64,n::Int64)
+- Matching_Output = bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64}, 
+                    ai::Vector{T}, m::Int64, n::Int64)
+- Matching_Output = bipartite_matching{T}(A::SparseMatrixCSC{T,Int64})
+- Matching_Output = bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64},m::Int64,n::Int64)
+- Matching_Output = bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64})
+Output Modifiers:\n
+- ind = bipartite_matching_indicator{T}(w::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64})
+- (m1,m2) = edge_list(M_output::Matching_output)
+- S = create_sparse(M_output::Matching_output)
+You can check the documentation of each of the output modifiers functions separately.
+
 Example
 -------
-
-Returns a maximum weight bipartite matching of a matrix or a matrix stored in triplet format
-Example:\n
 W = sprand(10,8,0.5)\n
 bipartite_matching(W)\n
-
 ei = [1;2;3]
 ej = [3;2;4]
-M_out = bipartite_matching([10;12;13],ei,ej)\n
-M_out.weight\n
-M_out.cardinality\n
-M_out.match\n
-MatrixNetworks.create_sparse(bipartite_matching(W)) # get the sparse matrix\n
-MatrixNetworks.edge_list(bipartite_matching(W)) # get the edgelist\n
-MatrixNetworks.edge_indicator(M_out,ei,ej)
-
+Matching_Output = bipartite_matching([10;12;13],ei,ej)\n
+Matching_Output.weight\n
+Matching_Output.cardinality\n
+Matching_Output.match\n
+S = create_sparse(bipartite_matching(W)) # get the sparse matrix\n
+(m1,m2) = edge_list(bipartite_matching(W)) # get the edgelist\n
 """
+
 :bipartite_matching
 
 
@@ -80,6 +96,7 @@ function bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
         ci[rp[i]+1]=n+i
         rp[i]=rp[i]+1
     end
+    
     # restore the row pointer array
     for i=m:-1:1
         rp[i+1]=rp[i]
@@ -107,8 +124,8 @@ function bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
 end
 
 
-function bipartite_matching_setup{T}(x::Array{T,1},ei::Array{Int64,1},
-                                        ej::Array{Int64,1},m::Int64,n::Int64)
+function bipartite_matching_setup{T}(x::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64},m::Int64,n::Int64)
     (nzi,nzj,nzv) = (ei,ej,x)
     nedges = length(nzi)
     
@@ -169,8 +186,8 @@ end
 #   primal-dual  #
 ##################
 
-function bipartite_matching_primal_dual{T}(rp::Array{Int64,1}, ci::Array{Int64,1}, 
-                    ai::Array{T,1}, m::Int64, n::Int64)
+function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64}, 
+                    ai::Vector{T}, m::Int64, n::Int64)
     
     # variables used for the primal-dual algorithm
     alpha=zeros(Float64,m)
@@ -284,15 +301,15 @@ function bipartite_matching{T}(A::SparseMatrixCSC{T,Int64})
 end
 
 
-function bipartite_matching{T}(w::Array{T,1},ei::Array{Int64,1},
-                                        ej::Array{Int64,1},m::Int64,n::Int64)
+function bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64},m::Int64,n::Int64)
     M_setup = bipartite_matching_setup(w,ei,ej,m,n)
     return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
                                           M_setup.m, M_setup.n)
 end
 
-function bipartite_matching{T}(w::Array{T,1},ei::Array{Int64,1},
-                                        ej::Array{Int64,1})
+function bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64})
     M_setup = bipartite_matching_setup(w,ei,ej,maximum(ei),maximum(ej))
     return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
                                           M_setup.m, M_setup.n)
@@ -305,10 +322,10 @@ end
 """
 Returns the matching indicator of a matrix stored in triplet format
 Example:
-MatrixNetworks.bipartite_matching_indicator([10;12;13],[1;2;3],[3;2;4])
+bipartite_matching_indicator([10;12;13],[1;2;3],[3;2;4])
 """
-function bipartite_matching_indicator{T}(w::Array{T,1},ei::Array{Int64,1},
-                                        ej::Array{Int64,1})
+function bipartite_matching_indicator{T}(w::Vector{T},ei::Vector{Int64},
+                                        ej::Vector{Int64})
     M_setup = bipartite_matching_setup(w, ei, ei, maximum(ei), maximum(ej))
     M_out = bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
                                            M_setup.m, M_setup.n)
@@ -323,7 +340,7 @@ end
 Returns the edge list of a matching output
 Example:
 M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
-MatrixNetworks.edge_list(M_out)
+edge_list(M_out)
 """
 function edge_list(M_output::Matching_output)
     m1=zeros(Int64,M_output.cardinality)
@@ -353,9 +370,6 @@ function create_sparse(M_output::Matching_output)
 end
 
 ##########
-"""
-Returns an edge indicator of a given matching indicator
-"""
 function edge_indicator(M_output::Matching_output, ei::Vector, ej::Vector)
     assert(length(ei) == length(ej))
     ind = zeros(Int64,length(ei))

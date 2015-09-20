@@ -1,10 +1,7 @@
-# TODO: support MatrixNetwork input
-# TODO: better test sample that involves the labels (refer to .m file)
-
-
 """
-DIRCLUSTERCOEFFS Compute clustering coefficients for a directed graph
-
+DIRCLUSTERCOEFFS
+----------------
+compute clustering coefficients for a directed graph.\n
 cc=dirclustercoeffs(A) returns the directed clustering coefficients
 (which generalize the clustering coefficients of an undirected graph, 
 and so calling this function on an undirected graph will produce the same
@@ -19,11 +16,18 @@ middles, in triangles, and out triangles.  See the manuscript for a
 description of the various types of triangles counted in the above
 metrics.
 
-Example:
-  (A,xy,labels) = load_matrix_network_metadata("celegans"); # load the C elegans nervous system network\n
-  (cc, cccyc, ccmid, ccin, ccout, nf) = dirclustercoeffs(A, true, true);\n
-  (maxval, maxind) = findmax(cc);\n
-  labels[maxind]
+Functions
+---------
+- (cc,cccyc,ccmid,ccin,ccout,nf) = dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool)
+- (cc,cccyc,ccmid,ccin,ccout,nf) = dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
+- (cc,cccyc,ccmid,ccin,ccout,nf) = dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
+
+Example
+-------
+(A,xy,labels) = load_matrix_network_metadata("celegans");\n
+(cc, cccyc, ccmid, ccin, ccout, nf) = dirclustercoeffs(A, true, true);\n
+(maxval, maxind) = findmax(cc);\n
+labels[maxind]
 """
 
 ###########################

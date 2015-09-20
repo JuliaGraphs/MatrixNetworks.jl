@@ -1,20 +1,18 @@
-# Use the new docile convention
-# http://docilejl.readthedocs.org/en/latest/syntax/
-# TODO: more testing and check documentation
-# TODO: add more examples
-# TODO support other similarity functions
-# TODO allow option for diagonal similarity too
-# TODO allow option for triplet output
-
-
 """
+COSINEKNN
+---------
+compute the k-nearest neighbors similarity metric between the
+vertices of A or the upper half of a bipartite graph A.
+
+Functions
+---------
+- S = cosineknn{T}(A::SparseMatrixCSC{T,Int64},K::Int64)
+- S = cosineknn(A::MatrixNetwork,K::Int64)
+
 Example
 -------
-A = load_matrix_network("bfs_example")
-S = cosineknn(A,2)
-
-cosineknn compute the k-nearest neighbors similarity metric between the
-vertices of A or the upper half of a bipartite graph A
+A = load_matrix_network("bfs_example")\n
+S = cosineknn(A,2)\n
 """
 
 ## CSC support

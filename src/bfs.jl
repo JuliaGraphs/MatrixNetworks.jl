@@ -1,18 +1,22 @@
-# TODO: more testing and better documentation
-
 """
-BFS compute breadth first search distances and returns a distance (d), 
-the discover time(dt), predecessor array (pred) in the tuple (d,dt,pred).
+BFS
+---
+compute breadth first search distances and returns a distance(d), 
+the discover time(dt), predecessor array(pred) in the tuple (d,dt,pred)
 pred[i] = 0 if vertex i is in a component not reachable from u and i != u.
-Example:\n
-(d,dt,pred) = bfs(A,u,v) # search stops when it hits the vertex v\n
-(d,dt,pred) = bfs(A,u)\n
+Search stops when it hits the vertex target.
+
+Functions
+---------
+- (d,dt,pred) = bfs(A::MatrixNetwork,u::Int64,target::Int64)
+- (d,dt,pred) = bfs{T}(A::SparseMatrixCSC{T,Int64}),u::Int64,target::Int64)
+- (d,dt,pred) = bfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64,target::Int64)\n
+If target is not specified, it is assigned to 0
 
 Example
 -------
 A = load_matrix_network("celegans")\n
-(d,dt,pred) = bfs(MatrixNetwork(A),1)\n
-OR: (d,dt,pred) = bfs(A,1)
+(d,dt,pred) = bfs(A,1)\n
 """
 
 function bfs(A::MatrixNetwork,u::Int64,target::Int64)
@@ -63,28 +67,28 @@ function bfs(A::MatrixNetwork,u::Int64)
 end
 
 ## CSC sparse matrices:
-function bfs{T}(A::SparseMatrixCSC{T,Int64})
-    return bfs(MatrixNetwork(A))
-end
-
 function bfs{T}(A::SparseMatrixCSC{T,Int64},u::Int64)
     return bfs(MatrixNetwork(A),u)
 end
 
-## Triplet Format:
-function bfs(ei::Vector{Int64},ej::Vector{Int64})
-    return bfs(MatrixNetwork(ei,ej))
+function bfs{T}(A::SparseMatrixCSC{T,Int64},u::Int64,target::Int64)
+    return bfs(MatrixNetwork(A),u,target)
 end
 
+## Triplet Format:
 function bfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64)
     return bfs(MatrixNetwork(ei,ej),u)
 end
 
-## CSR sparse matrices:
-function bfs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64)
-    return bfs(MatrixNetwork(n,rp,ci,vals))
+function bfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64,target::Int64)
+    return bfs(MatrixNetwork(ei,ej),u,target)
 end
 
+## CSR sparse matrices:
 function bfs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,u::Int64)
     return bfs(MatrixNetwork(n,rp,ci,vals),u)
+end
+
+function bfs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,u::Int64,target::Int64)
+    return bfs(MatrixNetwork(n,rp,ci,vals),u,target)
 end
