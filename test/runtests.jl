@@ -29,7 +29,7 @@ end
 println("testing package with Lint...")
 msgs = lintpkg( "MatrixNetworks", returnMsgs = true )
 if isempty(msgs)
-    println("Lint package passed")
+    info("Lint package passed")
 else
     warn("Lint package didn't pass")
 end
