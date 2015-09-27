@@ -24,16 +24,14 @@ Example
 -------
 A = load_matrix_network("cores_example")\\
 cc = scomponents(A)\n
-scomponents(A).number   
-
-scomponents(A).sizes      
-
-scomponents(A).map  
+    scomponents(A).number   
+    scomponents(A).sizes      
+    scomponents(A).map  
 
 strong_components_map(A)     # if you just want the map
 enrich(scomponents(A)) # produce additional enriched output
 
-Can work on ei,ej\n
+Can work on [ei,ej]\n
 ei = [1;2;3]
 ej = [2;4;1]
 cc = scomponents(ei,ej)
