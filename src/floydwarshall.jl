@@ -1,11 +1,11 @@
 """
 FLOYDWARSHALL
 -------------
-compute all shortest paths using the Floyd-Warshall algorithm.
-
-(D,P) = floydwarshall(A) returns the shortest distance matrix between all pairs
-of nodes in the graph A in matrix D.  If A has a negative weight cycle, then this
-algorithm will throw an error. P is the matrix of predecessors.
+    compute all shortest paths using the Floyd-Warshall algorithm.
+    
+    (D,P) = floydwarshall(A) returns the shortest distance matrix between all pairs
+    of nodes in the graph A in matrix D.  If A has a negative weight cycle, then this
+    algorithm will throw an error. P is the matrix of predecessors.
 
 Functions
 ---------
@@ -14,8 +14,10 @@ Functions
 
 Example
 -------
-A = load_matrix_network("all_shortest_paths_example")\n
-(D,P) = floydwarshall(A)\n
+~~~
+A = load_matrix_network("all_shortest_paths_example")
+(D,P) = floydwarshall(A)
+~~~
 """
 :floydwarshall
 

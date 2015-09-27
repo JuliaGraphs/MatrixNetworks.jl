@@ -1,8 +1,8 @@
 """
 COSINEKNN
 ---------
-compute the k-nearest neighbors similarity metric between the
-vertices of A or the upper half of a bipartite graph A.
+    compute the k-nearest neighbors similarity metric between the
+    vertices of A or the upper half of a bipartite graph A.
 
 Functions
 ---------
