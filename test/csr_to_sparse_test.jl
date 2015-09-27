@@ -5,4 +5,5 @@ function csr_to_sparse_test()
     (rp,ci,ai,m) = sparse_to_csr(i,j,v)
     (nzi,nzj,nzv) = csr_to_sparse(rp,ci,ai)
     A = sparse(nzi,nzj,nzv,length(rp)-1,maximum(ci))
+    return true
 end
