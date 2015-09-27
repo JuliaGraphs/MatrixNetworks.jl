@@ -3,13 +3,27 @@ using Base.Test
 using Compat
 using Lint
 
-all_tests = ["dfs", "bfs", "bipartite_matching", "clustercoeffs", 
-             "scomponents","corenums","mst_prim"]
+all_tests = ["bfs",
+             "bipartite_matching",
+             "clustercoeffs",
+             "corenums",
+             "cosineknn",
+             "csr_to_sparse",
+             "dfs",
+             "dijkstra",
+             "dirclustercoeffs",
+             "floydwarshall",
+             "largest_component",
+             "mst_prim",
+             "scomponents",
+             "sparse_to_csr"]
 
 for t in all_tests
-    test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", join(["$(t)", "_test",".jl"]))
+    test_name = join(["$(t)", "_test",".jl"])
+    test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", test_name)
     println("running $(test_path) ...")
-    include(test_path)
+    test_function = include(test_path)
+    @test test_function() == true
 end
 
 println("testing package with Lint...")

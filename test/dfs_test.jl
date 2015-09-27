@@ -1,6 +1,5 @@
-include("../src/manage_data.jl")
 function dfs_test()
-    file_path = Pkg.dir("MatrixNetworks/data/dfs_example.smat")
-    A = readSMAT(file_path)
-    return (dfs(MatrixNetwork(A),1))
+    A = load_matrix_network("dfs_example")
+    dfs(MatrixNetwork(A),1)
+    return true
 end

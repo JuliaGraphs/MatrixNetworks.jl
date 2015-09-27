@@ -1,7 +1,5 @@
-include("../src/manage_data.jl")
 function clustercoeffs_test()
-    file_path = Pkg.dir("MatrixNetworks/data/clique-10.smat")
-    A = readSMAT(file_path)
-    cc = clustercoeffs(MatrixNetwork(A))
-    return cc;
+    A = load_matrix_network("clique-10")
+    clustercoeffs(MatrixNetwork(A))
+    return true
 end
