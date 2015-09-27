@@ -11,8 +11,10 @@ Functions
 
 Example
 -------
-A = load_matrix_network("bfs_example")\n
-S = cosineknn(A,2)\n
+~~~
+A = load_matrix_network("bfs_example")
+S = cosineknn(A,2)
+~~~
 """
 
 ## CSC support
