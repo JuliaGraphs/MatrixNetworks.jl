@@ -44,7 +44,7 @@ function largest_component{T}(A::SparseMatrixCSC{T,Int64},sym::Bool)
     p = cc.map .== cind
     # no logical indexing so:
     idx = find(p)
-    Acc = A(idx,idx)
+    Acc = A[idx,idx]
     return (Acc,p)
 end
 
