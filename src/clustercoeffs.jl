@@ -50,8 +50,8 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
 end
 
-function clustercoeffs_phase2(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
-                                          ai::Vector{Float64},usew::Bool)
+function clustercoeffs_phase2{T}(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
+                                          ai::Vector{T},usew::Bool)
     n = length(rp) - 1
     cc = zeros(Float64,n)
     # ind = falses(n,1)

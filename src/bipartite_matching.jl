@@ -187,7 +187,7 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
     
     # variables used for the primal-dual algorithm
     alpha=zeros(Float64,m)
-    beta=zeros(Float64,m+n)
+    bt=zeros(Float64,m+n)#beta
     queue=zeros(Int64,m)
     t=zeros(Int64,m+n)
     match1=zeros(Int64,m)
@@ -204,7 +204,7 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
         end
     end
     
-    # dual variables (beta) are initialized to 0 already
+    # dual variables (bt) are initialized to 0 already
     # match1 and match2 are both 0, which indicates no matches
     
     i=1
@@ -221,7 +221,7 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
             k=queue[head]
             for rpi=rp[k]:rp[k+1]-1
                 j = ci[rpi]
-                if ai[rpi] < alpha[k]+beta[j]- 1e-8
+                if ai[rpi] < alpha[k]+bt[j]- 1e-8
                     continue
                 end # skip if tight
                 if t[j]==0
@@ -250,8 +250,8 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
                 t1=queue[j]
                 for rpi=rp[t1]:rp[t1+1]-1
                     t2=ci[rpi]
-                    if t[t2] == 0 && alpha[t1] + beta[t2] - ai[rpi] < theta
-                        theta = alpha[t1] + beta[t2] - ai[rpi]
+                    if t[t2] == 0 && alpha[t1] + bt[t2] - ai[rpi] < theta
+                        theta = alpha[t1] + bt[t2] - ai[rpi]
                     end
                 end
             end
@@ -259,7 +259,7 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
                 alpha[queue[j]] = alpha[queue[j]] - theta
             end
             for j=1:ntmod
-                beta[tmod[j]] = beta[tmod[j]] + theta
+                bt[tmod[j]] = bt[tmod[j]] + theta
             end
             continue
         end
@@ -360,8 +360,8 @@ M_out = bipartite_matching([10;12;13],[1;2;3],[3;2;4])
 create_sparse(M_out)
 """
 function create_sparse(M_output::Matching_output)
-    (in,out) = edge_list(M_output)
-    A = sparse(in,out,1,M_output.m,M_output.n)
+    (ei,ej) = edge_list(M_output)
+    A = sparse(ei,ej,1,M_output.m,M_output.n)
     return A
 end
 

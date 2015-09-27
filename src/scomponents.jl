@@ -163,14 +163,14 @@ strong_components_map{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::
 ######################
 
 function scomponents(A::MatrixNetwork)
-    map = strong_components_map(A)
-	number = maximum(map)
+    mapping = strong_components_map(A)
+	number = maximum(mapping)
 	sizes = zeros(Int64,number);
-    for i = 1:length(map)
-        sizes[map[i]] += 1;
+    for i = 1:length(mapping)
+        sizes[mapping[i]] += 1;
     end
     
-    return Strong_components_output(map, sizes, number, A)
+    return Strong_components_output(mapping, sizes, number, A)
 end
 
 ###############################
