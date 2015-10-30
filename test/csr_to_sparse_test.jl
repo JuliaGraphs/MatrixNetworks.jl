@@ -14,7 +14,8 @@ function csr_to_sparse_test()
     ai = ones(Int64,25)
     (i,j,k) = csr_to_sparse(rp,ci,ai)
     if !isequal(full(M),ones(5,5))
-    error("csr_to_sparse_test failed");
+        error("csr_to_sparse_test failed")
+    end
     
     # 100 random trials
     
