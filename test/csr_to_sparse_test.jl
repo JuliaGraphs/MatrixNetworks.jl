@@ -11,7 +11,7 @@ function csr_to_sparse_test()
     rp = collect(1:5:26)
     ci = vec(reshape(repmat(1:5,5,1)',25,1))
     ai = ones(Int64,25)
-    A = csr_to_sparse_matrix(rp,ci,ai,5)
+    A = csr_to_sparse_matrix(rp,ci,ai,5,5)
     if !isequal(full(A),ones(5,5))
         error("csr_to_sparse_test failed")
     end
@@ -24,7 +24,7 @@ function csr_to_sparse_test()
         if ~isequal(A,A2)
             error("csr_to_sparse_test failed")
         end
-end
+    end
     
 
 
