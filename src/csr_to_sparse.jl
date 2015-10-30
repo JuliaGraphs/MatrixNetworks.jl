@@ -18,6 +18,8 @@ v = [8;9;10]
 (rp,ci,ai,m) = sparse_to_csr(i,j,v)
 (nzi,nzj,nzv) = csr_to_sparse(rp,ci,ai)
 A = sparse(nzi,nzj,nzv,length(rp)-1,maximum(ci))
+B = csr_to_sparse_matrix(rp,ci,ai)
+isequal(A,B)
 ~~~
 """
 
@@ -52,7 +54,8 @@ function csr_to_sparse_matrix{T}(rp::Vector{Int64},ci::Vector{Int64},
     if (r<nrows)
         B = zeros(nrows,c)
         B[1:r] = A
+        return B
     end
-    return B
+    return A
 end
 

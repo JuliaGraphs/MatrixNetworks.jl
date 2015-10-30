@@ -69,7 +69,8 @@ bipartite_matching_setup, bipartite_matching_indicator, bfs,
 dfs, clustercoeffs, corenums, scomponents, strong_components_map, 
 readSMAT, enrich, load_matrix_network, matrix_network_datasets, 
 csr_to_sparse, load_matrix_network_metadata, floydwarshall, largest_component,
-sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix
+sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
+csr_to_sparse_matrix
 
 
 end # end module

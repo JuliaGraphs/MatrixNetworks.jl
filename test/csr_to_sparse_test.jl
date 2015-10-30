@@ -8,12 +8,11 @@ function csr_to_sparse_test()
     
     # more tests added here
     # clique to sparse test
-    rp = 1:5:26
-    rp = collect(rp)
+    rp = collect(1:5:26)
     ci = vec(reshape(repmat(1:5,5,1)',25,1))
     ai = ones(Int64,25)
-    (i,j,k) = csr_to_sparse(rp,ci,ai)
-    if !isequal(full(M),ones(5,5))
+    A = csr_to_sparse_matrix(rp,ci,ai,5)
+    if !isequal(full(A),ones(5,5))
         error("csr_to_sparse_test failed")
     end
     
