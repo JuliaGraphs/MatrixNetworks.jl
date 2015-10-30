@@ -47,15 +47,9 @@ function csr_to_sparse_matrix{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{
 end
 
 function csr_to_sparse_matrix{T}(rp::Vector{Int64},ci::Vector{Int64},
-                                            ai::Vector{T},nrows::Int64)
+                                            ai::Vector{T},nrows::Int64,ncols::Int64)
     (i,j,k) = csr_to_sparse(rp,ci,ai);
-    A = sparse(i,j,k)
-    (r,c) = size(A)
-    if (r<nrows)
-        B = zeros(nrows,c)
-        B[1:r] = A
-        return B
-    end
+    A = sparse(i,j,k,nrows,ncols)
     return A
 end
 
