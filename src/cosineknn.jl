@@ -41,8 +41,8 @@ function cosineknn(A::MatrixNetwork,K::Int64)
 
 end
 
-function cosineknn_internal(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{Float64},
-                rpt::Vector{Int64},cit::Vector{Int64},ait::Vector{Float64},m::Int64,K::Int64)
+function cosineknn_internal{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T},
+                rpt::Vector{Int64},cit::Vector{Int64},ait::Vector{T},m::Int64,K::Int64)
 
     # accumarray
     rn = zeros(Float64,maximum(cit))
