@@ -11,7 +11,7 @@ function largest_component_test()
         error("largest_component failed")
     end
     
-    A = oad_matrix_network("cores_example")
+    A = load_matrix_network("cores_example")
     (Acc1,p1) = largest_component(A)
     (Acc2,p2) = largest_component(A,true)
     if !isequal(Acc1,Acc2)
