@@ -221,12 +221,14 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
             k=queue[head]
             for rpi=rp[k]:rp[k+1]-1
                 j = ci[rpi]
-                if ai[rpi] < alpha[k]+bt[j]- 1e-8
+                if ai[rpi] < alpha[k] + bt[j] - 1e-8
                     continue
                 end # skip if tight
                 if t[j]==0
                     tail=tail+1
-                    queue[tail]=match2[j]
+                    if tail <= m
+                        queue[tail]=match2[j]
+                    end
                     t[j]=k
                     ntmod=ntmod+1
                     tmod[ntmod]=j
