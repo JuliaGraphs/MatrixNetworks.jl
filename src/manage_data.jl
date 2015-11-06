@@ -11,9 +11,9 @@ function readSMAT(filename::AbstractString)
 #                )
 #     return A
     A = sparse(
-               int(rows[1:parse(Int,header[3]),1])+1, 
-               int(rows[1:parse(Int,header[3]),2])+1, 
-               int(rows[1:parse(Int,header[3]),3]),
+               Int(rows[1:parse(Int,header[3]),1])+1, 
+               Int(rows[1:parse(Int,header[3]),2])+1, 
+               Int(rows[1:parse(Int,header[3]),3]),
                parse(Int,header[1]), 
                parse(Int,header[2])
                )
