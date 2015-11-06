@@ -7,7 +7,7 @@ function scomponents_test()
     if cc.sizes != sizes
         error("scomponents failed")
     end
-    if cc.map != 21
+    if length(cc.map) != 21
         error("scomponents failed")
     end
     if cc.number != components
