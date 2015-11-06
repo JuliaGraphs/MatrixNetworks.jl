@@ -25,9 +25,5 @@ function csr_to_sparse_test()
             error("csr_to_sparse_test failed")
         end
     end
-    
-
-
-
     return true
 end
