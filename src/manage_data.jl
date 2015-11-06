@@ -10,15 +10,6 @@ function readSMAT(filename::AbstractString)
                parse(Int,header[2])
                )
     return A
-#     A = sparse(
-#                 round(Int64,rows[1:parse(Int,header[3]),1])+1
-#                int(rows[1:parse(Int,header[3]),1])+1, 
-#                int(rows[1:parse(Int,header[3]),2])+1, 
-#                int(rows[1:parse(Int,header[3]),3]),
-#                parse(Int,header[1]), 
-#                parse(Int,header[2])
-#                )
-#     return A
 end
 
 function load_matrix_network(name::AbstractString)
