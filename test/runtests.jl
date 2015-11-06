@@ -26,10 +26,10 @@ for t in all_tests
     @test test_function() == true
 end
 
-# println("testing package with Lint...")
-# msgs = lintpkg( "MatrixNetworks", returnMsgs = true )
-# if isempty(msgs)
-#     info("Lint package passed")
-# else
-#     warn("Lint package didn't pass")
-# end
+println("testing package with Lint...")
+msgs = lintpkg( "MatrixNetworks", returnMsgs = true )
+if isempty(msgs)
+    info("Lint package passed")
+else
+    warn("Lint package didn't pass")
+end
