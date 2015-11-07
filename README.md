@@ -65,6 +65,6 @@ Can work on ei,ej:
 ```
 ei = [1;2;3]
 ej = [2;4;1]
-scomponents(ei,ej)
+cc = scomponents(ei,ej)
 ```
 
