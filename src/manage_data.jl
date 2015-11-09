@@ -1,4 +1,4 @@
-using Lint
+#using Lint
 
 function readSMAT(filename::AbstractString)
     (rows,header) = readdlm(filename;header=true)
