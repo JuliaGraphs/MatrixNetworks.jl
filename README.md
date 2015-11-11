@@ -14,35 +14,40 @@ For example, `d,dt,p = bfs(A,1)` computes the bfs distance from the node represe
 The package provides documentation with sample runs for all functions - viewable through Juila’s REPL. These sample runs come with sample data, which makes it easier for users to get started on `MatrixNetworks`.
 
 
-## To install package:
+## Package Installation:
+##### To install package
+```
 Pkg.clone("https://github.com/nassarhuda/MatrixNetworks.jl.git")
-
 using MatrixNetworks
-## To be able to see documentation make sure package Lexicon is installed:
+```
+##### To be able to see documentation make sure package Lexicon is installed:
+```
 Pkg.add("Lexicon")
-
 using Lexicon
+```
 
-## Example
-? bfs
+##### Example
+```
+?bfs
+?bipartite_matching
+```
 
-? bipartite_matching
-
-## To run test cases:
+##### To run test cases:
+```
 Pkg.test("MatrixNetworks")
-
+```
 ## Data available:
-### For a full list of all datasets:
+##### For a full list of all datasets:
 ```
 matrix_network_datasets()
 ```
-### Loading data example:
+##### Loading data example:
 ```
 load_matrix_network("clique-10")
 ```
 
 ## Some examples:
-### largest_component: Return the largest connected component of a graph
+##### largest_component: Return the largest connected component of a graph
 Acc is a sparse matrix containing the largest connected piece of a directed graph A
 p is a logical vector indicating which vertices in A were chosen
 ```
@@ -50,14 +55,14 @@ A = load_matrix_network("dfs_example")
 Acc,p = largest_component(A)
 ```
 
-### clustercoeffs: Compute undirected clustering coefficients for a graph
+##### clustercoeffs: Compute undirected clustering coefficients for a graph
 cc is the clustering coefficients
 ```
 A = load_matrix_network("clique-10")
 cc = clustercoeffs(MatrixNetwork(A))
 ```
 
-### bfs: Compute breadth first search distances starting from a node in a graph
+##### bfs: Compute breadth first search distances starting from a node in a graph
 d is a vector containing the distances of all nodes from node u (1 in the example below)
 dt is a vector containing the discover times of all the nodes
 pred is a vector containing the predecessors of each of the nodes
@@ -66,7 +71,7 @@ A = load_matrix_network("bfs_example")
 d,dt,pred = bfs(A,1)
 ```
 
-### scomponents: Compute the strongly connected components of a graph
+##### scomponents: Compute the strongly connected components of a graph
 ```
 A = load_matrix_network("cores_example")
 sc = scomponents(A)
@@ -86,7 +91,7 @@ ej = [2;4;1]
 scomponents(ei,ej)
 ```
 
-### bipartite_matching: Return a maximum weight bipartite matching of a graph
+##### bipartite_matching: Return a maximum weight bipartite matching of a graph
 ```
 ei = [1;2;3]
 ej = [3;2;4]
