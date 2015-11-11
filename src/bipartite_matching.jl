@@ -2,7 +2,7 @@
 """
 BIPARTITE MATCHING
 ------------------
-    return a maximum weight bipartite matching of a matrix or a matrix stored in triplet format
+    return a maximum weight bipartite matching of a graph
 
 Functions
 ---------
