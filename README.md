@@ -17,7 +17,7 @@ The package provides documentation with sample runs for all functions - viewable
 ## Package Installation:
 ##### To install package
 ```
-Pkg.clone("https://github.com/nassarhuda/MatrixNetworks.jl.git")
+Pkg.add("MatrixNetworks")
 using MatrixNetworks
 ```
 
