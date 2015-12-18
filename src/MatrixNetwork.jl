@@ -6,6 +6,17 @@ type MatrixNetwork{T}
     vals::Vector{T} # corresponding values
 end
 
+function MatrixNetwork{T}(A::SparseMatrixCSC{T,Int64})
+    At = A'
+    return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
+end
+
+function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64})
+    At = sparse(ej,ei,true);
+    return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
+end
+
+
 import Base.sparse
 
 """
