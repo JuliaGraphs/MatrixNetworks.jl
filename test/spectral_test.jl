@@ -53,7 +53,7 @@ A = sparse([2,3,4,5,16,44,113,131,250,259,1,3,1,2,1,5,13,14,15,16,44,45,46,47,61
 
 dtol = 1.e-8 # default tolerance
 
-v,lam2 = fiedler_vector(sparse([0]))
+v,lam2 = fiedler_vector(sparse(zeros(1,1)))
 @test all(v .== [0.])
 
 v,lam2 = fiedler_vector(A)
