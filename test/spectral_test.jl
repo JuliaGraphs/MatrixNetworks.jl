@@ -1,5 +1,7 @@
 using Base.Test
 
+function spectral_test()
+
 RankedArray = MatrixNetworks.RankedArray
 
 ## RankedArray tests
@@ -90,3 +92,6 @@ A = A + A'
 n = 100
 A = sparse(ones(n,n))
 @test length(spectral_cut(A).set) == 50
+
+return true
+end
