@@ -13,7 +13,7 @@ Return back an adjacency matrix representation
 of the transpose. This
 """
 function sparse_transpose{T}(A::MatrixNetwork{T})
-    return SparseMatrixCSC(A.n,A,n,A.rp,A.ci,A.vals)
+    return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
 end
 
 """

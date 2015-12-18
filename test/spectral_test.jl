@@ -93,5 +93,8 @@ n = 100
 A = sparse(ones(n,n))
 @test length(spectral_cut(A).set) == 50
 
+M = MatrixNetwork(A)
+@test length(spectral_cut(M).set) == 50
+
 return true
 end
