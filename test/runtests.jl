@@ -16,6 +16,7 @@ all_tests = ["bfs",
              "largest_component",
              "mst_prim",
              "scomponents",
+             "spectral",
              "sparse_to_csr"]
 
 for t in all_tests

@@ -63,6 +63,9 @@ include("dirclustercoeffs.jl")
 include("dijkstra.jl")
 include("mst_prim.jl")
 
+include("spectral.jl")
+export fiedler_vector, sweepcut, spectral_cut, bestset, SweepcutProfile
+
 # export everything to make them accessible as functions
 export MatrixNetwork, bipartite_matching, edge_list, create_sparse,
 bipartite_matching_setup, bipartite_matching_indicator, bfs, 
