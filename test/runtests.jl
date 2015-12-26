@@ -3,7 +3,13 @@ using Base.Test
 using Compat
 #using Lint
 
-all_tests = ["bfs",
+# Todo
+# 1. Add core MatrixNetworks tests
+
+
+
+all_tests = ["matrixnetwork",
+             "bfs",
              "bipartite_matching",
              "clustercoeffs",
              "corenums",
@@ -16,6 +22,7 @@ all_tests = ["bfs",
              "largest_component",
              "mst_prim",
              "scomponents",
+             "spectral",
              "sparse_to_csr"]
 
 for t in all_tests
@@ -25,6 +32,8 @@ for t in all_tests
     test_function = include(test_path)
     @test test_function() == true
 end
+
+
 
 #println("testing package with Lint...")
 #msgs = lintpkg( "MatrixNetworks", returnMsgs = true )

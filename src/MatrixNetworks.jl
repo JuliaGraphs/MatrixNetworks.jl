@@ -6,8 +6,8 @@ if VERSION < v"0.4-"
     using Docile
 end
 
-""" 
-Module ``MatrixNetworks``: Documentation on the module 
+"""
+Module ``MatrixNetworks``: Documentation on the module
 
 - Option 1: start with a sparse matrix A:
 - example: ``M = MatrixNetwork(A)``
@@ -36,16 +36,7 @@ You can check the readme file here: \n
 MatrixNetworks
 
 include("MatrixNetwork.jl")
-
-function MatrixNetwork{T}(A::SparseMatrixCSC{T,Int64})
-    At = A'
-    return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
-end
-
-function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64}) 
-    At = sparse(ej,ei,true);
-    return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
-end
+export MatrixNetwork, sparse_transpose
 
 include("scomponents.jl")
 include("csr_to_sparse.jl")
@@ -63,11 +54,14 @@ include("dirclustercoeffs.jl")
 include("dijkstra.jl")
 include("mst_prim.jl")
 
+include("spectral.jl")
+export fiedler_vector, sweepcut, spectral_cut, bestset, SweepcutProfile
+
 # export everything to make them accessible as functions
-export MatrixNetwork, bipartite_matching, edge_list, create_sparse,
-bipartite_matching_setup, bipartite_matching_indicator, bfs, 
-dfs, clustercoeffs, corenums, scomponents, strong_components_map, 
-readSMAT, enrich, load_matrix_network, matrix_network_datasets, 
+export bipartite_matching, edge_list, create_sparse,
+bipartite_matching_setup, bipartite_matching_indicator, bfs,
+dfs, clustercoeffs, corenums, scomponents, strong_components_map,
+readSMAT, enrich, load_matrix_network, matrix_network_datasets,
 csr_to_sparse, load_matrix_network_metadata, floydwarshall, largest_component,
 sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
 csr_to_sparse_matrix, edge_indicator
