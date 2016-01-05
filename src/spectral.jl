@@ -454,7 +454,7 @@ function bestset{V,F}(prof::SweepcutProfile{V,F})
     if isempty(prof.conductance)
     elseif bsetvol > prof.total_volume - bsetvol
         # ick, we need the complement
-        bset[:] = setdiff(IntSet(Int(1):Int(prof.n)),prof.p[1:bsetind])
+        bset[:] = setdiff(IntSet(Int(1):Int(prof.total_nodes)),prof.p[1:bsetind])
     else
         # easy
         bset[:] = prof.p[1:bsetind]

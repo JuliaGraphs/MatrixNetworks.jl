@@ -35,6 +35,14 @@ profile = sweepcut(A,x)
 @test indmin(profile.conductance) == 3
 @test all(profile.cut .== 0.5)
 
+# Test an example where we need to take
+# the complement set
+n = 6
+A = sparse(1:n-1,2:n,1,n,n)
+A = A + A'
+x = [6,3,5,4,2,1]
+profile = sweepcut(A,x)
+@test length(bestset(profile)) == 2
 
 output = spectral_cut(A,true,true)
 
