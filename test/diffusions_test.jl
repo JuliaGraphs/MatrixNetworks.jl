@@ -1,6 +1,10 @@
-include("diffusions.jl")
+
+using MatrixNetworks
+include("../src/diffusions.jl")
 
 using Base.Test
+
+function diffusions_test()
 
 n = 10
 P = speye(n)
@@ -14,6 +18,9 @@ iterfunc = _noiterfunc
 
 x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,iterfunc)
 @test norm(x-v,1) <= n*tol
+
+x2 = pagerank(P)
+@test norm(x-x2,1) <= n*tol
 
 P = spdiagm(ones(n-1),-1,n,n)
 v[:] = 0.
@@ -64,9 +71,12 @@ function _normout(P)
     (pi,pj,pv) = findnz(P)
     P = sparse(pi,pj,pv./colsums[pj],n,n)
 end
-@time P= _normout(P)
 x = zeros(n)
 y = zeros(n)
 v = 1./n
 tol = 1e-8
-@time x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,iterfunc)
+dt = @elapsed x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,iterfunc)
+
+return true
+
+end

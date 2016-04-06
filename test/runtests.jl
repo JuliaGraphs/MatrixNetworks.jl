@@ -16,6 +16,7 @@ all_tests = ["matrixnetwork",
              "cosineknn",
              "csr_to_sparse",
              "dfs",
+             "diffusions"
              "dijkstra",
              "dirclustercoeffs",
              "floydwarshall",
