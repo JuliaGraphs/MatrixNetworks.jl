@@ -12,6 +12,42 @@ function readSMAT(filename::AbstractString)
     return A
 end
 
+type MatrixNetworkMetadata
+    A::SparseMatrixCSC{Int64,Int64}
+    labels::Vector{AbstractString}
+    xy::Array{Float64,2}
+    source::AbstractString
+end
+
+function load_matrix_network_all(name::AbstractString)
+    A = load_matrix_network(name)
+    pathname = joinpath(Pkg.dir("MatrixNetworks"),"data")
+    
+    meta_source = joinpath(pathname,"$(name).source")
+    if isfile(meta_source)
+        source = open(readall, meta_source)
+    else
+        source = "(None given)"
+    end
+    
+    meta_xy = joinpath(pathname,"$(name).xy")
+    if isfile(meta_xy)
+        xy = readdlm(meta_xy)
+    else
+        xy = zeros(0,2)
+    end
+    
+    meta_labels = joinpath(pathname,"$(name).labels")
+    if isfile(meta_labels)
+        labels = open(readlines, meta_labels)
+    else
+        labels = map(x -> @sprintf("%i",x), 1:size(A,1))
+    end
+
+    return MatrixNetworkMetadata(A,labels,xy,source)
+end
+
+
 function load_matrix_network(name::AbstractString)
     pathname = joinpath(Pkg.dir("MatrixNetworks"),"data")
     smatfile = joinpath(pathname,"$(name).smat")

@@ -1,4 +1,6 @@
-import Base.LinAlg.chksquare
+# for issymmetric and checksquare 
+using Compat 
+import Compat.LinAlg.checksquare # updates for v0.5
 
 ## Todo
 # 1. Add method for partial sweep cut
@@ -39,7 +41,7 @@ function _symeigs_smallest_arpack{V}(
             A::SparseMatrixCSC{V,Int},nev::Int,tol::V,maxiter::Int,
             v0::Vector{V})
 
-    n::Int = chksquare(A) # get the size
+    n::Int = checksquare(A) # get the size
     @assert n >= 21
 
     # setup options
@@ -181,9 +183,9 @@ A = A + A'
 """
 function fiedler_vector{V}(A::SparseMatrixCSC{V,Int};
     tol=1e-12,maxiter=300,dense=96,nev=2,checksym=true)
-    n = chksquare(A)
+    n = checksquare(A)
     if checksym
-        if !issym(A)
+        if !issymmetric(A)
             throw(ArgumentError("The input matrix must be symmetric."))
         end
     end
@@ -374,7 +376,7 @@ T = spectral_cut(A).set # should give you the same set
 """
 function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V, maxvol::T)
 
-    n = chksquare(A)
+    n = checksquare(A)
     nlast = length(p)
 
     if n < nlast
@@ -532,9 +534,9 @@ Inputs
 """
 
 function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
-    n = chksquare(A)
+    n = checksquare(A)
     if checksym
-        if !issym(A)
+        if !issymmetric(A)
             throw(ArgumentError("The input matrix must be symmetric."))
         end
     end
