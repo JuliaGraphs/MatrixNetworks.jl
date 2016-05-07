@@ -66,5 +66,8 @@ csr_to_sparse, load_matrix_network_metadata, floydwarshall, largest_component,
 sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
 csr_to_sparse_matrix, edge_indicator
 
+include("diffusions.jl")
+export pagerank, pagerank_power!, personalized_pagerank
+
 
 end # end module
