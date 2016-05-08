@@ -66,7 +66,7 @@ Convert a sparse representation into a dense vector.
 """
 function _densevec{T}(I::Vector{Int}, V::Vector{T}, n::Int)
     v = zeros(T,n)
-    for ind in 1:size(I)
+    for ind in 1:length(I)
         v[ind] = V[ind]
     end
     return v
@@ -194,6 +194,7 @@ function A_mul_B!(output, op::SparseMatrixStochasticMult, b)
     size(output,2) == size(b,2) || throw(DimenensionMismatch())
     nzv = op.A.nzval
     rv = op.A.rowval
+    fill!(output, zero(eltype(output)))
     for col=1:op.A.n
         for k=1:size(output,2)
             tmp = zero(eltype(output))
@@ -225,6 +226,7 @@ function A_mul_B!(output, op::MatrixNetworkStochasticMult, b)
     size(op.A,1) == size(b,1) || throw(DimensionMismatch())
     size(op.A,1) == size(output,1) || throw(DimensionMismatch())
     size(output,2) == size(b,2) || throw(DimenensionMismatch())
+    fill!(output, zero(eltype(output)))
     nzv = op.A.nzval
     rv = op.A.rowval
     for col=1:op.A.n
@@ -342,12 +344,12 @@ function personalized_pagerank(A,alpha::Float64,v::Int,tol::Float64)
     _personalized_pagerank_validated(A,alpha,vecv,tol)
 end
 
-function personalized_pagerank(A,alpha::Float64,v::Set,tol::Float64)
+function personalized_pagerank(A,alpha::Float64,v::Set{Int},tol::Float64)
     if isempty(v) 
-        throw(ArgumentError())
+        throw(ArgumentError("the teleportation vector cannot be empty"))
     end
     n = size(A,1)
-    if size(v) >= n/3 # TODO validate this size
+    if length(v) >= n/3 # TODO validate this size
         # use a dense call
         densev = _densevec(collect(v), ones(Float64, length(v)), size(A,1))
         return personalized_pagerank(A,alpha,densev,tol) # normalized in the next call 
@@ -358,10 +360,11 @@ function personalized_pagerank(A,alpha::Float64,v::Set,tol::Float64)
 end
 
 function personalized_pagerank(A,alpha::Float64,v::Dict{Int,Float64},tol::Float64)
+    n = size(A,1)
     if isempty(v) 
-        throw(ArgumentError())
+        throw(ArgumentError("the teleportation vector cannot be empty"))
     end
-    if size(v) >= n/3 # TODO validate this size
+    if length(v) >= n/3 # TODO validate this size
         # use a dense call
         densev = _densevec(v, size(A,1))
         return personalized_pagerank(A,alpha,densev,tol) # normalized in the next call 
@@ -372,11 +375,12 @@ function personalized_pagerank(A,alpha::Float64,v::Dict{Int,Float64},tol::Float6
 end
 
 function personalized_pagerank(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol::Float64)
+    n = size(A,1)
     if isempty(v) 
-        throw(ArgumentError())
+        throw(ArgumentError("the teleportation vector cannot be empty"))
     end
     if size(v,1) != n
-        throw(ArgumentError())
+        throw(ArgumentError(@sprintf("as a sparsevector, v must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
@@ -390,13 +394,33 @@ function personalized_pagerank(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol:
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
 
+function personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64)
+    n = size(A,1)
+    if isempty(v) 
+        throw(ArgumentError("the teleportation vector cannot be empty"))
+    end
+    if size(v,1) != n
+        throw(ArgumentError(@sprintf("as a sparsevector, v must be n-by-1 where n=%i", n)))
+    end
+    # This function automatically normalizes the values.
+    valisum = 1./sum_kbn(v) 
+    @inbounds for ind in eachindex(v)
+        if v[ind] < 0. 
+            throw(DomainError())
+        end
+        v[ind] *= valisum # normalize to sum to 1 
+    end
+    _personalized_pagerank_validated(A,alpha,v,tol)
+end
+
 function _personalized_pagerank_validated(A,alpha::Float64,v,tol::Float64)
-    x = Vector{Float64}(size(A,1))
-    y = Vector{Float64}(size(A,1))
+    #x = Vector{Float64}(size(A,1))
+    #y = Vector{Float64}(size(A,1))
+    x = zeros(size(A,1))
+    y = zeros(size(A,1))
     maxiter = 2*ceil(Int,log(tol)/log(alpha))
-    
     return pagerank_power!(x, y, _create_stochastic_mult(A), 
-                v, alpha, tol, maxiter, _noiterfunc)
+                alpha, v, tol, maxiter, _noiterfunc)
 end
 
 #=

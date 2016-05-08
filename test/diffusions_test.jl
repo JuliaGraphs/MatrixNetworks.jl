@@ -11,12 +11,68 @@ function _normout(P)
     P = sparse(pi,pj,pv./colsums[pj],n,n)
 end
 
+function prlinsys(A::SparseMatrixCSC{Float64,Int64},alpha::Float64,v::Vector{Float64})
+    P = full(_normout(A'))
+    n = size(A,1)
+    z =  (eye(n) - alpha*P) \ v
+    z = z /sum(z)
+    return z 
+end
+
 function pagerank_test()
 
     A = load_matrix_network("celegans")
     x = pagerank(A, 0.85)
-    #y = pagerank(A, 0.85, 1e.-2)
+    y = pagerank(A, 0.85, 1e.-2)
+    
+    n = 10
+    A = speye(10)
+    v = rand(n)
+    vn = v/sum(v)
+    x = personalized_pagerank(A,0.85,v)
+    @test norm(x-vn,1) <= n*eps(Float64)
+    
+    v = 5;
+    x = personalized_pagerank(A,0.85,v)
+    xtrue = zeros(n)
+    xtrue[5] = 1.
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    x = personalized_pagerank(A,0.85,Set([5]))
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    x = personalized_pagerank(A,0.85,Dict{Int64,Float64}(5 => 6.))
+    @test norm(x -xtrue,1) <= n*eps(Float64)
 
+    x = personalized_pagerank(A,0.85,Set(collect(1:8)))
+    @test norm(x - sparsevec(collect(1:8),1./8,n),1) <= n*eps(Float64)
+
+    x = personalized_pagerank(A,0.85,Dict{Int64,Float64}(zip(1:8, ones(8))))
+    @test norm(x - sparsevec(collect(1:8),1./8,n),1) <= n*eps(Float64)
+    
+    @test_throws ArgumentError personalized_pagerank(A,0.85,sparsevec(Dict{Int64,Float64}(zip(1:8, ones(8)))))
+    
+    x = personalized_pagerank(A,0.85,sparsevec(Dict{Int64,Float64}(zip(4:10, ones(7)))))
+    @test norm(x - sparsevec(collect(4:10),1./7,n),1) <= n*eps(Float64)
+    
+    x = personalized_pagerank(A, 0.85, sparsevec([5], [2.], 10))
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    A = speye(Int64,n)
+    x = personalized_pagerank(A,0.85,5)
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    n = 25
+    A = spones(sprand(n,n,2/n))
+    x = pagerank(A,0.85)
+    xtrue = prlinsys(A,0.85,ones(n))
+    @show x
+    @show xtrue
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    #A = 
+    
+     
     return true 
 end
 
