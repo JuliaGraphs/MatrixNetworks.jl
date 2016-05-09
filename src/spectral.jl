@@ -564,7 +564,7 @@ function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
     # run the partition
     x,lam2 = fiedler_vector(B;checksym=false)
 
-    totalvol = sum(A)
+    totalvol = sum(B)
     sweep = sweepcut(B,x,totalvol)
     bset = bestset(sweep)
 
