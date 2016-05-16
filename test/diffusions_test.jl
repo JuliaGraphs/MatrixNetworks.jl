@@ -66,14 +66,41 @@ function pagerank_test()
     A = spones(sprand(n,n,2/n))
     x = pagerank(A,0.85)
     xtrue = prlinsys(A,0.85,ones(n))
-    @show x
-    @show xtrue
     @test norm(x -xtrue,1) <= n*eps(Float64)
     
-    #A = 
+    x = pagerank(MatrixNetwork(A),0.85)
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    n = 10
+    A = spdiagm(ones(n-1),-1,n,n)'
+    v = 1./n
+    tol = 1e-8
+    x = pagerank(A,0.85)
+    z = zeros(n)
+    z[1] = 1.
+    z[2] = 1.85
+    for i=3:n
+        z[i] = z[i-1] + 0.85*(z[i-1]-z[i-2])
+    end
+    z = z/sum_kbn(z)
+    @test norm(x-z,1) <= n*tol
+
     
      
     return true 
+end
+
+function pagerank_error_test()
+
+    @test_throws DimensionMismatch pagerank(spzeros(6,5),0.85)
+    
+    @test_throws ArgumentError pagerank(spzeros(5,5),-0.85)
+    @test_throws ArgumentError pagerank(spzeros(5,5),1.0)
+    @test_throws ArgumentError pagerank(spzeros(5,5),1.01)
+    
+    @test_throws ArgumentError personalized_pagerank(spzeros(5,5), 0.85, rand(11))
+    @test_throws DomainError personalized_pagerank(spzeros(5,5), 0.85, -ones(5))
+    @test_throws DomainError personalized_pagerank(spzeros(5,5), 0.85, -sparsevec(ones(5)))    
 end
 
 
@@ -131,24 +158,70 @@ end
 z = z/sum_kbn(z)
 @test norm(x-z,1) <= n*tol
 
-n = 100_000
-P = spones(sprand(n,n,25/n))
-
-x = zeros(n)
-y = zeros(n)
-v = 1./n
-tol = 1e-8
-dt = @elapsed x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,iterfunc)
-
 return true
 end
 
+function pagerank_perf_test()
+    maxiter=500
+
+    n = 1_000
+    x = zeros(n)
+    y = zeros(n)
+    z = zeros(n)
+    tol = 1e-8
+    v = 1./n
+    A = spones(sprand(n,n,25/n))
+    P = _normout(A')
+    
+    x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
+    P2 = MatrixNetworks._create_stochastic_mult(A)
+    y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
+    P3 = MatrixNetworks._create_stochastic_mult(MatrixNetwork(A))
+    y = pagerank_power!(y,z,P3,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
+    
+    
+    n = 100_000
+    x = zeros(n)
+    y = zeros(n)
+    z = zeros(n)
+    v = 1./n
+    tol = 1e-8
+    A = spones(sprand(n,n,25/n))
+    P = _normout(A')
+    
+    dt = @elapsed x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
+    P2 = MatrixNetworks._create_stochastic_mult(A)
+    dt2 = @elapsed y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
+    
+    @test dt2 <= 2*dt
+    @test norm(x-y) <= n*eps(Float64) 
+    
+    # now test with matrix networks
+    P3 = MatrixNetworks._create_stochastic_mult(MatrixNetwork(A))
+    
+    y = zeros(n)
+    z = zeros(n)
+    dt2 = @elapsed y = pagerank_power!(y,z,P3,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
+    
+    @test dt2 <= 2*dt
+    @test norm(x-y) <= n*eps(Float64)
+    
+    
+    dt = @elapsed x = pagerank_power!(x,y,P,0.85,v,eps(Float64),1000,MatrixNetworks._noiterfunc)
+    dt2 = @elapsed y = pagerank(A,0.85)
+    @test norm(x-y) <= n*eps(Float64)
+    @test dt2 <= 2*dt
+     
+    
+end
 
 
 function diffusions_test()
 
+pagerank_error_test()
 pagerank_test()
 pagerank_alg_test()
+pagerank_perf_test()
 
 
 return true

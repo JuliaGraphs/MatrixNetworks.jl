@@ -173,6 +173,52 @@ function pagerank_power!{T}(x::Vector{T}, y::Vector{T},
     xinit # always return xinit
 end
 
+function stochastic_mult!(output::StridedVecOrMat, A::SparseMatrixCSC, b::StridedVecOrMat, 
+    d::StridedVecOrMat)
+    
+    size(A,1) == size(b,1) || throw(DimensionMismatch())
+    size(A,1) == size(output,1) || throw(DimensionMismatch())
+    size(output,2) == size(b,2) || throw(DimenensionMismatch())
+    nzv = A.nzval
+    rv = A.rowval
+    fill!(output, zero(eltype(output)))
+    for col=1:A.n
+        for k=1:size(output,2)
+            tmp = zero(eltype(output))
+            @inbounds for j=A.colptr[col]:(A.colptr[col+1]-1)
+                tmp += (nzv[j])*b[rv[j],k]*d[rv[j]]
+            end
+            output[col,k] += tmp
+        end
+    end  
+    output  
+end    
+
+function stochastic_mult!(output::StridedVecOrMat, A::MatrixNetwork, b::StridedVecOrMat, 
+    d::StridedVecOrMat)
+    
+    # NOTE, for matrix networks, we have already transposed
+    # the matrix, so we can do the matvec the other way.
+    # that is, this is actually the tranpose one :)
+    size(A,1) == size(b,1) || throw(DimensionMismatch())
+    size(A,1) == size(output,1) || throw(DimensionMismatch())
+    size(output,2) == size(b,2) || throw(DimenensionMismatch())
+    fill!(output, zero(eltype(output)))
+    # TODO fix the variable names here, they describe 
+    # the transpose matrix
+    nzv = A.vals
+    rv = A.ci
+    for col=1:A.n
+        for k=1:size(output,2)
+            xj = b[col,k]*d[col]
+            @inbounds for j=A.rp[col]:(A.rp[col+1]-1)
+                output[rv[j],k] += nzv[j]*xj
+            end
+        end
+    end  
+    output  
+end
+
 type SparseMatrixStochasticMult
     d::Vector{Float64}
     A::SparseMatrixCSC     
@@ -189,27 +235,12 @@ length(op::SparseMatrixStochasticMult) = length(op.A)
 A_mul_B{S}(op::SparseMatrixStochasticMult, b::AbstractVector{S}) = 
     A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
 function A_mul_B!(output, op::SparseMatrixStochasticMult, b)
-    size(op.A,1) == size(b,1) || throw(DimensionMismatch())
-    size(op.A,1) == size(output,1) || throw(DimensionMismatch())
-    size(output,2) == size(b,2) || throw(DimenensionMismatch())
-    nzv = op.A.nzval
-    rv = op.A.rowval
-    fill!(output, zero(eltype(output)))
-    for col=1:op.A.n
-        for k=1:size(output,2)
-            tmp = zero(eltype(output))
-            @inbounds for j=op.A.colptr[col]:(op.A.colptr[col+1]-1)
-                tmp += transpose(nzv[j])*b[rv[j],k]*op.d[rv[j]]
-            end
-            output[col,k] += tmp
-        end
-    end  
-    output  
+    stochastic_mult!(output, op.A, b, op.d)
 end
 
 type MatrixNetworkStochasticMult
     d::Vector{Float64}
-    A::SparseMatrixCSC     
+    A::MatrixNetwork     
 end 
 
 eltype(op::MatrixNetworkStochasticMult) = Float64
@@ -223,22 +254,7 @@ length(op::MatrixNetworkStochasticMult) = length(op.A)
 A_mul_B{S}(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) = 
     A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
 function A_mul_B!(output, op::MatrixNetworkStochasticMult, b)
-    size(op.A,1) == size(b,1) || throw(DimensionMismatch())
-    size(op.A,1) == size(output,1) || throw(DimensionMismatch())
-    size(output,2) == size(b,2) || throw(DimenensionMismatch())
-    fill!(output, zero(eltype(output)))
-    nzv = op.A.nzval
-    rv = op.A.rowval
-    for col=1:op.A.n
-        for k=1:size(output,2)
-            xj = B[col,k]*op.d[col]
-            @inbounds for j=op.A.colptr[col]:(op.A.colptr[col+1]-1)
-                output[rv[j],k] += nzv[j]*b[rv[j],k]
-            end
-            output[col,k] += tmp
-        end
-    end  
-    output  
+    stochastic_mult!(output, op.A, b, op.d)
 end
 
 function _create_stochastic_mult(M::SparseMatrixCSC)
@@ -257,7 +273,8 @@ function _create_stochastic_mult(M::SparseMatrixCSC)
 end
 
 function _create_stochastic_mult(M::MatrixNetwork)
-    A = sparse_transpose(M)
+    A = sparse_transpose(M) # this involves no work...
+    n = checksquare(A) 
     d = Array(Float64, 1, n)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
@@ -414,10 +431,13 @@ function personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64)
 end
 
 function _personalized_pagerank_validated(A,alpha::Float64,v,tol::Float64)
-    #x = Vector{Float64}(size(A,1))
-    #y = Vector{Float64}(size(A,1))
-    x = zeros(size(A,1))
-    y = zeros(size(A,1))
+    x = Vector{Float64}(size(A,1))
+    y = Vector{Float64}(size(A,1))
+    #x = zeros(size(A,1))
+    #y = zeros(size(A,1))
+    if alpha < 0. || alpha >= 1.
+         throw(ArgumentError(@sprintf("alpha must be in [0,1), but alpha=%f",alpha)))
+    end
     maxiter = 2*ceil(Int,log(tol)/log(alpha))
     return pagerank_power!(x, y, _create_stochastic_mult(A), 
                 alpha, v, tol, maxiter, _noiterfunc)

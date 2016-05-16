@@ -17,7 +17,7 @@ function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64})
 end
 
 
-import Base.sparse
+import Base.sparse, Base.size
 
 """
 Return back an adjacency matrix representation
@@ -33,4 +33,18 @@ of the current MatrixNetwork
 """
 function sparse{T}(A::MatrixNetwork{T})
     return sparse_transpose(A)'
+end
+
+function size(A::MatrixNetwork)
+    return (A.n,A.n)
+end
+
+function size(A::MatrixNetwork, dim::Integer)
+    if dim == 1 || dim == 2
+        return A.n
+    elseif dim > 2
+        return 1
+    else
+        throw(DomainError())
+    end
 end
