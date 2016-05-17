@@ -67,7 +67,7 @@ sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
 csr_to_sparse_matrix, edge_indicator
 
 include("diffusions.jl")
-export pagerank, pagerank_power!, personalized_pagerank
+export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!
 
 
 end # end module

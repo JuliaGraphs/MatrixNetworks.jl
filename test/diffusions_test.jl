@@ -38,6 +38,8 @@ function pagerank_test()
     xtrue[5] = 1.
     @test norm(x -xtrue,1) <= n*eps(Float64)
     
+    x = seeded_pagerank(A,0.85,Set([5]))
+    
     x = personalized_pagerank(A,0.85,Set([5]))
     @test norm(x -xtrue,1) <= n*eps(Float64)
     
@@ -57,6 +59,8 @@ function pagerank_test()
     
     x = personalized_pagerank(A, 0.85, sparsevec([5], [2.], 10))
     @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    
     
     A = speye(Int64,n)
     x = personalized_pagerank(A,0.85,5)

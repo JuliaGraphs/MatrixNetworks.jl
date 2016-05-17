@@ -95,6 +95,8 @@ end
 `pagerank_power!`
 ----------------
 
+**Expert interface**
+
 This function computes the strongly personalized PageRank
 vector of a column sub-stochastic matrix P.
 
@@ -173,6 +175,40 @@ function pagerank_power!{T}(x::Vector{T}, y::Vector{T},
     xinit # always return xinit
 end
 
+"""
+`stochastic_mult`
+=================
+
+**Expert interface**
+
+This function computes `output` = \$A^T (b .* d)\$, i.e. the matrix \$A\$
+tranposed times the vector \$b\$ element-wise multiplied by elements in \$d\$.
+The idea is that \$d\$ is the inverse of the row-sums of \$A\$ so that this 
+operation computes the (column)-stochastic (or sub-stochastic) product
+`output` = \$P b\$ where \$P_{i,j} = A_{j,i} / \$ `degree(j)`.
+
+This function is used by the StochasticMult operators.  
+ 
+Functions
+---------
+- `stochastic_mult!!(output::StridedVecOrMat, A::SparseMatrixCSC, 
+        b::StridedVecOrMat, d::StridedVecOrMat)` 
+- `stochastic_mult!!(output::StridedVecOrMat, A::MatrixNetwork, 
+        b::StridedVecOrMat, d::StridedVecOrMat)`       
+
+Inputs
+------
+- `output`: See above 
+- `A`: See above
+- `b`: See above
+- `d`: the vector that will be multipled against b in-place 
+
+Returns
+-------
+- `output`: the output input is returned as well (as well as updated in place)        
+"""
+function stochastic_mult end
+
 function stochastic_mult!(output::StridedVecOrMat, A::SparseMatrixCSC, b::StridedVecOrMat, 
     d::StridedVecOrMat)
     
@@ -219,6 +255,16 @@ function stochastic_mult!(output::StridedVecOrMat, A::MatrixNetwork, b::StridedV
     output  
 end
 
+"""
+`SparseMatrixStochasticMult`
+============================
+
+**Expert interface** 
+
+This type is the result of creating
+an implicit stochastic operator for
+a sparse matrix.
+"""
 type SparseMatrixStochasticMult
     d::Vector{Float64}
     A::SparseMatrixCSC     
@@ -238,6 +284,16 @@ function A_mul_B!(output, op::SparseMatrixStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
 end
 
+"""
+`MatrixNetworkStochasticMult`
+============================
+
+**Expert interface** 
+
+This type is the result of creating
+an implicit stochastic operator for
+a matrix network type.
+"""
 type MatrixNetworkStochasticMult
     d::Vector{Float64}
     A::MatrixNetwork     
@@ -296,13 +352,10 @@ as follows. The behavior of the chain at state i is:
 * with probability \$\alpha\$, randomly transition to an out-neighbor
   of the current node (based on a weighted probabilities if
   the graph has non-negative weights).
-* with probability \$1-\alpha\$, jump according to a distribution
-  called the teleportation distribution and given by a vector \$v\$.
-  (In the standard case, \$v\$ is the uniform distribution over nodes,
-  but this is a parameter).
-* if there are no out-neighbors, then transition according to
-  the teleportation distribution (this is the strongly-personalized
-  problem). 
+* with probability \$1-\alpha\$, jump to a random node chosen anywhere
+  in the network. 
+* if there are no out-neighbors, then jump anywhere in the network 
+  with equal probability. 
     
 The solution satisfies a linear system of equations. This function
 will solve that linear system to a 1-norm error of `tol` where
@@ -318,9 +371,9 @@ Inputs
   computation as we will compute a stochastic normalization 
   as part of the algorithm.  
 - `alpha`: the teleportation parameter given above.
-- `v`: the teleportation distribution vector. This can be any
-  of the following types. (a) the constant 1/n; (b) the
-  identity of a single node. 
+- `tol`: the tolerance, the default choice is machine precision 
+  for floating point, which is more than enough for almost all 
+  applications. 
   
 Examples
 --------
@@ -342,8 +395,60 @@ function pagerank(A,alpha::Float64,tol::Float64)
 end
 
 """
-Documentation
+`seeded_pagerank`
+=================
+
+PageRank is the stationary distribution of a Markov chain defined
+as follows. The behavior of the chain at state i is: 
+* with probability \$\alpha\$, randomly transition to an out-neighbor
+  of the current node (based on a weighted probabilities if
+  the graph has non-negative weights).
+* with probability \$1-\alpha\$, jump according to a distribution
+  called the teleportation distribution and given by a vector \$v\$.
+  (In the standard case, \$v\$ is the uniform distribution over nodes,
+  but this is a parameter).
+* if there are no out-neighbors, then transition according to
+  the teleportation distribution (this is the strongly-personalized
+  problem).
+  
+When \$v\$ is the uniform vector, then we compute the same thing
+as the PageRank call itself.    
+    
+The solution satisfies a linear system of equations. This function
+will solve that linear system to a 1-norm error of `tol` where
+`tol` is chosen by default to be the machine precision. 
+
+The solution is always a probability distribution.        
+
+Inputs
+------
+- `A`: The sparse matrix or matrix network that you wish to use
+  to compute PageRank. In the case of a sparse matrix, it must
+  have non-negative values and the values will impact the 
+  computation as we will compute a stochastic normalization 
+  as part of the algorithm.  
+- `alpha`: the teleportation parameter given above.
+- `v`: the teleportation distribution vector. This can be
+  an integer to teleport to a single node, a set to teleport
+  (uniformly) to a set of nodes, a dictionary or sparse vector
+  to weight the teleportation. Or a general dense vector. 
+- `tol`: the tolerance that we solve the linear system to
+  (this is an error guarantee)  
+  
+Examples
+--------
+~~~~
+seeded_pagerank(A,alpha,5) 
+            # return the seeded PageRank vector 
+            # with teleportation to node 5 
+            # computed to machine precision            
+~~~~
 """
+function seeded_pagerank end
+
+seeded_pagerank(A,alpha,v) = personalized_pagerank(A,alpha,v)
+seeded_pagerank(A,alpha,v,tol) = personalized_pagerank(A,alpha,v,tol)
+
 function personalized_pagerank end
 
 function personalized_pagerank(A,alpha::Float64,v)
