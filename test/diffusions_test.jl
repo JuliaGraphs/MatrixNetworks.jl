@@ -183,8 +183,8 @@ function pagerank_perf_test()
     P3 = MatrixNetworks._create_stochastic_mult(MatrixNetwork(A))
     y = pagerank_power!(y,z,P3,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
     
-    
-    n = 100_000
+    @show "big example"
+    n = 10_000
     x = zeros(n)
     y = zeros(n)
     z = zeros(n)
@@ -222,9 +222,11 @@ end
 
 function diffusions_test()
 
+@show "Running error test"
 pagerank_error_test()
 pagerank_test()
 pagerank_alg_test()
+@show "Running perf test"
 pagerank_perf_test()
 
 
