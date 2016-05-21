@@ -575,10 +575,10 @@ function personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64)
 end
 
 function _personalized_pagerank_validated(A,alpha::Float64,v,tol::Float64)
-    x = Vector{Float64}(size(A,1))
-    y = Vector{Float64}(size(A,1))
-    #x = zeros(size(A,1))
-    #y = zeros(size(A,1))
+    #x = Vector{Float64}(size(A,1)) # these should suffice, do I still get bugs?
+    #y = Vector{Float64}(size(A,1))
+    x = zeros(size(A,1))
+    y = zeros(size(A,1))
     if alpha < 0. || alpha >= 1.
          throw(ArgumentError(@sprintf("alpha must be in [0,1), but alpha=%f",alpha)))
     end
