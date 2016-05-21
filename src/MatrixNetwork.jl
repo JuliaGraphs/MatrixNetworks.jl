@@ -48,3 +48,25 @@ function size(A::MatrixNetwork, dim::Integer)
         throw(DomainError())
     end
 end
+
+"""
+`is_undirected`
+===============
+
+Check the matrix associated with a matrix network
+for symmetry. 
+
+Input
+-----
+- `A`: a matrix network
+
+Returns
+-------
+- `bool` with true indicating the network is undirected
+    and the matrix is symmetric
+"""    
+    
+function is_undirected(A::MatrixNetwork)
+   M = sparse_transpose(A)
+   return issym(M) 
+end

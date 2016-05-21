@@ -34,12 +34,7 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
         usew = false
     end
 
-    M = sprand(A.n,A.n,0.0)
-    M.colptr = A.rp
-    M.rowval = A.ci
-    M.nzval = A.vals
-    
-    if !(M' == M)
+    if is_undirected(A) == false
         error("Only undirected (symmetric) inputs are allowed")
     end
     

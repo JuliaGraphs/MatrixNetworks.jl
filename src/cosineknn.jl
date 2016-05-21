@@ -30,10 +30,7 @@ function cosineknn(A::MatrixNetwork,K::Int64)
     # for the original matrix
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
     # for the transposed matrix:
-    M = sprand(A.n,A.n,0.0)
-    M.colptr = A.rp
-    M.rowval = A.ci
-    M.nzval = A.vals
+    M = sparse_transpose(A)
     At = MatrixNetwork(M)
     (rpt,cit,ait) = (At.rp,At.ci,At.vals)
     m = A.n
