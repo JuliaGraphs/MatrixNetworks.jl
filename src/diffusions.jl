@@ -38,8 +38,8 @@ function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
         @inbounds x[i] *= alpha
     end
     vvals = nonzeros(v)
-    vrows = rowvals(v)
-    @simd for j in nonzeroinds(v)
+    vrows = nonzeroinds(v)
+    @simd for j in 1:length(vrows)
         @inbounds x[vrows[j]] += gamma*vvals[j]
     end
 end
