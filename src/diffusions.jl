@@ -31,6 +31,21 @@ Internal function
 """
 function _applyv! end
 
+if VERSION >= v"0.5.0-dev+1000"
+function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
+                    alpha::T, gamma::T)
+    @simd for i in 1:length(x)
+        @inbounds x[i] *= alpha
+    end
+    vvals = nonzeros(v)
+    vrows = rowvals(v)
+    @simd for j in nonzeroinds(v)
+        @inbounds x[vrows[j]] += gamma*vvals[j]
+    end
+end
+
+end # version 0.5.0-dev
+
 function _applyv!{T}(x::Vector{T}, v, alpha::T, gamma::T)
     x *= alpha
     x += gamma*v
@@ -514,6 +529,30 @@ function personalized_pagerank(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol:
         vals[ind] *= valisum # normalize to sum to 1 
     end
     _personalized_pagerank_validated(A,alpha,v,tol)
+end
+
+if VERSION >= v"0.5.0-dev+1000"
+
+function personalized_pagerank(A,alpha::Float64,v::SparseVector{Float64}, tol::Float64)
+    n = size(A,1)
+    if isempty(v) 
+        throw(ArgumentError("the teleportation vector cannot be empty"))
+    end
+    if size(v,1) != n
+        throw(ArgumentError(@sprintf("as a sparsevector, v must be n-by-1 where n=%i", n)))
+    end
+    # This function automatically normalizes the values. 
+    vals = nonzeros(v)
+    valisum = 1./sum_kbn(vals)
+    for ind in eachindex(vals)
+        if vals[ind] < 0. 
+            throw(DomainError())
+        end
+        vals[ind] *= valisum # normalize to sum to 1 
+    end
+    _personalized_pagerank_validated(A,alpha,v,tol)
+end
+
 end
 
 function personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64)
