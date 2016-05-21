@@ -9,6 +9,7 @@ using Compat
 
 
 all_tests = ["matrixnetwork",
+             "diffusions",
              "bfs",
              "bipartite_matching",
              "clustercoeffs",
@@ -30,7 +31,8 @@ for t in all_tests
     test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", test_name)
     println("running $(test_path) ...")
     test_function = include(test_path)
-    @test test_function() == true
+    test_function() 
+    println("running $(test_path) ... PASSED")
 end
 
 
