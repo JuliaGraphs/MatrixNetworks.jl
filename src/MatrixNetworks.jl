@@ -47,7 +47,10 @@ include("dfs.jl")
 include("clustercoeffs.jl")
 include("corenums.jl")
 include("floydwarshall.jl")
+
 include("manage_data.jl")
+export load_matrix_network, load_matrix_network_metadata, load_matrix_network_all, 
+    matrix_network_datasets
 include("largest_component.jl")
 include("cosineknn.jl")
 include("dirclustercoeffs.jl")
@@ -61,10 +64,12 @@ export fiedler_vector, sweepcut, spectral_cut, bestset, SweepcutProfile
 export bipartite_matching, edge_list, create_sparse,
 bipartite_matching_setup, bipartite_matching_indicator, bfs,
 dfs, clustercoeffs, corenums, scomponents, strong_components_map,
-readSMAT, enrich, load_matrix_network, matrix_network_datasets,
-csr_to_sparse, load_matrix_network_metadata, floydwarshall, largest_component,
+enrich, csr_to_sparse, floydwarshall, largest_component,
 sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
 csr_to_sparse_matrix, edge_indicator
+
+include("diffusions.jl")
+export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!
 
 
 end # end module

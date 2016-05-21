@@ -5,6 +5,10 @@ function matrixnetwork_test()
     @test A == B
     C = sparse_transpose(M)
     @test A' == C
+    
+    load_matrix_network_all("minnesota")
+    load_matrix_network_all("U3A")
 
     return true
 end
+

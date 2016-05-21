@@ -307,7 +307,7 @@ immutable SweepcutProfile{V,F}
 end
 
 """
-sweepcut
+`sweepcut`
 --------
 
 A sweepcut is an operation that takes an order to
@@ -367,12 +367,14 @@ as indicated below.
 
 Example
 -------
+~~~~
 A = load_matrix_network("minnesota")
 v = fiedler_vector(A)[1] # get the
 p = sweepcut(A,v)
 S = bestset(p) # get the bestset from the profile
 T = spectral_cut(A).set # should give you the same set
 # using UnicodePlots; lineplot(p.conductance) # show the conductance
+~~~~
 """
 function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V, maxvol::T)
 
@@ -564,7 +566,7 @@ function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
     # run the partition
     x,lam2 = fiedler_vector(B;checksym=false)
 
-    totalvol = sum(A)
+    totalvol = sum(B)
     sweep = sweepcut(B,x,totalvol)
     bset = bestset(sweep)
 
