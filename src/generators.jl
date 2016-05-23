@@ -209,5 +209,108 @@ function _chung_lu_dense_undirected(d::Vector{Int})
     return _matrix_network_direct(sparse(M))
 end
 
+"""
+The internal Havel-Hakimi function has an optional store
+behavior that saves the edges as they come out of the algorithm.
+This enables us to generate a Havel Hakimi graph, which can
+be useful.
+"""
+function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vector{Int})
+    q = Collections.PriorityQueue(Int,Int,Base.Order.Reverse)
+    n = length(degs)
+    effective_n = n
+    degsum = 0
+    dmax = 0
+    for (i,d) in enumerate(degs)
+        q[i] = d
+        degsum += d
+        dmax = max(d,dmax)
+        if d < 0
+            throw(ArgumentError("the degree sequence must be non-negative"))
+        end
+    end
+    
+    if mod(degsum,2) != 0; return false; end
+    if n > 0 && dmax >= n; return false; end # n > 0 checks for the empty graph
+    
+    if store
+        resize!(ei,degsum)
+        resize!(ej,degsum)
+    end
+    
+    dlist = Vector{Pair{Int,Int}}(dmax)
+    enum = 1
+    
+    while !isempty(q)
+        vi,d = Collections.peek(q) # vi is the cur vertex, d is the cur deg
+        Collections.dequeue!(q)    # remove it
+        for n=1:d                  # make a list of each neighbor
+            if isempty(q); return false; end
+            dlist[n] = Collections.peek(q)
+            Collections.dequeue!(q)
+        end
+        # now "add" an edge from vi->neighbor, and thus, decrease it's 
+        # degree when we re-add it
+        for n=1:d
+            if store
+                ei[enum] = vi
+                ej[enum] = dlist[n][1]
+                enum += 1
+                ei[enum] = dlist[n][1]
+                ej[enum] = vi
+                enum += 1
+            end
+            if dlist[n][2] < 1
+                return false
+            elseif dlist[n][2] == 1
+                # don't both re-adding the vertex
+            else
+                q[dlist[n][1]] = dlist[n][2] - 1
+            end
+        end
+    end
+    return true
+end
+
+"""
+`is_graphical_sequence`
+=======================
+
+Check whether or not a degree sequence is graphical,
+which means that it is a valid degree sequence for 
+an undirected graph.
+
+Note that this does not mean it is a valid degree
+sequence for a connected undirected graph. So,
+for instance, 
+`[1,1,1,1]` 
+is a valid degree sequence for two
+disconnected edges
+
+Usage
+-----
+`is_graphical_sequence(d)` returns true or false 
+
+Input
+-----
+- `d::Vector{Int}`:  a vector of integer valued degrees
+
+Output
+------
+- a boolean that is true if the sequence is graphical
+""" 
+function is_graphical_sequence(d::Vector{Int})
+    return _havel_hakimi(d, false, Int[],Int[])
+end
+
+function havel_hakimi_graph(d::Vector{Int})
+    ei = Int[]
+    ej = Int[]
+    if _havel_hakimi(d, true, ei, ej) == false
+        throw(ArgumentError("the degree sequence is not graphical"))
+    end
+    return MatrixNetwork(ei,ej,length(d))
+end
+
 # TODO Add chung-lu for general floating point weights
 # via union of ER graphs add 

@@ -11,10 +11,14 @@ function MatrixNetwork{T}(A::SparseMatrixCSC{T,Int64})
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
 
-function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64})
-    At = sparse(ej,ei,true);
+MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64}) = 
+    MatrixNetwork(ei,ej,max(maximum(ei),maximum(ej)))
+
+function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64},n::Int64)
+    At = sparse(ej,ei,true,n,n);
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
+
 
 function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64})
     return MatrixNetwork(size(A,2),A.colptr,A.rowval,A.nzval)

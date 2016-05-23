@@ -74,7 +74,7 @@ export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stocha
 include("generators.jl")
 export erdos_renyi_undirected, erdos_renyi_directed, 
     erdős_rényi_undirected, erdős_rényi_directed,
-    chung_lu_undirected 
+    chung_lu_undirected, is_graphical_sequence, havel_hakimi_graph 
 
 
 end # end module
