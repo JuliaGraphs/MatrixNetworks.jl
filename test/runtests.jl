@@ -9,7 +9,7 @@ using Compat
 
 
 all_tests = ["matrixnetwork",
-             "diffusions",
+             "generators",
              "bfs",
              "bipartite_matching",
              "clustercoeffs",
@@ -17,6 +17,7 @@ all_tests = ["matrixnetwork",
              "cosineknn",
              "csr_to_sparse",
              "dfs",
+             "diffusions",
              "dijkstra",
              "dirclustercoeffs",
              "floydwarshall",

@@ -16,6 +16,14 @@ function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64})
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
 
+function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64})
+    return MatrixNetwork(size(A,2),A.colptr,A.rowval,A.nzval)
+end
+
+function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64},v)
+    nzval = ones(typeof(v),length(A.nzval))
+    return MatrixNetwork(size(A,2),A.colptr,A.rowval,nzval)
+end
 
 import Base.sparse, Base.size
 

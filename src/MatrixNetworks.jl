@@ -36,7 +36,7 @@ You can check the readme file here: \n
 MatrixNetworks
 
 include("MatrixNetwork.jl")
-export MatrixNetwork, sparse_transpose
+export MatrixNetwork, sparse_transpose, is_undirected
 
 include("scomponents.jl")
 include("csr_to_sparse.jl")
@@ -70,6 +70,11 @@ csr_to_sparse_matrix, edge_indicator
 
 include("diffusions.jl")
 export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!
+
+include("generators.jl")
+export erdos_renyi_undirected, erdos_renyi_directed, 
+    erdős_rényi_undirected, erdős_rényi_directed,
+    chung_lu_undirected 
 
 
 end # end module
