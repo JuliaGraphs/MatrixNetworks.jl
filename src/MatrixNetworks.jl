@@ -36,7 +36,7 @@ You can check the readme file here: \n
 MatrixNetworks
 
 include("MatrixNetwork.jl")
-export MatrixNetwork, sparse_transpose, is_undirected
+export MatrixNetwork, sparse_transpose, is_undirected, is_connected
 
 include("scomponents.jl")
 include("csr_to_sparse.jl")

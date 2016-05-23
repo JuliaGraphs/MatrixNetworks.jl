@@ -13,6 +13,12 @@ function matrixnetwork_test()
     @test is_undirected(MatrixNetwork(sparse([0 1; 1 0]))) == true
     @test is_undirected(MatrixNetwork(sparse([0 1; 0 1]))) == false
     @test is_undirected(MatrixNetwork(load_matrix_network("dfs_example"))) == false
+    
+    @test is_connected(havel_hakimi_graph([1,1,1,1])) == false
+    @test is_connected(havel_hakimi_graph([2,2,2])) == true
+    @test is_connected(sparse([0 1 0; 0 0 1; 1 0 0])) == true
+    @test is_connected(spzeros(1,1)) == true
+    
 
     return true
     

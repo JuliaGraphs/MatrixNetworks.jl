@@ -1,0 +1,6 @@
+@InProceedings{Veldt-2016-simple-local-flow,
+  Title = {A simple approach to localized flow-based methods},
+  Author = {Luke N. Veldt and David F. Gleich and Michael W. Mahoney},
+  Booktitle = {International Conference on Machine Learning},
+  Year = {2016},
+}

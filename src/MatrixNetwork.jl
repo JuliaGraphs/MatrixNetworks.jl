@@ -1,3 +1,5 @@
+using Compat 
+
 # create type MatrixNetwork
 type MatrixNetwork{T}
     n::Int64 # number of columns/rows
@@ -77,8 +79,44 @@ Returns
 - `bool` with true indicating the network is undirected
     and the matrix is symmetric
 """    
+function is_undirected end
     
 function is_undirected(A::MatrixNetwork)
    M = sparse_transpose(A)
-   return issym(M) 
+   return issymmetric(M) 
+end
+
+function is_undirected(A::SparseMatrixCSC)
+   return issymmetric(A) 
+end
+
+
+"""
+`is_connected`
+==============
+
+Check the matrix associated with a matrix network
+for (strong) connectivity  
+
+Usage
+-----
+- `is_connected(A)`
+
+Input
+-----
+- `A`: a `MatrixNetwork` or `SparseMatrixCSC` class
+
+Returns
+-------
+- `bool` with true indicating the matrix is strongly connected
+and false indicating 
+"""    
+function is_conected end
+
+function is_connected(A::MatrixNetwork)
+    return maximum(scomponents(A).map) == 1
+end
+
+function is_connected(A::SparseMatrixCSC)
+    return maximum(scomponents(A).map) == 1
 end
