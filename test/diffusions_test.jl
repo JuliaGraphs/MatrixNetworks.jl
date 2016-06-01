@@ -218,8 +218,57 @@ function pagerank_perf_test()
     
 end
 
+function shkexpm(A,t,v)
+    P = full(_normout(A'))
+    return expm(-t*(eye(size(A,1))-P))*v
+end
+
+function heatkernel_test()
+    seeded_stochastic_heat_kernel(speye(5),2.,1)
+    seeded_stochastic_heat_kernel(speye(5),2.,Set([1]))
+    seeded_stochastic_heat_kernel(speye(5),2.,Dict{Int,Float64}(1 => 1.))
+    seeded_stochastic_heat_kernel(speye(5),2.,sparsevec([1],[1.],5))
+    seeded_stochastic_heat_kernel(speye(5),2.,sparse([1],[1],[1.], 5, 1))
+    v = zeros(5)
+    v[1] = 1.
+    seeded_stochastic_heat_kernel(speye(5),2.,v)
+    seeded_stochastic_heat_kernel(speye(5),2.,1./5.)
+    
+    n = 5
+    v = rand(5)
+    vn = v/sum(v)
+    x = seeded_stochastic_heat_kernel(speye(5),2.,vn)
+    @test norm(x-vn,1) <= n*eps(Float64)
+   
+    n = 25
+    A = spones(sprand(n,n,2/n))
+    v = ones(n)./n
+    x = seeded_stochastic_heat_kernel(A,2.,v)
+    xtrue = shkexpm(A,2.,v)
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    x = seeded_stochastic_heat_kernel(MatrixNetwork(A),2.,v)
+    @test norm(x -xtrue,1) <= n*eps(Float64)
+    
+    n = 10
+    A = spdiagm(ones(n-1),-1,n,n)'
+    v = zeros(n)
+    v[1] = 1.
+    t = 2.
+    x = seeded_stochastic_heat_kernel(A,t,v)
+    z = zeros(n)
+    z[1] = exp(-t)
+    for i=2:n
+        z[i] = z[i-1]*t./(i-1.)
+    end
+    @test norm(x-z,1) <= n*eps(Float64)
+    
+end
+
 
 function diffusions_test()
+
+heatkernel_test()
 
 pagerank_error_test()
 pagerank_test()

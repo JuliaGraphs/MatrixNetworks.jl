@@ -636,7 +636,7 @@ function stochastic_heat_kernel_series!{T}(
     maxiter::Int)
     
     iexpt = exp(-t)
-    _applyv(y,v,0.,1.) # iteration number 0
+    _applyv!(y,v,0.,1.) # iteration number 0
     # scale by iexpt
     @simd for i=1:length(x)
         @inbounds x[i] = iexpt*y[i]
@@ -675,7 +675,7 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s)
 end
 
 function seeded_stochastic_heat_kernel(A,t::Float64,s::Float64,tol::Float64)
-    if abs(v - 1./size(A,1)) >= eps(Float64)
+    if abs(s - 1./size(A,1)) >= eps(Float64)
         throw(DomainError())
     end
 end
@@ -705,7 +705,7 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s::Dict{Int,Float64},tol::Fl
     if isempty(s) 
         throw(ArgumentError("the seed vector cannot be empty"))
     end
-    if length(v) >= n/3 # TODO validate this size
+    if length(s) >= n/3 # TODO validate this size
         # use a dense call
         densev = _densevec(s, size(A,1))
         return seeded_stochastic_heat_kernel(A,t,densev,tol) # normalized in the next call 
@@ -715,7 +715,7 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s::Dict{Int,Float64},tol::Fl
     end
 end
 
-function seeded_heat_kernel(A,t::Float64,s::SparseMatrixCSC{Float64},tol::Float64)
+function seeded_stochastic_heat_kernel(A,t::Float64,s::SparseMatrixCSC{Float64},tol::Float64)
     n = size(A,1)
     if isempty(s) 
         throw(ArgumentError("the seed vector cannot be empty"))
@@ -737,7 +737,7 @@ end
 
 if VERSION >= v"0.5.0-dev+1000"
 
-function seeded_heat_kernel(A,t::Float64,v::SparseVector{Float64}, tol::Float64)
+function seeded_stochastic_heat_kernel(A,t::Float64,v::SparseVector{Float64}, tol::Float64)
     n = size(A,1)
     if isempty(s) 
         throw(ArgumentError("the seed vector cannot be empty"))
@@ -759,13 +759,13 @@ end
 
 end # sparsevector
 
-function seeded_heat_kernel(A,t::Float64,s::Vector{Float64},tol::Float64)
+function seeded_stochastic_heat_kernel(A,t::Float64,s::Vector{Float64},tol::Float64)
     n = size(A,1)
-    if isempty(v) 
+    if isempty(s) 
         throw(ArgumentError("the seed vector cannot be empty"))
     end
-    if size(v,1) != n
-        throw(ArgumentError(@sprintf("as a sparsevector, s must be n-by-1 where n=%i", n)))
+    if size(s,1) != n
+        throw(ArgumentError(@sprintf("as a vector, s must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
     valisum = 1./sum_kbn(s) 
@@ -813,7 +813,7 @@ function _seeded_heat_kernel_validated(A,t::Float64,s,tol::Float64)
     x = zeros(size(A,1))
     y = zeros(size(A,1))
     z = zeros(size(A,1))
-    if t < 0. || isfinite(t)
+    if t < 0. || !isfinite(t)
          throw(ArgumentError(@sprintf("t must be in [0,infty), but t=%f",t)))
     end
     #maxiter = 2*ceil(Int,log(tol)/log(alpha))
@@ -825,7 +825,7 @@ function _seeded_heat_kernel_validated(A,t::Float64,s,tol::Float64)
     
     return stochastic_heat_kernel_series!(x, y, z,
                  _create_stochastic_mult(A), 
-                t, s, tol, maxiter, _noiterfunc)
+                t, s, tol, maxiter)
 end
 
 #=
