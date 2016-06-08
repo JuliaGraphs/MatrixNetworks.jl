@@ -380,6 +380,12 @@ will solve that linear system to a 1-norm error of `tol` where
 
 The solution is always a probability distribution.        
 
+Functions
+---------
+* `x = pagerank(A::SparseMatrixCSC{V,Int},alpha::Float64)`
+* `x = pagerank(A::MatrixNetwork{V},alpha::Float64)`
+* `x = pagerank(A,alpha,eps::Float64)` specifies solution tolerance too.        
+
 Inputs
 ------
 - `A`: The sparse matrix or matrix network that you wish to use
@@ -391,7 +397,7 @@ Inputs
 - `tol`: the tolerance, the default choice is machine precision 
   for floating point, which is more than enough for almost all 
   applications. 
-  
+
 Examples
 --------
 ~~~~
@@ -435,7 +441,21 @@ The solution satisfies a linear system of equations. This function
 will solve that linear system to a 1-norm error of `tol` where
 `tol` is chosen by default to be the machine precision. 
 
-The solution is always a probability distribution.        
+The solution is always a probability distribution.
+
+Functions
+---------
+* For any input, A can be either `A::SparseMatrixCSC{V,Int}` for some value
+  type V or `A::MatrixNetwork{V}`
+* `x = seeded_pagerank(A,alpha::Float64,v::Float64)`
+* `x = seeded_pagerank(A,alpha::Float64,v::Int)`
+* `x = seeded_pagerank(A,alpha::Float64,v::Set{Int})`
+* `x = seeded_pagerank(A,alpha::Float64,v::Dict{Int,Float64})`
+* `x = seeded_pagerank(A,alpha::Float64,v::SparseMatrixCSC{Float64})`
+* `x = seeded_pagerank(A,alpha::Float64,v::SparseVector{Float64})`
+* `x = seeded_pagerank(A,alpha::Float64,v::Vector{Float64})`
+* `x = seeded_pagerank(A,alpha::Float64,v::Vector{Float64})`
+* `x = seeded_pagerank(A,alpha,v,eps::Float64)` specifies solution tolerance too.        
 
 Inputs
 ------
@@ -451,15 +471,15 @@ Inputs
   to weight the teleportation. Or a general dense vector. 
 - `tol`: the tolerance that we solve the linear system to
   (this is an error guarantee)  
-  
+
 Examples
 --------
-~~~~
+~~~
 seeded_pagerank(A,alpha,5) 
             # return the seeded PageRank vector 
             # with teleportation to node 5 
             # computed to machine precision            
-~~~~
+~~~
 """
 function seeded_pagerank end
 
@@ -492,10 +512,10 @@ function personalized_pagerank(A,alpha::Float64,v::Set{Int},tol::Float64)
     if length(v) >= n/3 # TODO validate this size
         # use a dense call
         densev = _densevec(collect(v), ones(Float64, length(v)), size(A,1))
-        return personalized_pagerank(A,alpha,densev,tol) # normalized in the next call 
+        return personalized_pagerank!(A,alpha,densev,tol) # normalized in the next call 
     else
         sparsev = sparsevec(collect(v), ones(Float64, length(v)), size(A,1))
-        return personalized_pagerank(A,alpha,sparsev,tol) # normalized in the next call
+        return personalized_pagerank!(A,alpha,sparsev,tol) # normalized in the next call
     end 
 end
 
@@ -507,14 +527,17 @@ function personalized_pagerank(A,alpha::Float64,v::Dict{Int,Float64},tol::Float6
     if length(v) >= n/3 # TODO validate this size
         # use a dense call
         densev = _densevec(v, size(A,1))
-        return personalized_pagerank(A,alpha,densev,tol) # normalized in the next call 
+        return personalized_pagerank!(A,alpha,densev,tol) # normalized in the next call 
     else
         sparsev = sparsevec(v, size(A,1))
-        return personalized_pagerank(A,alpha,sparsev,tol) # normalized in the next call
+        return personalized_pagerank!(A,alpha,sparsev,tol) # normalized in the next call
     end
 end
 
-function personalized_pagerank(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol::Float64)
+personalized_pagerank(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol::Float64) = 
+    personalized_pagerank!(A,alpha,deepcopy(v),tol)
+
+function personalized_pagerank!(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol::Float64)
     n = size(A,1)
     if isempty(v) 
         throw(ArgumentError("the teleportation vector cannot be empty"))
@@ -536,7 +559,10 @@ end
 
 if VERSION >= v"0.5.0-dev+1000"
 
-function personalized_pagerank(A,alpha::Float64,v::SparseVector{Float64}, tol::Float64)
+personalized_pagerank(A,alpha::Float64,v::SparseVector{Float64},tol::Float64) = 
+    personalized_pagerank!(A,alpha,deepcopy(v),tol)
+
+function personalized_pagerank!(A,alpha::Float64,v::SparseVector{Float64}, tol::Float64)
     n = size(A,1)
     if isempty(v) 
         throw(ArgumentError("the teleportation vector cannot be empty"))
@@ -558,7 +584,10 @@ end
 
 end
 
-function personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64)
+personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64) = 
+    personalized_pagerank!(A,alpha,deepcopy(v),tol)
+
+function personalized_pagerank!(A,alpha::Float64,v::Vector{Float64},tol::Float64)
     n = size(A,1)
     if isempty(v) 
         throw(ArgumentError("the teleportation vector cannot be empty"))
@@ -609,9 +638,8 @@ this function further guarantees
 The algorithm is just a direct evaluation of the power
 series represented by the heat kernel operation.  
 
-** Expert interface, see `stochastic_heat_kernel` or
-`seeded_stochastic_heat_kernel` for more user-friendly
-interfaces.**
+** Expert interface, see `seeded_stochastic_heat_kernel` 
+for more user-friendly interfaces.**
 
 Inputs
 ------
@@ -628,6 +656,12 @@ Inputs
 Returns
 -------
 -`x`: the result of the stochastic heat kernel evaluation
+
+Example
+-------
+~~~~
+# TODO Show an example of how to use the expert interface
+~~~~
 
 """
 function stochastic_heat_kernel_series!{T}(
@@ -649,9 +683,7 @@ function stochastic_heat_kernel_series!{T}(
     for k=1:maxiter
         A_mul_B!(z,P,y)       # compute z = P*y
         coeff = coeff*t/k  
-        @simd for i=1:length(x)
-            x[i] = x[i] + (iexpt*coeff)*z[i]
-        end
+        BLAS.axpy!(iexpt*coeff, z, x)
         y,z = z,y # swap
         
         err = err - coeff
@@ -667,6 +699,51 @@ end
 """
 `seeded_stochastic_heat_kernel`
 ===============================
+
+Compute the stochastic heat kernel, the result
+of \$x = \exp(-t(I - P)) s \$ where \$s\$ is a stochastic
+seed vector and \$t\$ is a time parameter and
+\$P\$ is a column-stochastic or sub-stochastic
+matrix. 
+
+This function will return a vector \$x\$ such that
+\$ \| x - x_{\mbox{exact}} \|_1 \le \$ `eps`, and
+this function further guarantees 
+\$x_{\mbox{exact}} - x \ge 0\$.
+
+Functions
+---------
+* The input A can be either a `A::SparseMatrixCSC{V,Int}` or `A::MatrixNetwork{V}`
+  for some value type `V` 
+* `seeded_stochastic_heat_kernel(A,t::Float64,s)` provides the stochastic seed `s` in any
+  of the following forms:
+* `seeded_stochastic_heat_kernel(A,t,s::Float64)`: s must be the number 1/size(A,1)
+  and this corresponds to using the all-ones vector. 
+* `seeded_stochastic_heat_kernel(A,t,s::Int)` use the vector with just a single non-zero
+* `seeded_stochastic_heat_kernel(A,t,s::Set{Int})` 
+* `seeded_stochastic_heat_kernel(A,t,s::Dict{Int,Float64})`
+* `seeded_stochastic_heat_kernel(A,t,s::SparseMatrixCSC{Float64,Int})`
+* `seeded_stochastic_heat_kernel(A,t,s::SparseVector{Float64,Int})`
+* `seeded_stochastic_heat_kernel(A,t,s::Vector{Float64})`      
+* `seeded_stochastic_heat_kernel(A,t::Float64,s,eps::Float64)`: specifies 
+  the solution tolerance (default `eps=eps(Float64)`)
+
+Inputs
+------
+-`A`: A sparse matrix with non-negative entries or a matrix network object 
+-`t`: the value of time in the heat kernel \$0 <= t\$
+-`eps`: the solution tolerance \$ 0 < eps < 1 \$
+-`s`: the stochastic seed vector, this will be normalized to be stochastic
+
+Returns
+-------
+-`x`: the result of the stochastic heat kernel evaluation
+
+Examples
+--------
+~~~
+
+~~~
 """
 function seeded_stochastic_heat_kernel end
 
@@ -693,10 +770,10 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s::Set{Int},tol::Float64)
     if length(s) >= n/3 # TODO validate this size
         # use a dense call
         densev = _densevec(collect(s), ones(Float64, length(s)), size(A,1))
-        return seeded_stochastic_heat_kernel(A,t,densev,tol) # normalized in the next call 
+        return seeded_stochastic_heat_kernel!(A,t,densev,tol) # normalized in the next call 
     else
         sparsev = sparsevec(collect(s), ones(Float64, length(s)), size(A,1))
-        return seeded_stochastic_heat_kernel(A,t,sparsev,tol) # normalized in the next call
+        return seeded_stochastic_heat_kernel!(A,t,sparsev,tol) # normalized in the next call
     end 
 end
 
@@ -708,14 +785,43 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s::Dict{Int,Float64},tol::Fl
     if length(s) >= n/3 # TODO validate this size
         # use a dense call
         densev = _densevec(s, size(A,1))
-        return seeded_stochastic_heat_kernel(A,t,densev,tol) # normalized in the next call 
+        return seeded_stochastic_heat_kernel!(A,t,densev,tol) # normalized in the next call 
     else
         sparsev = sparsevec(s, size(A,1))
-        return seeded_stochastic_heat_kernel(A,t,sparsev,tol) # normalized in the next call
+        return seeded_stochastic_heat_kernel!(A,t,sparsev,tol) # normalized in the next call
     end
 end
 
-function seeded_stochastic_heat_kernel(A,t::Float64,s::SparseMatrixCSC{Float64},tol::Float64)
+seeded_stochastic_heat_kernel(A,t::Float64,s::SparseMatrixCSC{Float64},tol::Float64) =
+    seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
+
+function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseMatrixCSC{Float64},tol::Float64)
+    n = size(A,1)
+    if isempty(s) 
+        throw(ArgumentError("the seed vector cannot be empty"))
+    end
+    if size(s,1) != n
+        throw(ArgumentError(@sprintf("as a sparsevector, s must be n-by-1 where n=%i", n)))
+    end
+    s = copy(s)
+    # This function automatically normalizes the values. 
+    vals = nonzeros(s)
+    valisum = 1./sum_kbn(vals)
+    for ind in eachindex(vals)
+        if vals[ind] < 0. 
+            throw(DomainError())
+        end
+        vals[ind] *= valisum # normalize to sum to 1 
+    end
+    _seeded_heat_kernel_validated(A,t,s,tol)
+end
+
+if VERSION >= v"0.5.0-dev+1000"
+
+seeded_stochastic_heat_kernel(A,t::Float64,s::SparseVector{Float64},tol::Float64) =
+    seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
+    
+function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseVector{Float64}, tol::Float64)
     n = size(A,1)
     if isempty(s) 
         throw(ArgumentError("the seed vector cannot be empty"))
@@ -735,31 +841,12 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s::SparseMatrixCSC{Float64},
     _seeded_heat_kernel_validated(A,t,s,tol)
 end
 
-if VERSION >= v"0.5.0-dev+1000"
-
-function seeded_stochastic_heat_kernel(A,t::Float64,v::SparseVector{Float64}, tol::Float64)
-    n = size(A,1)
-    if isempty(s) 
-        throw(ArgumentError("the seed vector cannot be empty"))
-    end
-    if size(v,1) != n
-        throw(ArgumentError(@sprintf("as a sparsevector, s must be n-by-1 where n=%i", n)))
-    end
-    # This function automatically normalizes the values. 
-    vals = nonzeros(s)
-    valisum = 1./sum_kbn(vals)
-    for ind in eachindex(vals)
-        if vals[ind] < 0. 
-            throw(DomainError())
-        end
-        vals[ind] *= valisum # normalize to sum to 1 
-    end
-    _seeded_heat_kernel_validated(A,t,s,tol)
-end
-
 end # sparsevector
 
-function seeded_stochastic_heat_kernel(A,t::Float64,s::Vector{Float64},tol::Float64)
+seeded_stochastic_heat_kernel(A,t::Float64,s::Vector{Float64},tol::Float64) =
+    seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
+      
+function seeded_stochastic_heat_kernel!(A,t::Float64,s::Vector{Float64},tol::Float64)
     n = size(A,1)
     if isempty(s) 
         throw(ArgumentError("the seed vector cannot be empty"))
@@ -808,7 +895,11 @@ function _hk_taylor_degree(t::Float64, eps::Float64, maxdeg::Int)
     return max(k,1)
 end
 
-
+"""
+This internal function actually allocates the memory and calls the 
+heat kernel algorithm. This could change in the future based on the 
+type of graph provided. 
+"""
 function _seeded_heat_kernel_validated(A,t::Float64,s,tol::Float64)
     x = zeros(size(A,1))
     y = zeros(size(A,1))

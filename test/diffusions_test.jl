@@ -263,6 +263,9 @@ function heatkernel_test()
     end
     @test norm(x-z,1) <= n*eps(Float64)
     
+    @test abs(seeded_stochastic_heat_kernel(spzeros(1,1),2.,1)[1] - exp(-2.)) <= 10*eps(Float64)
+    @test abs(seeded_stochastic_heat_kernel(spzeros(1,1),5.,1)[1] - exp(-5.)) <= 10*eps(Float64)
+    @test abs(seeded_stochastic_heat_kernel(speye(1,1),2.,1)[1] - 1.) <= 10*eps(Float64) 
 end
 
 
