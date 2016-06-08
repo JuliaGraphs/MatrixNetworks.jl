@@ -10,6 +10,14 @@ function erdos_renyi_test()
         
     @test is_undirected(erdos_renyi_undirected(10,2.))
     
+    erdos_renyi_undirected(5, 0.)
+    erdos_renyi_undirected(5, 1.)
+    @test all(diag(sparse_transpose(erdos_renyi_undirected(10, 0.5))) .== 0.)
+    erdos_renyi_directed(5, 0.)
+    erdos_renyi_directed(5, 1.)
+    @test all(diag(sparse_transpose(erdos_renyi_directed(10, 0.5))) .== 0.)
+    
+    
 end
 
 function chung_lu_test() 

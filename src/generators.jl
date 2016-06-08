@@ -76,7 +76,7 @@ function erdos_renyi_directed(n::Int, p::Float64)
     
     A = sprand(n,n,p)
     
-    return _matrix_network_direct(A-diag(diag(A)),1) # directions don't matter
+    return _matrix_network_direct(A-spdiagm(diag(A),0)) # directions don't matter
 end
 
 erdős_rényi_directed(n,p) = erdos_renyi_directed(n,p)
