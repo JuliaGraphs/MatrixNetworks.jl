@@ -111,7 +111,7 @@ Returns
 - `bool` with true indicating the matrix is strongly connected
 and false indicating 
 """    
-function is_conected end
+function is_connected end
 
 function is_connected(A::MatrixNetwork)
     return maximum(scomponents(A).map) == 1

@@ -69,7 +69,8 @@ sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
 csr_to_sparse_matrix, edge_indicator
 
 include("diffusions.jl")
-export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!
+export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!, 
+        seeded_stochastic_heat_kernel, stochastic_heat_kernel_series!
 
 include("generators.jl")
 export erdos_renyi_undirected, erdos_renyi_directed, 
