@@ -1,4 +1,5 @@
  [![Build Result] (https://travis-ci.org/nassarhuda/MatrixNetworks.jl.svg?branch=master)](https://travis-ci.org/nassarhuda/MatrixNetworks.jl)
+ [![codecov.io](http://codecov.io/github/nassarhuda/MatrixNetworks.jl/coverage.svg?branch=master)](http://codecov.io/github/nassarhuda/MatrixNetworks.jl?branch=master)
 
 
 # MatrixNetworks
