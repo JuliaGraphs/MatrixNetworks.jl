@@ -1,3 +1,5 @@
+using Compat 
+
 # create type MatrixNetwork
 type MatrixNetwork{T}
     n::Int64 # number of columns/rows
@@ -11,9 +13,30 @@ function MatrixNetwork{T}(A::SparseMatrixCSC{T,Int64})
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
 
-function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64})
-    At = sparse(ej,ei,true);
+function _second(x)
+    return x[2]
+end    
+
+MatrixNetwork(edges::Vector{Tuple{Int,Int}}, n::Int) =
+    MatrixNetwork(map(first,edges),map(_second,edges), n)
+   
+
+MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64}) = 
+    MatrixNetwork(ei,ej,max(maximum(ei),maximum(ej)))
+
+function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64},n::Int64)
+    At = sparse(ej,ei,true,n,n);
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
+end
+
+
+function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64})
+    return MatrixNetwork(size(A,2),A.colptr,A.rowval,A.nzval)
+end
+
+function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64},v)
+    nzval = ones(typeof(v),length(A.nzval))
+    return MatrixNetwork(size(A,2),A.colptr,A.rowval,nzval)
 end
 
 
@@ -47,4 +70,82 @@ function size(A::MatrixNetwork, dim::Integer)
     else
         throw(DomainError())
     end
+end
+
+"""
+`is_empty`
+==========
+
+Return true if the graph is the empty graph and 
+false otherwise. 
+
+Functions
+---------
+-`is_empty(A::MatrixNetwork)`
+
+Example
+-------
+~~~~
+is_empty(MatrixNetwork(Int[],Int[],0))
+is_empty(erdos_renyi_undirected(0,0))
+~~~~
+"""
+is_empty(A::MatrixNetwork) = size(A,1) == 0 
+
+"""
+`is_undirected`
+===============
+
+Check the matrix associated with a matrix network
+for symmetry. 
+
+Input
+-----
+- `A`: a matrix network
+
+Returns
+-------
+- `bool` with true indicating the network is undirected
+    and the matrix is symmetric
+"""    
+function is_undirected end
+    
+function is_undirected(A::MatrixNetwork)
+   M = sparse_transpose(A)
+   return issymmetric(M) 
+end
+
+function is_undirected(A::SparseMatrixCSC)
+   return issymmetric(A) 
+end
+
+
+"""
+`is_connected`
+==============
+
+Check the matrix associated with a matrix network
+for (strong) connectivity  
+
+Usage
+-----
+- `is_connected(A)`
+
+Input
+-----
+- `A`: a `MatrixNetwork` or `SparseMatrixCSC` class
+
+Returns
+-------
+- `bool` with true indicating the matrix is strongly connected
+and false indicating 
+"""    
+function is_connected end
+
+function is_connected(A::MatrixNetwork)
+    return maximum(scomponents(A).map) == 1
+end
+
+function is_connected(A::SparseMatrixCSC)
+    return maximum(scomponents(A).map) == 1
 end
