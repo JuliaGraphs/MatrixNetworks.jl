@@ -13,6 +13,14 @@ function MatrixNetwork{T}(A::SparseMatrixCSC{T,Int64})
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
 
+function _second(x)
+    return x[2]
+end    
+
+MatrixNetwork(edges::Vector{Tuple{Int,Int}}, n::Int) =
+    MatrixNetwork(map(first,edges),map(_second,edges), n)
+   
+
 MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64}) = 
     MatrixNetwork(ei,ej,max(maximum(ei),maximum(ej)))
 
@@ -30,6 +38,7 @@ function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64},v)
     nzval = ones(typeof(v),length(A.nzval))
     return MatrixNetwork(size(A,2),A.colptr,A.rowval,nzval)
 end
+
 
 import Base.sparse, Base.size
 
@@ -62,6 +71,26 @@ function size(A::MatrixNetwork, dim::Integer)
         throw(DomainError())
     end
 end
+
+"""
+`is_empty`
+==========
+
+Return true if the graph is the empty graph and 
+false otherwise. 
+
+Functions
+---------
+-`is_empty(A::MatrixNetwork)`
+
+Example
+-------
+~~~~
+is_empty(MatrixNetwork(Int[],Int[],0))
+is_empty(erdos_renyi_undirected(0,0))
+~~~~
+"""
+is_empty(A::MatrixNetwork) = size(A,1) == 0 
 
 """
 `is_undirected`

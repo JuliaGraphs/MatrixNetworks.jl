@@ -10,14 +10,18 @@ function erdos_renyi_test()
         
     @test is_undirected(erdos_renyi_undirected(10,2.))
     
+    erdos_renyi_undirected(0, 0.)
+    erdos_renyi_undirected(0, 0)
+    erdos_renyi_undirected(5, 0)
     erdos_renyi_undirected(5, 0.)
     erdos_renyi_undirected(5, 1.)
+    erdos_renyi_undirected(5, 1)
     @test all(diag(sparse_transpose(erdos_renyi_undirected(10, 0.5))) .== 0.)
+    erdos_renyi_directed(0, 0)
+    erdos_renyi_directed(0, 0)
     erdos_renyi_directed(5, 0.)
     erdos_renyi_directed(5, 1.)
     @test all(diag(sparse_transpose(erdos_renyi_directed(10, 0.5))) .== 0.)
-    
-    
 end
 
 function chung_lu_test() 
@@ -49,11 +53,30 @@ function havel_hakimi_test()
         
 end
 
+function pa_graph_test()
+    @assert typeof(pa_graph(10,5,5)) == MatrixNetwork{Bool}
+    @assert typeof(pa_edges!(2,1,[(1,1)])) == Vector{Tuple{Int,Int}}
+    @test_throws ArgumentError pa_edges!(5,2,Vector{Tuple{Int,Int}}())
+    if VERSION >= v"0.5.0"
+        @test is_empty(pa_graph(0,0,0)) == true
+    end
+    @test all(diag(sparse_transpose(pa_graph(10, 2, 3))) .== 0.)
+    @test is_undirected(pa_graph(10, 12, 3))
+    @test_throws ArgumentError pa_graph(-1,10,3)
+    @test_throws ArgumentError pa_graph(5,10,-3)
+    @test maximum(map(first, pa_edges!(5,1,[(1,2),(2,1)],2))) == 7
+    @test size(pa_graph(10,5,5),1) == 10
+    @test size(pa_graph(10,-5,5),1) == 10
+    @test nnz(sparse_transpose(pa_graph(10,-5,5))) == 20  
+    
+end
+
 function generators_test()
 
 erdos_renyi_test()
 chung_lu_test()
 havel_hakimi_test()
+pa_graph_test()
 return true
 
 end
