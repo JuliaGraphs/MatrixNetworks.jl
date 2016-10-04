@@ -90,15 +90,15 @@ function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normaliz
         end
     end
     
-    ew = 1
-    ew2 = 1
+    ew = one(T)
+    ew2 = one(T)
     for v = 1:n
         # setup counts for the different cycle types
-        bilatedges = 0
-        curcccyc = 0
-        curccmid = 0
-        curccin = 0
-        curccout = 0
+        bilatedges = 0.0
+        curcccyc = 0.0
+        curccmid = 0.0
+        curccin = 0.0
+        curccout = 0.0
         # 1.  
         # find triangles with out links as last step, so precompute the inlinks
         # back to node v
