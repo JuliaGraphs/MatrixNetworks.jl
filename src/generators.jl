@@ -432,14 +432,16 @@ Example
 -------
 ~~~~ 
 pa_graph(100,5,2)
-pa_edges!(
 ~~~~    
 """
 function preferential_attachment_graph end
 
 function preferential_attachment_graph(n::Int,k::Int,k0::Int)
-    n >= 0 || throw(ArgumentError(@sprintf("n=%i must be non-negative",n)))
-    k0 >= 1 || throw(ArgumentError(@sprintf("k=%i must be strictly positive",k0)))
+    #n >= 0 || throw(ArgumentError(@sprintf("n=%i must be non-negative",n)))
+    #k >= 1 || throw(ArgumentError(@sprintf("k=%i must be strictly positive",k0)))
+    k0 >= 0 || throw(ArgumentError(@sprintf("k0=%i must be non-negative",n)))
+    n >= k0 || throw(ArgumentError(@sprintf("n=%i must be >= k0=%i",n, k0)))
+    #k >= 0 || throw(ArgumentError(@sprintf("k=%i must be non-negative",k)))
     edges = Vector{Tuple{Int,Int}}()
     # add the clique
     for i=1:k0
@@ -448,7 +450,7 @@ function preferential_attachment_graph(n::Int,k::Int,k0::Int)
             push!(edges, (j,i))
         end
     end
-    edges = MatrixNetwork(preferential_attachment_edges!(n-k0,k,edges,k0),n)
+    return MatrixNetwork(preferential_attachment_edges!(n-k0,k,edges,k0),n)
 end
 
 function preferential_attachment_edges!(nnew::Int,k::Int,edges::Vector{Tuple{Int,Int}})
