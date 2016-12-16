@@ -1,6 +1,6 @@
 using MatrixNetworks
 Output = true
-A = load_matrix_network("bicc_example_1")
+A = load_matrix_network("bicc_example_5")
 B = MatrixNetwork(A) 
 tic();
 bcc = biconnected(B)

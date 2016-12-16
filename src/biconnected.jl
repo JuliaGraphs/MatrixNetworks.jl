@@ -14,6 +14,12 @@ This implementation is based on the algorithm provided by Tarjan in "Depth-First
 
 Functions
 ---------
+
+biconnected_component(A::MatrixNetwork)                         Returns the Biconnected Components (with articulation points) on the given undirected graph
+
+rich_output(A::MatrixNetwork, biconnected_component_id::Int64)  Returns the largest biconnected component if the biconnected_component_id parameter is zero or                                                                less. Else return the component specified.  
+
+
 """
 
 type biconnected_components_output
@@ -41,7 +47,7 @@ function biconnected_component(A::MatrixNetwork)
     root_children= 0
     articulation = zeros(Int64,n)
     
-    #start dfs at 1
+    #start dfs at 1.
     for sv=1:n
         v=sv
         if dt[v]>0
@@ -131,7 +137,7 @@ function rich_output(A::MatrixNetwork, biconnected_component_id::Int64 = 0)
     component_edges = Tuple{Int,Int}[]
     max_id=max_count=current_count=0
     prev_id=0
-    if biconnected_component_id <= 0
+    if biconnected_component_id <= 0 #Return the largest biconnected component
         for (u,v,id) in mapping
             current_id=id
             if current_id == prev_id
@@ -148,7 +154,7 @@ function rich_output(A::MatrixNetwork, biconnected_component_id::Int64 = 0)
         biconnected_component_id = max_id
     end
     
-    if biconnected_component_id >= cn 
+    if biconnected_component_id >= cn # Returns empty list if the component number is incorrect
         return component_edges
     end           
     for (u,v,id) in mapping
