@@ -1,16 +1,19 @@
 using MatrixNetworks
-Output = true
-A = load_matrix_network("bicc_example_5")
+Output = false
+A = load_matrix_network("biconnected_example")
+#A = empty_graph(5)
+#A = empty_graph()
 B = MatrixNetwork(A) 
 tic();
 bcc = biconnected(B)
 toc();
-bcc_max = rich_output(B,9)
-print(bcc_max)
+(bcc_edges,component_edges) = enrich_biconnected(B,0)
+print(bcc_edges)
 print("\n")
+print(component_edges)
 if (Output)
-    print(bcc.bcc_edges)
+    print(bcc.biconnected_components_label)
     print("\n")
-    print(bcc.Articulation_points)
+    print(bcc.articulation_points)
     print("\n")
 end
