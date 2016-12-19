@@ -258,10 +258,10 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
                 end
             end
             for j=1:head-1
-                alpha[queue[j]] = alpha[queue[j]] - theta
+                alpha[queue[j]] -= theta
             end
             for j=1:ntmod
-                bt[tmod[j]] = bt[tmod[j]] + theta
+                bt[tmod[j]] += theta
             end
             continue
         end
@@ -286,31 +286,29 @@ function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64},
     return M_output
 end
 
-
+function bipartite_matching_primal_dual(M_setup::Matching_setup)
+    return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
+                                          M_setup.m, M_setup.n)
+end
 
 ####################
 ##    Functions    #
 ####################
 
 function bipartite_matching{T}(A::SparseMatrixCSC{T,Int64})
-    M_setup = bipartite_matching_setup(A)
-    return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
-                                          M_setup.m, M_setup.n)
+    return bipartite_matching_primal_dual(bipartite_matching_setup(A))
 end
 
 
 function bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
                                         ej::Vector{Int64},m::Int64,n::Int64)
-    M_setup = bipartite_matching_setup(w,ei,ej,m,n)
-    return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
-                                          M_setup.m, M_setup.n)
+    return bipartite_matching_primal_dual(bipartite_matching_setup(w,ei,ej,m,n))
 end
 
 function bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
                                         ej::Vector{Int64})
-    M_setup = bipartite_matching_setup(w,ei,ej,maximum(ei),maximum(ej))
-    return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
-                                          M_setup.m, M_setup.n)
+    return bipartite_matching_primal_dual(bipartite_matching_setup(
+        w,ei,ej,maximum(ei),maximum(ej)))
 end
 
 ####################

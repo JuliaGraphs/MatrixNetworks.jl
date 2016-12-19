@@ -388,28 +388,28 @@ Functions
 ---------
 The following functions are synonyms
 
--`preferential_attachment_graph`     
--`pa_graph`
+- `preferential_attachment_graph`
+- `pa_graph`
 
 and
 
--`preferential_attachment_edges!`
--`pa_edges!`
+- `preferential_attachment_edges!`
+- `pa_edges!`
 
 The computational functions are
 
--`pa_graph(n,k,k0)` Generate a PA graph with a k0 node clique
+- `pa_graph(n,k,k0)` Generate a PA graph with a k0 node clique
   and n total nodes and k edges added per node. This returns
   a MatrixNetwork type
 
 The edge functions are
   
--`pa_edges!(nnew,k,edges)` Add new edges to an 
+- `pa_edges!(nnew,k,edges)` Add new edges to an 
   existing set by adding `nnew` nodes to the set of edges
   where each node picks k edges based on the degrees. The
   new node ids are based on the largest entry in the edges
   array. 
--`pa_edges!(nnew,k,edges,n0)` Generate a set of edges total`
+- `pa_edges!(nnew,k,edges,n0)` Generate a set of edges total`
   nodes to the set of edges where n0+1 is the starting index
   for the new set of nodes   
      
@@ -434,7 +434,7 @@ Example
 pa_graph(100,5,2)
 ~~~~    
 """
-function preferential_attachment_graph end
+:preferential_attachment_graph, :pa_graph, :pa_edges!, :preferential_attachment_edges!
 
 function preferential_attachment_graph(n::Int,k::Int,k0::Int)
     #n >= 0 || throw(ArgumentError(@sprintf("n=%i must be non-negative",n)))
