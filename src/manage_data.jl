@@ -1,5 +1,7 @@
 #using Lint
 
+using Compat
+
 function readSMAT(filename::AbstractString)
     (rows,header) = readdlm(filename;header=true)
     A = sparse(
@@ -25,7 +27,7 @@ function load_matrix_network_all(name::AbstractString)
     
     meta_source = joinpath(pathname,"$(name).source")
     if isfile(meta_source)
-        source = open(readall, meta_source)
+        source = open(readstring, meta_source)
     else
         source = "(None given)"
     end

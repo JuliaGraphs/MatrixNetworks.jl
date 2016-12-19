@@ -48,10 +48,10 @@ function _symeigs_smallest_arpack{V}(
     mode = 1
     sym = true
     iscmplx = false
-    bmat = ByteString("I")
+    bmat = Compat.String("I") # ByteString on Julia 0.4, String on 0.5
     ncv = min(max(2*nev,20),n-1)
 
-    whichstr = ByteString("SA")
+    whichstr = Compat.String("SA") # ByteString on Julia 0.4, String on 0.5
     ritzvec = true
     sigma = 0.
 
@@ -105,7 +105,7 @@ function _symeigs_smallest_arpack{V}(
     # eigenvectors.
 
     # calls to eupd
-    howmny = ByteString("A")
+    howmny = Compat.String("A") # ByteString on Julia 0.4, String on 0.5
     select = Array(Base.LinAlg.BlasInt, ncv)
 
     d = Array(V, nev)
