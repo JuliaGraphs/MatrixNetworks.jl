@@ -434,7 +434,7 @@ Example
 pa_graph(100,5,2)
 ~~~~    
 """
-:preferential_attachment_graph, :pa_graph, :pa_edges!, preferential_attachment_edges!
+:preferential_attachment_graph, :pa_graph, :pa_edges!, :preferential_attachment_edges!
 
 function preferential_attachment_graph(n::Int,k::Int,k0::Int)
     #n >= 0 || throw(ArgumentError(@sprintf("n=%i must be non-negative",n)))
