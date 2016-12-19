@@ -36,7 +36,7 @@ You can check the readme file here: \n
 MatrixNetworks
 
 include("MatrixNetwork.jl")
-export MatrixNetwork, sparse_transpose, is_undirected, is_connected, is_empty
+export MatrixNetwork, sparse_transpose, is_undirected, is_connected, is_empty, empty_graph
 
 include("scomponents.jl")
 include("csr_to_sparse.jl")
@@ -60,13 +60,14 @@ include("mst_prim.jl")
 include("spectral.jl")
 export fiedler_vector, sweepcut, spectral_cut, bestset, SweepcutProfile
 
+include("biconnected.jl")
 # export everything to make them accessible as functions
 export bipartite_matching, edge_list, create_sparse,
 bipartite_matching_setup, bipartite_matching_indicator, bfs,
 dfs, clustercoeffs, corenums, scomponents, strong_components_map,
 enrich, csr_to_sparse, floydwarshall, largest_component,
 sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
-csr_to_sparse_matrix, edge_indicator
+csr_to_sparse_matrix, edge_indicator, biconnected, enrich_biconnected
 
 include("diffusions.jl")
 export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!, 
