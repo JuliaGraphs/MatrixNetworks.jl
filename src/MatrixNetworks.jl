@@ -60,14 +60,13 @@ include("mst_prim.jl")
 include("spectral.jl")
 export fiedler_vector, sweepcut, spectral_cut, bestset, SweepcutProfile
 
-include("biconnected.jl")
 # export everything to make them accessible as functions
 export bipartite_matching, edge_list, create_sparse,
 bipartite_matching_setup, bipartite_matching_indicator, bfs,
 dfs, clustercoeffs, corenums, scomponents, strong_components_map,
 enrich, csr_to_sparse, floydwarshall, largest_component,
 sparse_to_csr, cosineknn, dirclustercoeffs, dijkstra, mst_prim, mst_prim_matrix,
-csr_to_sparse_matrix, edge_indicator, biconnected, enrich_biconnected
+csr_to_sparse_matrix, edge_indicator
 
 include("diffusions.jl")
 export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!, 
@@ -80,5 +79,7 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     pa_graph, preferential_attachment_graph,
     pa_edges!, preferential_attachment_edges! 
 
+include("biconnected.jl")
+export biconnected, enrich_biconnected
 
 end # end module

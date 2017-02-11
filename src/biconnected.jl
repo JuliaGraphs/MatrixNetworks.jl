@@ -1,5 +1,5 @@
 """
-
+    
 biconnected Component Decomposition
 ----------------------------------
 
@@ -11,36 +11,44 @@ This implementation is based on the algorithm provided by Tarjan
 in "Depth-First Search and Linear Graph Algorithms".  
 
 
-'1' in the entry of the articulation point array denotes that the vertex is an articulation point.
-
-
 Functions
 ---------
 
-biconnected_component(A::MatrixNetwork)                         
+biconnected_component(A::MatrixNetwork, art::Bool, components::Bool)                         
+--------------------------------------------------------------------
 Returns an array that represents the biconnected component number for the corrsponding 
-edge in its csr representation.
+edge in its csr representation. Set the art or components parameters to true 
+depending on whether the user requires only articulation points or biconnected components 
+or both. '1' in the entry of the articulation point array denotes that the vertex is an articulation point.
 
-enrich_biconnected(A::MatrixNetwork, biconnected_component_id::Int64)  
+enrich_biconnected(A::MatrixNetwork, biconnected_component_id::Int64)
+---------------------------------------------------------------------
 Returns the largest biconnected component if the biconnected_component_id parameter is zero or
-less. Else return the component specified.  
+less. Else return the component specified along with the number of components.
 
+
+Example
+-------
+
+A = load_matrix_network("biconnected_example")
+B = MatrixNetwork(A)
+bcc = biconnected(B)
+bcc.map
+bcc.articulation_points
 
 """
 
 type biconnected_components_output
-    biconnected_components_label::Vector{Int64} #biconnected_component_number
+    map::Vector{Int64} #biconnected_component_number
     articulation_points::Vector{Int64}  
     A::MatrixNetwork #MatrixNetwork
 end
 
-
-
-function biconnected_component(A::MatrixNetwork)
+function biconnected_component(A::MatrixNetwork, art::Bool, components::Bool)
     n=length(A.rp)-1
     rp=A.rp
     ci=A.ci
-    biconnected_components_label=zeros(Int64,length(ci))
+    map=components ? zeros(Int64,length(ci)) : zeros(Int64,0)
     cn=1
     low=zeros(Int64,n)
     dt=-1*ones(Int64,n)
@@ -51,8 +59,8 @@ function biconnected_component(A::MatrixNetwork)
     rs=Tuple{Int,Int,Int}[]
     cs=Tuple{Int,Int,Int}[]
     root_children= 0
-    articulation = zeros(Int64,n)
-    
+    articulation=art ? zeros(Int64,n) : zeros(Int64,0)
+        
     #start dfs at 1.
     for sv=1:n
         v=sv
@@ -61,13 +69,17 @@ function biconnected_component(A::MatrixNetwork)
         end
         root_children = 0
         low[v]=t
-        dt[v]=t;
-        t=t+1;
+        dt[v]=t
+        t=t+1
         w = ci[rp[v]]
         if (v == w) && (rp[v]+1 == rp[v+1])
-            biconnected_components_label[rp[v]]=cn
+            if components 
+                map[rp[v]]=cn
+            end
             cn = cn+1
-            articulation[v]=1
+            if art 
+                articulation[v]=1 
+            end
         else
             push!(rs, (v,v,rp[v])) #add v,rp[v] to stack
         end
@@ -100,10 +112,14 @@ function biconnected_component(A::MatrixNetwork)
                 pop!(rs)
                 if size(rs,1) > 1
                     if low[parent] >= dt[g_parent]  # g_parent is an Articulation point
-                        articulation[g_parent]=1
+                        if art 
+                            articulation[g_parent]=1
+                        end
                         while true
                             (u,v,child_index)=pop!(cs)
-                            biconnected_components_label[child_index]=cn #assign the component number of the corresponding edge
+                            if components
+                                map[child_index]=cn #assign the component number of the corresponding edge
+                            end
                             if u == g_parent && v == parent
                                break
                             end
@@ -117,7 +133,9 @@ function biconnected_component(A::MatrixNetwork)
                     root_children +=1
                     while true
                         (u,v,child_index) = pop!(cs)
-                        biconnected_components_label[child_index]=cn
+                        if components
+                            map[child_index]=cn
+                        end
                         if u == g_parent && v == parent
                             break
                         end
@@ -126,13 +144,13 @@ function biconnected_component(A::MatrixNetwork)
                 end
             end
         end
-    end	
-    return (biconnected_components_label, articulation, cn)
+    end
+    cn=cn-1
+    return (map, articulation, cn)
 end
 
-
-function biconnected(A::MatrixNetwork)
-    (mapping,articulation_points,cn) = biconnected_component(A)
+function biconnected(A::MatrixNetwork, art::Bool = true, component::Bool = true)
+    (mapping,articulation_points,cn) = biconnected_component(A,art,component) 
     return  biconnected_components_output(mapping,articulation_points,A)
 end
 
@@ -152,9 +170,8 @@ function enrich_helper(A::MatrixNetwork, mapping::Vector{Int64})  #Initializer f
     return bcc_edges
 end
 
-
 function enrich_biconnected(A::MatrixNetwork, biconnected_component_id::Int64 = 0)
-    (mapping,articulation_points,cn) = biconnected_component(A)
+    (mapping,articulation_points,cn) = biconnected_component(A,true,true) #Get both articulation points and biconnected components
     bcc_edges = enrich_helper(A,mapping)
     component_edges = Tuple{Int,Int}[]
     max_id=max_count=current_count=0
@@ -177,12 +194,34 @@ function enrich_biconnected(A::MatrixNetwork, biconnected_component_id::Int64 = 
     end
     
     if biconnected_component_id >= cn #Returns empty list if the component number is incorrect
-        return (bcc_edges,component_edges)
+        return (cn,articulation_points,bcc_edges,component_edges)
     end           
+    
     for (u,v,id) in bcc_edges
         if id == biconnected_component_id
             push!(component_edges,(u,v))
         end
     end
-    return (bcc_edges,component_edges)
+    return (cn,articulation_points,bcc_edges,component_edges)
 end
+
+
+###############################
+##    Conversion Functions    #
+###############################
+
+#CSC
+biconnected{T}(A::SparseMatrixCSC{T,Int64}, art::Bool = true, component::Bool = true) = biconnected(MatrixNetwork(A), art, component)
+#Triplet
+biconnected(ei::Vector{Int64},ej::Vector{Int64},art::Bool = true, component::Bool = true) = biconnected(MatrixNetwork(ei,ej), art, component)
+#CSR
+biconnected{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64, art::Bool = true, component::Bool = true) = biconnected(MatrixNetwork(n,rp,ci,vals), art, component)
+
+#CSC
+enrich_biconnected{T}(A::SparseMatrixCSC{T,Int64}, biconnected_component_id::Int64 = 0) = enrich_biconnected(MatrixNetwork(A), biconnected_component_id)
+#Triplet
+enrich_biconnected(ei::Vector{Int64},ej::Vector{Int64}, biconnected_component_id::Int64 = 0) = enrich_biconnected(MatrixNetwork(ei,ej), biconnected_component_id)
+#CSR
+enrich_biconnected{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64, biconnected_component_id::Int64 = 0) = enrich_biconnected(MatrixNetwork(n,rp,ci,vals), biconnected_component_id)
+
+

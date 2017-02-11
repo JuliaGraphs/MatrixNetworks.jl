@@ -1,19 +1,24 @@
 using MatrixNetworks
 Output = false
+n = 10
+O = ones(Int64,n-1)
+Z = zeros(Int64,n)
+A = Tridiagonal(O,Z,O)
+B = sparse(full(A))
+(cn,articulation_points) = enrich_biconnected(B)
+if cn!=n-1 && (articulation_points[1]==1 || articulation_points[n]==1)
+    error("biconnected components test failed")
+end
+
 A = load_matrix_network("biconnected_example")
-#A = empty_graph(5)
-#A = empty_graph()
 B = MatrixNetwork(A) 
-tic();
-bcc = biconnected(B)
-toc();
-(bcc_edges,component_edges) = enrich_biconnected(B,0)
-print(bcc_edges)
-print("\n")
-print(component_edges)
-if (Output)
-    print(bcc.biconnected_components_label)
-    print("\n")
-    print(bcc.articulation_points)
-    print("\n")
+(cn,articulation_points) = enrich_biconnected(A)
+if cn!=5 && articulation_point[5]!=1
+    error("biconnected components test failed")
+end
+
+A = empty_graph()
+(cn,articulation_points,bcc_edges,component_edges) = enrich_biconnected(A)
+if cn!=0
+    error("biconnected components test failed")
 end
