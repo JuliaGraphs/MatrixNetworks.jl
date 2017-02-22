@@ -80,6 +80,6 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     pa_edges!, preferential_attachment_edges! 
 
 include("biconnected.jl")
-export biconnected, enrich_biconnected
+export biconnected_components, enrich
 
 end # end module

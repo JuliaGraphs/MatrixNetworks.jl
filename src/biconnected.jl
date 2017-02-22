@@ -1,5 +1,5 @@
 """
-    
+
 biconnected Component Decomposition
 ----------------------------------
 
@@ -14,14 +14,14 @@ in "Depth-First Search and Linear Graph Algorithms".
 Functions
 ---------
 
-biconnected_component(A::MatrixNetwork, art::Bool, components::Bool)                         
+biconnected_components_helper(A::MatrixNetwork, art::Bool, components::Bool)                         
 --------------------------------------------------------------------
 Returns an array that represents the biconnected component number for the corrsponding 
 edge in its csr representation. Set the art or components parameters to true 
 depending on whether the user requires only articulation points or biconnected components 
 or both. '1' in the entry of the articulation point array denotes that the vertex is an articulation point.
 
-enrich_biconnected(A::MatrixNetwork, biconnected_component_id::Int64)
+enrich(A::MatrixNetwork, biconnected_component_id::Int64)
 ---------------------------------------------------------------------
 Returns the largest biconnected component if the biconnected_component_id parameter is zero or
 less. Else return the component specified along with the number of components.
@@ -44,7 +44,7 @@ type biconnected_components_output
     A::MatrixNetwork #MatrixNetwork
 end
 
-function biconnected_component(A::MatrixNetwork, art::Bool, components::Bool)
+function biconnected_components_helper(A::MatrixNetwork, art::Bool, components::Bool)
     n=length(A.rp)-1
     rp=A.rp
     ci=A.ci
@@ -60,7 +60,7 @@ function biconnected_component(A::MatrixNetwork, art::Bool, components::Bool)
     cs=Tuple{Int,Int,Int}[]
     root_children= 0
     articulation=art ? zeros(Int64,n) : zeros(Int64,0)
-        
+
     #start dfs at 1.
     for sv=1:n
         v=sv
@@ -149,12 +149,12 @@ function biconnected_component(A::MatrixNetwork, art::Bool, components::Bool)
     return (map, articulation, cn)
 end
 
-function biconnected(A::MatrixNetwork, art::Bool = true, component::Bool = true)
-    (mapping,articulation_points,cn) = biconnected_component(A,art,component) 
+function biconnected_components(A::MatrixNetwork, art::Bool = true, component::Bool = true)
+    (mapping,articulation_points,cn) = biconnected_component_helper(A,art,component) 
     return  biconnected_components_output(mapping,articulation_points,A)
 end
 
-function enrich_helper(A::MatrixNetwork, mapping::Vector{Int64})  #Initializer function for enrich_biconnected
+function enrich_helper(A::MatrixNetwork, mapping::Vector{Int64})  #Initializer function for enrich
     bcc_edges = Tuple{Int,Int,Int}[]
     n = length(A.rp)-1
     ci = A.ci
@@ -170,8 +170,8 @@ function enrich_helper(A::MatrixNetwork, mapping::Vector{Int64})  #Initializer f
     return bcc_edges
 end
 
-function enrich_biconnected(A::MatrixNetwork, biconnected_component_id::Int64 = 0)
-    (mapping,articulation_points,cn) = biconnected_component(A,true,true) #Get both articulation points and biconnected components
+function enrich(A::MatrixNetwork, biconnected_component_id::Int64 = 0)
+    (mapping,articulation_points,cn) = biconnected_components_helper(A,true,true) #Get both articulation points and biconnected components
     bcc_edges = enrich_helper(A,mapping)
     component_edges = Tuple{Int,Int}[]
     max_id=max_count=current_count=0
@@ -218,10 +218,10 @@ biconnected(ei::Vector{Int64},ej::Vector{Int64},art::Bool = true, component::Boo
 biconnected{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64, art::Bool = true, component::Bool = true) = biconnected(MatrixNetwork(n,rp,ci,vals), art, component)
 
 #CSC
-enrich_biconnected{T}(A::SparseMatrixCSC{T,Int64}, biconnected_component_id::Int64 = 0) = enrich_biconnected(MatrixNetwork(A), biconnected_component_id)
+enrich{T}(A::SparseMatrixCSC{T,Int64}, biconnected_component_id::Int64 = 0) = enrich(MatrixNetwork(A), biconnected_component_id)
 #Triplet
-enrich_biconnected(ei::Vector{Int64},ej::Vector{Int64}, biconnected_component_id::Int64 = 0) = enrich_biconnected(MatrixNetwork(ei,ej), biconnected_component_id)
+enrich(ei::Vector{Int64},ej::Vector{Int64}, biconnected_component_id::Int64 = 0) = enrich(MatrixNetwork(ei,ej), biconnected_component_id)
 #CSR
-enrich_biconnected{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64, biconnected_component_id::Int64 = 0) = enrich_biconnected(MatrixNetwork(n,rp,ci,vals), biconnected_component_id)
+enrich{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64, biconnected_component_id::Int64 = 0) = enrich(MatrixNetwork(n,rp,ci,vals), biconnected_component_id)
 
 
