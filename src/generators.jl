@@ -62,7 +62,7 @@ function erdos_renyi_undirected(n::Int, p::Float64)
     else
         Aup = A
     end
-    Asym = max(Aup,Aup')
+    Asym = max.(Aup,Aup')
     return _matrix_network_direct(Asym,1)
 end
 erdos_renyi_undirected(n::Int, d::Int) = erdos_renyi_undirected(n, d/n)
