@@ -36,7 +36,7 @@ end
 function largest_component{T}(A::SparseMatrixCSC{T,Int64},sym::Bool)
     if sym
         # As = A|A' until Julia implements this on sparse matrices, use this:
-        As = max(A,A')
+        As = max.(A,A')
         cc = scomponents(As)
     else
         cc = scomponents(A)
