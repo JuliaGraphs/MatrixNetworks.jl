@@ -300,7 +300,7 @@ immutable SweepcutProfile{V,F}
     total_volume::V
     total_nodes::Int
 
-    function SweepcutProfile(p::Vector{Int},nnodes::Int,totalvol::V)
+    @compat function (::Type{SweepcutProfile{V,F}}){V,F}(p::Vector{Int},nnodes::Int,totalvol::V)
         n = length(p)
         new(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
     end
