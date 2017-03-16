@@ -1,4 +1,6 @@
-
+using DataStructures
+# From Julia's v0.6 reslease notes:
+# The Collections module has been removed, and all functions defined therein have been moved to the DataStructures package (#19800).
 """
 `erdos_renyi_undirected`
 ========================
