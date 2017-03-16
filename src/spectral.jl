@@ -302,7 +302,7 @@ immutable SweepcutProfile{V,F}
 
     @compat function (::Type{SweepcutProfile{V,F}}){V,F}(p::Vector{Int},nnodes::Int,totalvol::V)
         n = length(p)
-        new(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
+        new{V,F}(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
     end
 end
 
