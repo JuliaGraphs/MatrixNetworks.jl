@@ -29,7 +29,7 @@ Example
 ~~~
 A = load_matrix_network("airports")
 A = -A #convert to travel time
-A = max(A,A')
+A = max.(A,A')
 A = sparse(A)
 (ti,tj,tv,nverts) = mst_prim(A)
 ~~~
