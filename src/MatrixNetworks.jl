@@ -1,6 +1,7 @@
 module MatrixNetworks
 
 using Compat
+using DataStructures
 
 if VERSION < v"0.4-"
     using Docile

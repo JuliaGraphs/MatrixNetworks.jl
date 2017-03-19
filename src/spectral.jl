@@ -300,9 +300,9 @@ immutable SweepcutProfile{V,F}
     total_volume::V
     total_nodes::Int
 
-    function SweepcutProfile(p::Vector{Int},nnodes::Int,totalvol::V)
+    @compat function (::Type{SweepcutProfile{V,F}}){V,F}(p::Vector{Int},nnodes::Int,totalvol::V)
         n = length(p)
-        new(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
+        new{V,F}(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
     end
 end
 
@@ -458,7 +458,7 @@ function bestset{V,F}(prof::SweepcutProfile{V,F})
     if isempty(prof.conductance)
     elseif bsetvol > prof.total_volume - bsetvol
         # ick, we need the complement
-        bset[:] = setdiff(IntSet(Int(1):Int(prof.total_nodes)),prof.p[1:bsetind])
+        bset[:] = collect(setdiff(IntSet(Int(1):Int(prof.total_nodes)),prof.p[1:bsetind]))
     else
         # easy
         bset[:] = prof.p[1:bsetind]
