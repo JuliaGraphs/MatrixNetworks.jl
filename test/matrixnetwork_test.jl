@@ -19,6 +19,8 @@ function matrixnetwork_test()
     @test is_connected(sparse([0 1 0; 0 0 1; 1 0 0])) == true
     @test is_connected(spzeros(1,1)) == true
 
+ 
+    @test is_empty(empty_graph(0)) == true
     @test is_empty(MatrixNetwork(Int[],Int[],0)) == true
     @test is_empty(erdos_renyi_undirected(0,0)) == true
     @test is_empty(erdos_renyi_undirected(1,0)) == false     

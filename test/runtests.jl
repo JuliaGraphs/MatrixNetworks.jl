@@ -11,6 +11,7 @@ using Compat
 all_tests = ["matrixnetwork",
              "generators",
              "bfs",
+             "biconnected",
              "bipartite_matching",
              "clustercoeffs",
              "corenums",
