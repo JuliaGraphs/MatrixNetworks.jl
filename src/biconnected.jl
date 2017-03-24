@@ -172,9 +172,10 @@ Inputs
 
 Returns
 -------
--`map`:biconnected component labels associated with each edge.
--`articulation_points`: boolean array that signifies whether a vertex is an articulation point.
--`number`: Number of biconnected components in the graph.
+- Returns a `Biconnected_components_output` type which has 
+`map` : biconnected component labels associated with each edge, 
+`articulation_points`: boolean array that signifies whether a vertex is an articulation point and
+`number`: Number of biconnected components in the graph.
 
 Example
 -------
