@@ -37,12 +37,6 @@ Inputs
 - `articulation`: A boolean array, where each element is initialized to false.
 - `map`: Vector of size equal to the number of edges.
 
-Returns
-------
--`articulation`: A boolean vector, where an entry '1' entry signifies that the vertex
-is an articulation point.
--`map`: Biconnected component label associated with each edge of the graph.
-
 Example
 -------
 This is an internal function.
@@ -154,6 +148,7 @@ function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, m
     return cn
 end
 
+
 """
 `biconnected_components`
 -----------------------
@@ -173,7 +168,7 @@ Returns
 -------
 -`map`:biconnected component labels associated with each edge.
 -`articulation_points`: boolean array that signifies whether a vertex is an articulation point.
--``number`: Number of biconnected components in the graph.
+-`number`: Number of biconnected components in the graph.
 
 Example
 -------
@@ -187,65 +182,6 @@ function biconnected_components(A::MatrixNetwork; art::Bool = true, components::
     cn = biconnected_components!(A, articulation, map)
     return Biconnected_components_output(map,articulation,cn,A)
 end
-
-"""
-`enrich_helper`
-This function sorts the biconnected component label list.
-
-Inputs
-------
--`A`:The adjacency matrix.
--`mapping`:The map produced by biconnected_components function.
-
-Returns
--------
--`bcc_edges`: An ordered numbering of biconnected componenets labels for all the edges.
-
-Example
--------
-This is an internal function.
-"""
-
-function enrich_helper(A::MatrixNetwork, mapping::Vector{Int64})  #Initializer function for enrich
-    bcc_edges = Tuple{Int,Int,Int}[]
-    n = length(A.rp)-1
-    ci = A.ci
-    rp = A.rp
-    for i = 1:n
-        for j = rp[i]:rp[i+1]-1
-            if mapping[j]!=0
-                push!(bcc_edges, (i,ci[j],mapping[j]))
-            end
-        end
-    end
-    bcc_edges = sort(bcc_edges, by = x -> x[3])
-    return bcc_edges
-end
-
-"""
-enrich(obj::Biconnected_components_output)
-----------------------------------------------------------
-Returns the ordered list of edges part of each biconnected component.
-
-Input
------
--`obj`-An object of type Biconnected_components_output
-
-Returns
--------
--`bcc_edges`-An ordered list of biconnected component labels wrapped in 
-an object of type Biconnected_components_rich_output.
-
-Example
--------
-obj = biconnected_components(B)
-enrich(obj)
-"""
-function enrich(obj::Biconnected_components_output)
-    bcc_edges = enrich_helper(obj.A,obj.map)    #Ordered list of biconnected component edges
-    return Biconnected_components_rich_output(bcc_edges)
-end
-
 
 ###############################
 ##    Conversion Functions    #
