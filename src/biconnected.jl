@@ -170,7 +170,7 @@ Inputs
   - `components=true`:returns the biconnected component labels associated with each 
   edge.
 
-Output
+Returns
 -------
 -`map`:biconnected component labels associated with each edge.
 -`articulation_points`: boolean array that signifies whether a vertex is an articulation point.
@@ -201,13 +201,3 @@ biconnected_components(ei::Vector{Int64},ej::Vector{Int64};kwargs...) = biconnec
 
 #CSR
 biconnected_components{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64; kwargs...) = biconnected_components(MatrixNetwork(n,rp,ci,vals);kwargs...)
-
-#CSC
-biconnected_components!(A::SparseMatrixCSC, articulation::Vector{Bool}, map::Vector{Int64}) = biconnected_components!(MatrixNetwork(A), articulation, map)
-
-#Triplet
-biconnected_components!(ei::Vector{Int64},ej::Vector{Int64},articulation::Vector{Bool}, map::Vector{Int64}) = biconnected_components!(MatrixNetwork(ei,ej), articulation, map)
-
-#CSR
-biconnected_components!{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64, articulation::Vector{Bool}, map::Vector{Int64}) = biconnected_components!(MatrixNetwork(   n,rp,ci,vals), articulation, map)
-

@@ -23,6 +23,7 @@ Available functions: (use ?function_name to get more documentation)
 - cosineknn
 - csr_to_sparse
 - dfs
+- biconnected_components
 - dijkstra
 - dirclustercoeffs
 - floydwarshall

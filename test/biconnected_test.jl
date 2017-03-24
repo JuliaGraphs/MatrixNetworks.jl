@@ -3,7 +3,7 @@ function biconnected_test()
     O = ones(Int64,n-1)
     Z = zeros(Int64,n)
     A = Tridiagonal(O,Z,O)
-    B = dropzeros!(sparse(A))
+    B = MatrixNetwork(dropzeros!(sparse(A)))
     obj = biconnected_components(B)
     i = 0
     for i = 2:n
@@ -42,7 +42,7 @@ function biconnected_test()
     @test obj.articulation_points[2] == 1
     @test obj.articulation_points[11] == 1
     @test obj.articulation_points[12] == 0
-    
+
     A = empty_graph()
     obj = biconnected_components(A)
     components = biconnected_components(A;art=false, components=false).number
