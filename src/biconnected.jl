@@ -172,7 +172,7 @@ Inputs
 
 Returns
 -------
-- Returns a `Biconnected_components_output` type which has 
+- Returns a `Biconnected_components_output` type which includes
 `map` : biconnected component labels associated with each edge, 
 `articulation_points`: boolean array that signifies whether a vertex is an articulation point and
 `number`: Number of biconnected components in the graph.
@@ -182,6 +182,9 @@ Example
 A = load_matrix_network("biconnected_example")
 B = MatrixNetwork(A)
 bcc = biconnected_components(B)
+list = bcc.map
+articulation_vector = bcc.articulation_points
+number_of_components = bcc.number
 """
 function biconnected_components(A::MatrixNetwork; art::Bool = true, components::Bool = true)
     map = components ? zeros(Int64, length(A.ci)) : zeros(Int64, 0)
