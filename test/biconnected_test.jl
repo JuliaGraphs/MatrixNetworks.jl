@@ -12,7 +12,8 @@ function biconnected_test()
         end
     end
     components = biconnected_components(B;art=false, components=false).number
-    @test 2*components == length(obj.map) 
+    number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
+    @test 2*components == 2*number_of_components == length(obj.map)
     @test i == n
     @test obj.articulation_points[1]==0
     @test obj.articulation_points[n]==0
@@ -20,34 +21,39 @@ function biconnected_test()
     A = load_matrix_network("minnesota")
     B = MatrixNetwork(A)
     components = biconnected_components(B;art=false, components=false).number
-    @test components == 142
+    number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
+    @test components == number_of_components == 142
 
     A = load_matrix_network("biconnected_example")
     B = MatrixNetwork(A) 
     obj = biconnected_components(B)
     components = biconnected_components(B;art=false, components=false).number
-    @test components == 5
+    number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
+    @test components == number_of_components == 5
     @test obj.articulation_points[5] == 1
 
     A = load_matrix_network("cores_example")
     B = MatrixNetwork(A)
     obj = biconnected_components(B)
     components = biconnected_components(B;art=false, components=false).number
-    @test components == 6
+    number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
+    @test components == number_of_components == 6
     @test obj.articulation_points[20] == 1
     @test obj.articulation_points[2] == 1
     @test obj.articulation_points[11] == 1
     @test obj.articulation_points[12] == 0
-
+    
     A = empty_graph()
     obj = biconnected_components(A)
     components = biconnected_components(A;art=false, components=false).number
-    @test components == 0
+    number_of_components = biconnected_components!(A, zeros(Bool,0), zeros(Int64,0))
+    @test components == number_of_components == 0
 
     A = load_matrix_network("clique-10")
     B = MatrixNetwork(A)
     obj = biconnected_components(B)
     components = biconnected_components(B;art=false, components=false).number
-    @test components == 1
+    number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
+    @test components == number_of_components == 1
     return true
 end

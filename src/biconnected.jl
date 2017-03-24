@@ -37,9 +37,15 @@ Inputs
 - `articulation`: A boolean array, where each element is initialized to false.
 - `map`: Vector of size equal to the number of edges.
 
+Returns
+-------
+- `cn`: The number of biconnected components in the graph
+
 Example
 -------
-This is an internal function.
+A = load_matrix_network("biconnected_example")
+B = MatrixNetwork(A)
+number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
 """
 
 function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, map::Vector{Int64})
@@ -164,7 +170,7 @@ Inputs
   - `components=true`:returns the biconnected component labels associated with each 
   edge.
 
-Returns
+Output
 -------
 -`map`:biconnected component labels associated with each edge.
 -`articulation_points`: boolean array that signifies whether a vertex is an articulation point.
@@ -195,3 +201,13 @@ biconnected_components(ei::Vector{Int64},ej::Vector{Int64};kwargs...) = biconnec
 
 #CSR
 biconnected_components{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64; kwargs...) = biconnected_components(MatrixNetwork(n,rp,ci,vals);kwargs...)
+
+#CSC
+biconnected_components!(A::SparseMatrixCSC, articulation::Vector{Bool}, map::Vector{Int64}) = biconnected_components!(MatrixNetwork(A), articulation, map)
+
+#Triplet
+biconnected_components!(ei::Vector{Int64},ej::Vector{Int64},articulation::Vector{Bool}, map::Vector{Int64}) = biconnected_components!(MatrixNetwork(ei,ej), articulation, map)
+
+#CSR
+biconnected_components!{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64, articulation::Vector{Bool}, map::Vector{Int64}) = biconnected_components!(MatrixNetwork(   n,rp,ci,vals), articulation, map)
+
