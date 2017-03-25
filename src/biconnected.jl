@@ -17,10 +17,6 @@ type Biconnected_components_output
     A::MatrixNetwork #MatrixNetwork
 end
 
-type Biconnected_components_rich_output
-    map::Vector{Tuple{Int,Int,Int}} #ordered list of biconnected_component_numbers
-end
-
 """
 `biconnected_components!`
 ---
@@ -182,7 +178,7 @@ Example
 A = load_matrix_network("biconnected_example")
 B = MatrixNetwork(A)
 bcc = biconnected_components(B)
-list = bcc.map
+map = bcc.map
 articulation_vector = bcc.articulation_points
 number_of_components = bcc.number
 """
