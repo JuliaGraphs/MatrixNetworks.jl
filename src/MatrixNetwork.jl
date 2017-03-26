@@ -149,3 +149,20 @@ end
 function is_connected(A::SparseMatrixCSC)
     return maximum(scomponents(A).map) == 1
 end
+
+"""
+`empty_graph`
+================
+
+Returns an empty graph with n vertices and zero edges
+
+usage:
+
+A = empty_graph(n)
+"""
+
+function empty_graph end
+
+function empty_graph(n::Int64=0)
+    return MatrixNetwork(n,Array{Int64}(1),Array{Int64}(0),Array{Any}(0))
+end

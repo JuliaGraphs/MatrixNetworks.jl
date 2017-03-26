@@ -23,6 +23,7 @@ Available functions: (use ?function_name to get more documentation)
 - cosineknn
 - csr_to_sparse
 - dfs
+- biconnected_components
 - dijkstra
 - dirclustercoeffs
 - floydwarshall
@@ -37,7 +38,7 @@ You can check the readme file here: \n
 MatrixNetworks
 
 include("MatrixNetwork.jl")
-export MatrixNetwork, sparse_transpose, is_undirected, is_connected, is_empty
+export MatrixNetwork, sparse_transpose, is_undirected, is_connected, is_empty, empty_graph
 
 include("scomponents.jl")
 include("csr_to_sparse.jl")
@@ -80,5 +81,7 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     pa_graph, preferential_attachment_graph,
     pa_edges!, preferential_attachment_edges! 
 
+include("biconnected.jl")
+export biconnected_components, biconnected_components!
 
 end # end module
