@@ -146,7 +146,7 @@ function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, m
         end
     end
     cn=cn-1
-    
+
     return cn
 end
 
@@ -155,21 +155,24 @@ end
 `biconnected_components`
 -----------------------
 This function requires a symmetric matrix as input. Depending on the user input this
-function returns either the biconnected component number associated with each edge 
-or articlation points or both.
+function returns either the biconnected component number associated with the edge
+or articlation points or both. 
+Note: For edges of type i-->j and j-->i that are part of a biconnected
+component, only one of them is labelled.
 
 Inputs
 ---------
 - `A`: the adjacency matrix
 - Optional Keyword inputs
   - `art=true`: returns the articulation points of the graph.
-  - `components=true`:returns the biconnected component labels associated with each 
+  - `components=true`:returns the biconnected component labels associated with each
   edge.
 
 Returns
 -------
 - Returns a `Biconnected_components_output` type which includes
-`map` : biconnected component labels associated with each edge, 
+`map` : biconnected component labels associated with the  edges (note that if there are two edges i-->j and j-->i
+that are part of a biconnected component, only one of them is labelled),
 `articulation_points`: boolean array that signifies whether a vertex is an articulation point and
 `number`: Number of biconnected components in the graph.
 
