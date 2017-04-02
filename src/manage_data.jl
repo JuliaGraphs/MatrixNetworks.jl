@@ -21,7 +21,7 @@ end
 
 function load_matrix_network_all(name::AbstractString)
     A = load_matrix_network(name)
-    pathname = joinpath(Pkg.dir("MatrixNetworks"),"data")
+    pathname = joinpath(dirname(dirname(@__FILE__)),"data")
     
     meta_source = joinpath(pathname,"$(name).source")
     if isfile(meta_source)
@@ -49,7 +49,7 @@ end
 
 
 function load_matrix_network(name::AbstractString)
-    pathname = joinpath(Pkg.dir("MatrixNetworks"),"data")
+    pathname = joinpath(dirname(dirname(@__FILE__)),"data")
     smatfile = joinpath(pathname,"$(name).smat")
     if isfile(smatfile)
         return readSMAT(smatfile)
@@ -59,7 +59,7 @@ function load_matrix_network(name::AbstractString)
 end
 
 function load_matrix_network_metadata(name::AbstractString)
-    pathname = joinpath(Pkg.dir("MatrixNetworks"),"data")
+    pathname = joinpath(dirname(dirname(@__FILE__)),"data")
     smatfile = joinpath(pathname,"$(name).smat")
     meta_xy = joinpath(pathname,"$(name).xy")
     meta_labels = joinpath(pathname,"$(name).labels")
@@ -75,7 +75,7 @@ function load_matrix_network_metadata(name::AbstractString)
 end
 
 function matrix_network_datasets()
-    datasets_location = joinpath(Pkg.dir("MatrixNetworks"),"data")
+    datasets_location = joinpath(dirname(dirname(@__FILE__)),"data")
     content = readdir(datasets_location)
     smat_files = filter(x->contains(x,".smat"),content)
     for i = 1:length(smat_files)
