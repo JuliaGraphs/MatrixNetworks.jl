@@ -1,7 +1,7 @@
 
 ## Todo
 
-import Compat.LinAlg.checksquare
+import Base.LinAlg.checksquare
 import Base.eltype
 import Base.length
 import Base.*

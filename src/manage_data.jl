@@ -1,7 +1,5 @@
 #using Lint
 
-using Compat
-
 function readSMAT(filename::AbstractString)
     (rows,header) = readdlm(filename;header=true)
     A = sparse(

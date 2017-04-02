@@ -57,9 +57,7 @@ function pa_graph_test()
     @assert typeof(pa_graph(10,5,5)) == MatrixNetwork{Bool}
     @assert typeof(pa_edges!(2,1,[(1,1)])) == Vector{Tuple{Int,Int}}
     @test_throws ArgumentError pa_edges!(5,2,Vector{Tuple{Int,Int}}())
-    if VERSION >= v"0.5.0"
-        @test is_empty(pa_graph(0,0,0)) == true
-    end
+    @test is_empty(pa_graph(0,0,0)) == true
     @test all(diag(sparse_transpose(pa_graph(10, 2, 3))) .== 0.)
     @test is_undirected(pa_graph(10, 12, 3))
     @test_throws ArgumentError pa_graph(-1,10,3)
