@@ -1,6 +1,4 @@
-# for issymmetric and checksquare 
-using Compat 
-import Compat.LinAlg.checksquare # updates for v0.5
+import Base.LinAlg.checksquare
 
 ## Todo
 # 1. Add method for partial sweep cut
@@ -48,10 +46,10 @@ function _symeigs_smallest_arpack{V}(
     mode = 1
     sym = true
     iscmplx = false
-    bmat = Compat.String("I") # ByteString on Julia 0.4, String on 0.5
+    bmat = String("I")
     ncv = min(max(2*nev,20),n-1)
 
-    whichstr = Compat.String("SA") # ByteString on Julia 0.4, String on 0.5
+    whichstr = String("SA")
     ritzvec = true
     sigma = 0.
 
@@ -105,7 +103,7 @@ function _symeigs_smallest_arpack{V}(
     # eigenvectors.
 
     # calls to eupd
-    howmny = Compat.String("A") # ByteString on Julia 0.4, String on 0.5
+    howmny = String("A")
     select = Array(Base.LinAlg.BlasInt, ncv)
 
     d = Array(V, nev)
@@ -300,7 +298,7 @@ immutable SweepcutProfile{V,F}
     total_volume::V
     total_nodes::Int
 
-    @compat function (::Type{SweepcutProfile{V,F}}){V,F}(p::Vector{Int},nnodes::Int,totalvol::V)
+    function (::Type{SweepcutProfile{V,F}}){V,F}(p::Vector{Int},nnodes::Int,totalvol::V)
         n = length(p)
         new{V,F}(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
     end

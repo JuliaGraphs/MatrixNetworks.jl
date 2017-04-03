@@ -1,6 +1,5 @@
 using MatrixNetworks
 using Base.Test
-using Compat
 #using Lint
 
 # Todo
@@ -30,7 +29,7 @@ all_tests = ["matrixnetwork",
 
 for t in all_tests
     test_name = join(["$(t)", "_test",".jl"])
-    test_path = joinpath(Pkg.dir("MatrixNetworks"), "test", test_name)
+    test_path = joinpath(dirname(@__FILE__), test_name)
     println("running $(test_path) ...")
     test_function = include(test_path)
     test_function() 

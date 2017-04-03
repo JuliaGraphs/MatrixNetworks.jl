@@ -1,5 +1,3 @@
-using Compat 
-
 # create type MatrixNetwork
 type MatrixNetwork{T}
     n::Int64 # number of columns/rows
