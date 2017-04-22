@@ -53,8 +53,8 @@ function _symeigs_smallest_arpack{V}(
     ritzvec = true
     sigma = 0.
 
-    TOL = Array(V,1)
-    TOL[1] = tol
+    TOL = Ref{V}()
+    TOL[] = tol
     lworkl = ncv*(ncv + 8)
     v = Array(V, n, ncv)
     workd = Array(V, 3*n)
