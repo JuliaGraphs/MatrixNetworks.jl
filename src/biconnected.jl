@@ -48,7 +48,7 @@ function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, m
     n=length(A.rp)-1
     rp=A.rp
     ci=A.ci
-    components = length(map) >= length(ci) 
+    components = length(map) >= length(ci)
     cn=1
     low=zeros(Int64,n)
     dt=-1*ones(Int64,n)
@@ -59,7 +59,7 @@ function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, m
     rs=Tuple{Int,Int,Int}[]
     cs=Tuple{Int,Int,Int}[]
     root_children= 0
-    art = length(articulation) >= n 
+    art = length(articulation) >= n
 
     #start dfs at 1.
     for sv=1:n
@@ -73,12 +73,12 @@ function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, m
         t=t+1
         w = ci[rp[v]]
         if (v == w) && (rp[v]+1 == rp[v+1])
-            if components 
+            if components
                 map[rp[v]]=cn
             end
             cn = cn+1
-            if art 
-                articulation[v]=1 
+            if art
+                articulation[v]=1
             end
         else
             push!(rs, (v,v,rp[v])) #add v,rp[v] to stack
@@ -92,7 +92,7 @@ function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, m
                children_index = children_index+1
                (g_parent, parent, temp) = pop!(rs)
                push!(rs, (g_parent, parent, children_index))
-               if (g_parent == child) || (parent == child)		
+               if (g_parent == child) || (parent == child)
                    continue   # skip tree edges and self loops
                end
                if dt[child] >= 0
@@ -112,7 +112,7 @@ function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, m
                 pop!(rs)
                 if size(rs,1) > 1
                     if low[parent] >= dt[g_parent]  # g_parent is an Articulation point
-                        if art 
+                        if art
                             articulation[g_parent]=1
                         end
                         while true
@@ -155,8 +155,8 @@ end
 `biconnected_components`
 -----------------------
 This function requires a symmetric matrix as input. Depending on the user input this
-function returns either the biconnected component number associated with the edge
-or articlation points or both. 
+function returns either the biconnected component number associated with each edge
+or articlation points or both.
 Note: For edges of type i-->j and j-->i that are part of a biconnected
 component, only one of them is labelled.
 
@@ -171,8 +171,8 @@ Inputs
 Returns
 -------
 - Returns a `Biconnected_components_output` type which includes
-`map` : biconnected component labels associated with the  edges (note that if there are two edges i-->j and j-->i
-that are part of a biconnected component, only one of them is labelled),
+`map` : biconnected component labels associated with the  edges (note that if there are
+two edges i-->j and j-->i that are part of a biconnected component, only one of them is labelled),
 `articulation_points`: boolean array that signifies whether a vertex is an articulation point and
 `number`: Number of biconnected components in the graph.
 

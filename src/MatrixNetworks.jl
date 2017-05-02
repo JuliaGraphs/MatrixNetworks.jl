@@ -79,4 +79,7 @@ export erdos_renyi_undirected, erdos_renyi_directed,
 include("biconnected.jl")
 export biconnected_components, biconnected_components!
 
+include("ear_decomposition.jl")
+export ear_decomposition, ear_decomposition!
+
 end # end module
