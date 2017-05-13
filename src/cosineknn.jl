@@ -46,7 +46,7 @@ function cosineknn_internal{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T}
     for i = 1:length(ait)
         rn[cit[i]] += ait[i]^2
     end
-    rn = sqrt(rn)
+    rn = sqrt.(rn)
     
     
     rn[rn.>eps()] = 1./rn[rn.>eps()] # do division once
