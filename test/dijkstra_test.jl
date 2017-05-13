@@ -11,5 +11,17 @@ function dijkstra_test()
     if pred[end] != lax
         error("dijkstra failed")
     end
+
+    (d,pred) = dijkstra(MatrixNetwork(A),lax)
+    
+    if maximum(d) != 540
+        error("dijkstra failed")
+    end
+    
+    if pred[end] != lax
+        error("dijkstra failed")
+    end
+    
+    @test_throws ErrorException dijkstra(-speye(2), 1)
     return true
 end

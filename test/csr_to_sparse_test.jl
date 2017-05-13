@@ -16,6 +16,11 @@ function csr_to_sparse_test()
         error("csr_to_sparse_test failed")
     end
     
+    A = csr_to_sparse_matrix(rp,ci,ai)
+    if !isequal(full(A),ones(5,5))
+        error("csr_to_sparse_test failed")
+    end
+    
     # 100 random trials
     for t = 1:100
         A = sprand(100,80,0.01)
