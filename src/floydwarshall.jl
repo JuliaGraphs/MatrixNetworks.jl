@@ -24,7 +24,7 @@ A = load_matrix_network("all_shortest_paths_example")
 ## setup functions:
 
 function floydwarshall_phase1(A::MatrixNetwork)
-    (nzi,nzj,nzv) = csr_to_sparse(A.rp,A.ci,A.vals,A.n)
+    (nzi,nzj,nzv) = csr_to_sparse(A.rp,A.ci,A.vals)
     return (nzi,nzj,nzv,A.n)
 end
 
