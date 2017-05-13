@@ -332,7 +332,7 @@ end
 
 function _create_stochastic_mult(M::SparseMatrixCSC)
     n = checksquare(M)
-    d = Array(Float64, n, 1)
+    d = Array{Float64}(n, 1)
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
