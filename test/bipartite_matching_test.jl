@@ -33,5 +33,14 @@ function bipartite_matching_test()
         error("bipartite matching failed")
     end
     
+    M2 = bipartite_matching(av,ai,aj,maximum(ai),maximum(aj))
+    mi = MatrixNetworks.edge_indicator(M2,ai,aj)
+    mitrue = zeros(Int64,length(av))
+    mitrue[1:5] = 1
+    
+    if M2.weight != 25 || !isequal(m1,m2) || sum(mi) !=5 || !isequal(mi,mitrue)
+        error("bipartite matching failed")
+    end
+    
     return true
 end
