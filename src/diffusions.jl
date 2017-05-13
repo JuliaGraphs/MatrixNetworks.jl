@@ -348,7 +348,7 @@ end
 function _create_stochastic_mult(M::MatrixNetwork)
     A = sparse_transpose(M) # this involves no work...
     n = checksquare(A) 
-    d = Array(Float64, 1, n)
+    d = Array{Float64}(n, 1)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
