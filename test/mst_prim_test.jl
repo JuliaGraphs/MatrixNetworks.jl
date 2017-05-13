@@ -26,5 +26,9 @@ function mst_prim_test()
         error("mst_prim failed")
     end
 
+    @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)))
+    @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)), false)
+    @test_throws ErrorException mst_prim(-speye(3))
+    @test_throws ErrorException mst_prim(-speye(3), false)
     return true
 end
