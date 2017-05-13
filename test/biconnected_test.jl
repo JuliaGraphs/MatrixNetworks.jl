@@ -17,6 +17,45 @@ function biconnected_test()
     @test i == n
     @test obj.articulation_points[1]==0
     @test obj.articulation_points[n]==0
+    
+    B = dropzeros!(sparse(A))
+    obj = biconnected_components(B)
+    i = 0
+    for i = 2:n
+        if obj.articulation_points[i]==0
+            break
+        end
+    end
+    components = biconnected_components(B;art=false, components=false).number
+    @test i == n
+    @test obj.articulation_points[1]==0
+    @test obj.articulation_points[n]==0
+    
+    B = sparse_to_csr(dropzeros!(sparse(A)))
+    obj = biconnected_components(B...)
+    i = 0
+    for i = 2:n
+        if obj.articulation_points[i]==0
+            break
+        end
+    end
+    components = biconnected_components(B...;art=false, components=false).number
+    @test i == n
+    @test obj.articulation_points[1]==0
+    @test obj.articulation_points[n]==0
+    
+    B = findnz(dropzeros!(sparse(A)))
+    obj = biconnected_components(B[1], B[2])
+    i = 0
+    for i = 2:n
+        if obj.articulation_points[i]==0
+            break
+        end
+    end
+    components = biconnected_components(B[1], B[2];art=false, components=false).number
+    @test i == n
+    @test obj.articulation_points[1]==0
+    @test obj.articulation_points[n]==0
 
     A = load_matrix_network("minnesota")
     B = MatrixNetwork(A)
