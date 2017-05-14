@@ -46,11 +46,11 @@ profile = sweepcut(A,x)
 
 output = spectral_cut(A,true,true)
 
-
-
 (x,lam2) = fiedler_vector(sparse(zeros(1,1)))
 profile = sweepcut(sparse(zeros(1,1)),x)
 @test isempty(profile.conductance)
+
+@test_throws ArgumentError fiedler_vector(speye(2) + sparse([1],[2],1.,2,2))
 
 @test isempty(spectral_cut(sparse(zeros(5,5)),true,true).set)
 
@@ -104,6 +104,9 @@ A = sparse(ones(n,n))
 M = MatrixNetwork(A)
 @test length(spectral_cut(M).set) == 50
 
+
+@test_throws ArgumentError spectral_cut(speye(2) + spdiagm(([1],), 1, 2, 2), true, false)
+@test_throws ArgumentError spectral_cut(-speye(2), false, false) 
 
 # Make sure that the Fiedler partition will run properly on the largest
 # connected component.  The following network is the in-recip weighted motif

@@ -23,5 +23,15 @@ function floydwarshall_test()
     if !isequal(P,P2)
         error("Floyd Warshall failed: Incorrect predecessors")
     end
+    
+    (D,P) = floydwarshall(MatrixNetwork(A))
+    
+    if !isequal(D,D2)
+        error("Floyd Warshall failed: Incorrect distances")
+    end
+    
+    if !isequal(P,P2)
+        error("Floyd Warshall failed: Incorrect predecessors")
+    end
     return true
 end
