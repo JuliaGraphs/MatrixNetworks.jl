@@ -1,4 +1,4 @@
-function floydwarshall_test()
+@testset "floydwarshall" begin
     A = load_matrix_network("all_shortest_paths_example")
     #A.nzval += abs(minimum(A)) + 1 # remove negative edges
     nzvals = nonzeros(A)
@@ -14,24 +14,14 @@ function floydwarshall_test()
         D2[i,:] = d
         P2[i,:] = p
     end
+    
     (D,P) = floydwarshall(A)
     
-    if !isequal(D,D2)
-        error("Floyd Warshall failed: Incorrect distances")
-    end
-    
-    if !isequal(P,P2)
-        error("Floyd Warshall failed: Incorrect predecessors")
-    end
+    @test D == D2
+    @test P == P2
     
     (D,P) = floydwarshall(MatrixNetwork(A))
     
-    if !isequal(D,D2)
-        error("Floyd Warshall failed: Incorrect distances")
-    end
-    
-    if !isequal(P,P2)
-        error("Floyd Warshall failed: Incorrect predecessors")
-    end
-    return true
+    @test D == D2
+    @test P == P2
 end
