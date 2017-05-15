@@ -196,8 +196,9 @@ function pagerank_perf_test()
     P2 = MatrixNetworks._create_stochastic_mult(A)
     dt2 = @elapsed y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
     
-    @test dt2 <= 2*dt
     @test norm(x-y) <= n*eps(Float64) 
+    @show dt2, 2dt 
+    @test dt2 <= 2*dt
     
     # now test with matrix networks
     P3 = MatrixNetworks._create_stochastic_mult(MatrixNetwork(A))
@@ -206,13 +207,16 @@ function pagerank_perf_test()
     z = zeros(n)
     dt2 = @elapsed y = pagerank_power!(y,z,P3,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
     
-    @test dt2 <= 2*dt
     @test norm(x-y) <= n*eps(Float64)
+    @show dt2, 2dt 
+    @test dt2 <= 2*dt
     
     
     dt = @elapsed x = pagerank_power!(x,y,P,0.85,v,eps(Float64),1000,MatrixNetworks._noiterfunc)
     dt2 = @elapsed y = pagerank(A,0.85)
+    
     @test norm(x-y) <= n*eps(Float64)
+    @show dt2, 2dt 
     @test dt2 <= 2*dt
      
     
