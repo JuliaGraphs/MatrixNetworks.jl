@@ -1,4 +1,4 @@
-function matrixnetwork_test()
+@testset "matrixnetwork" begin
     A = load_matrix_network("dfs_example")
     M = MatrixNetwork(A)
     B = sparse(M)
@@ -11,7 +11,7 @@ function matrixnetwork_test()
 
     load_matrix_network_all("minnesota")
     load_matrix_network_all("U3A")
-    
+
     #@show issym(sparse([0 1; 0 0]'))
     @test is_undirected(MatrixNetwork(sparse([0 1; 1 0]))) == true
     @test is_undirected(MatrixNetwork(sparse([0 1; 0 1]))) == false
@@ -29,9 +29,4 @@ function matrixnetwork_test()
     @test is_empty(MatrixNetwork(Int[1],Int[1])) == false
     @test is_empty(erdos_renyi_undirected(0,0)) == true
     @test is_empty(erdos_renyi_undirected(1,0)) == false     
-
-    return true
-    
-    
 end
-

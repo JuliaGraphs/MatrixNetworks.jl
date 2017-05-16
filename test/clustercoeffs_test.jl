@@ -1,43 +1,29 @@
-function clustercoeffs_test()
+@testset "clustercoeffs" begin
     A = load_matrix_network("clique-10")
-    cc = clustercoeffs(MatrixNetwork(A))
-
     v = ones(Int64,10)
-    if v != cc
-        error("clustercoeffs failed")
+    @testset "MatrixNetwork" begin
+        cc = clustercoeffs(MatrixNetwork(A))
+        @test v == cc
     end
-   
-    # SparseMatrixCSC
-    cc = clustercoeffs(A)
-
-    v = ones(Int64,10)
-    if v != cc
-        error("clustercoeffs failed")
+    @testset "SparseMatrixCSC" begin
+        cc = clustercoeffs(A)
+        @test v == cc
     end
-    
-    # CSR 
-    cc = clustercoeffs(sparse_to_csr(A)...)
-
-    v = ones(Int64,10)
-    if v != cc
-        error("clustercoeffs failed")
+    @testset "CSR" begin 
+        cc = clustercoeffs(sparse_to_csr(A)...)
+        @test v == cc
     end
-    
-    # triplet
-    cc = clustercoeffs(findnz(A)[1], findnz(A)[2])
-
-    v = ones(Int64,10)
-    if v != cc
-        error("clustercoeffs failed")
+    @testset "triplet" begin
+        cc = clustercoeffs(findnz(A)[1], findnz(A)[2])
+        @test v == cc
     end
-
-    # not undirected
-    bad_mat = spdiagm(([1; 1],), 1, 3, 3)
-    @test_throws ErrorException clustercoeffs(MatrixNetwork(bad_mat))
-    @test_throws ErrorException clustercoeffs(bad_mat)
-    # negative weights
-    @test_throws ErrorException clustercoeffs(MatrixNetwork(-speye(4)))
-    @test_throws ErrorException clustercoeffs(-speye(4))
-    
-    return true
+    @testset "error throwing" begin
+        # not undirected
+        bad_mat = spdiagm(([1; 1],), 1, 3, 3)
+        @test_throws ErrorException clustercoeffs(MatrixNetwork(bad_mat))
+        @test_throws ErrorException clustercoeffs(bad_mat)
+        # negative weights
+        @test_throws ErrorException clustercoeffs(MatrixNetwork(-speye(4)))
+        @test_throws ErrorException clustercoeffs(-speye(4))
+    end
 end

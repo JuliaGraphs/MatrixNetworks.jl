@@ -1,4 +1,4 @@
-function biconnected_test()
+@testset "biconnected" begin
     n = 10
     O = ones(Int64,n-1)
     Z = zeros(Int64,n)
@@ -94,5 +94,4 @@ function biconnected_test()
     components = biconnected_components(B;art=false, components=false).number
     number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
     @test components == number_of_components == 1
-    return true
 end
