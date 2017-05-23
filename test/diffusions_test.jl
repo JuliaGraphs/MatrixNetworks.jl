@@ -255,5 +255,14 @@ using Base.Test
         @test abs(seeded_stochastic_heat_kernel(spzeros(1,1),5.,1)[1] - exp(-5.)) <= 10*eps(Float64)
         @test abs(seeded_stochastic_heat_kernel(speye(1,1),2.,1)[1] - 1.) <= 10*eps(Float64) 
     end
-
+    @testset "StochasticMult" begin
+        n = 10
+        A = MatrixNetwork(spones(sprand(n,n,2/n)))
+        MNSM = MatrixNetworks.MatrixNetworkStochasticMult(rand(n), A)
+        @test size(MNSM) == (n,n)
+        @test size(MNSM, 1) == n
+        @test length(MNSM) == n*n
+        @test eltype(MNSM) == Float64
+        @test ndims(MNSM) == 2
+    end
 end

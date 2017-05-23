@@ -26,4 +26,11 @@
         @test_throws ErrorException clustercoeffs(MatrixNetwork(-speye(4)))
         @test_throws ErrorException clustercoeffs(-speye(4))
     end
+    cc_mn = clustercoeffs(MatrixNetwork(A), false, false)
+    cc_csc = clustercoeffs(A, false, false)
+    cc_csr = clustercoeffs(sparse_to_csr(A)..., false, false)
+    cc_tri = clustercoeffs(findnz(A)[1], findnz(A)[2], false, false)
+    @test cc_mn == cc_csc
+    @test cc_csr == cc_csc
+    @test cc_tri == cc_csc
 end

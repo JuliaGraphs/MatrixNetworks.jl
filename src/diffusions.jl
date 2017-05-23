@@ -4,6 +4,7 @@
 import Base.LinAlg.checksquare
 import Base.eltype
 import Base.length
+import Base.ndims
 import Base.*
 import Base.A_mul_B!
 import Base.size
@@ -321,7 +322,7 @@ size(op::MatrixNetworkStochasticMult) = size(op.A)
 ndims(op::MatrixNetworkStochasticMult) = 2
 
 size(op::MatrixNetworkStochasticMult, dim::Integer) = size(op.A,dim)
-length(op::MatrixNetworkStochasticMult) = length(op.A)
+length(op::MatrixNetworkStochasticMult) = prod(size(op.A))
 *(op::MatrixNetworkStochasticMult, b) = A_mul_B(op, b)
 
 A_mul_B{S}(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) = 
