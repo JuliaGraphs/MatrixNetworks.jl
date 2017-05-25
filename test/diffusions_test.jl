@@ -264,5 +264,12 @@ using Base.Test
         @test length(MNSM) == n*n
         @test eltype(MNSM) == Float64
         @test ndims(MNSM) == 2
+        A = spones(sprand(n,n,2/n))
+        SMSM = MatrixNetworks.SparseMatrixStochasticMult(rand(n), A)
+        @test size(SMSM) == (n,n)
+        @test size(SMSM, 1) == n
+        @test length(SMSM) == n*n
+        @test eltype(SMSM) == Float64
+        @test ndims(SMSM) == 2
     end
 end
