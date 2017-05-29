@@ -62,6 +62,9 @@ function size(A::MatrixNetwork)
     return (A.n,A.n)
 end
 
+import Base.ndims 
+ndims(op::MatrixNetwork) = 2
+
 function size(A::MatrixNetwork, dim::Integer)
     if dim == 1 || dim == 2
         return A.n
@@ -71,6 +74,20 @@ function size(A::MatrixNetwork, dim::Integer)
         throw(DomainError())
     end
 end
+
+A_mul_B{S}(M::MatrixNetwork, b::AbstractVector{S}) = 
+    A_mul_B!(Array(promote_type(Float64,S), size(M,2)), M, b)
+function A_mul_B!(output, M::MatrixNetwork, b)
+    At_mul_B!(output, sparse_transpose(M), b) 
+end
+
+At_mul_B{S}(M::MatrixNetwork, b::AbstractVector{S}) = 
+    At_mul_B!(Array(promote_type(Float64,S), size(M,1)), M, b)
+function At_mul_B!(output, M::MatrixNetwork, b)
+    A_mul_B!(output, sparse_transpose(M), b) 
+end
+
+    
 
 """
 `is_empty`
@@ -118,7 +135,6 @@ end
 function is_undirected(A::SparseMatrixCSC)
    return issymmetric(A) 
 end
-
 
 """
 `is_connected`
