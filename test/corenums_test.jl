@@ -1,14 +1,30 @@
-function corenums_test()
+@testset "corenums" begin
     A = load_matrix_network("cores_example")
-    corenums(MatrixNetwork(A))
-    
-    A = [1 0 1 1; 0 1 1 1; 1 1 0 1; 1 1 1 1]
-    A = sparse(A)
-    (d,rt) = corenums(A)
+    A_ref = [1 0 1 1; 0 1 1 1; 1 1 0 1; 1 1 1 1]
     d_ref = [3;3;3;3]
     rt_ref = [1;2;3;4]
-    if d_ref != d || rt_ref != rt
-        error("corenums failed")
+    @testset "MatrixNetwork" begin
+        corenums(MatrixNetwork(A))
+        (d,rt) = corenums(MatrixNetwork(sparse(A_ref)))
+        @test d_ref == d
+        @test rt_ref == rt
     end
-    return true
+    @testset "SparseMatrixCSC" begin
+        corenums(sparse(A))
+        (d,rt) = corenums(sparse(A_ref))
+        @test d_ref == d
+        @test rt_ref == rt
+    end
+    @testset "CSR" begin
+        corenums(sparse_to_csr(sparse(A))...)
+        (d,rt) = corenums(sparse_to_csr(sparse(A_ref))...)
+        @test d_ref == d
+        @test rt_ref == rt
+    end
+    @testset "triplet" begin
+        corenums(findnz(sparse(A_ref))[1], findnz(sparse(A_ref))[2])
+        (d,rt) = corenums(findnz(sparse(A_ref))[1], findnz(sparse(A_ref))[2])
+        @test d_ref == d
+        @test rt_ref == rt
+    end
 end

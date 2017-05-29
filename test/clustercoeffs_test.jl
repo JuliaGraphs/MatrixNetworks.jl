@@ -1,13 +1,36 @@
-function clustercoeffs_test()
+@testset "clustercoeffs" begin
     A = load_matrix_network("clique-10")
-    cc = clustercoeffs(MatrixNetwork(A))
-
     v = ones(Int64,10)
-    if v != cc
-        error("clustercoeffs failed")
+    @testset "MatrixNetwork" begin
+        cc = clustercoeffs(MatrixNetwork(A))
+        @test v == cc
     end
-    
-    
-    
-    return true
+    @testset "SparseMatrixCSC" begin
+        cc = clustercoeffs(A)
+        @test v == cc
+    end
+    @testset "CSR" begin 
+        cc = clustercoeffs(sparse_to_csr(A)...)
+        @test v == cc
+    end
+    @testset "triplet" begin
+        cc = clustercoeffs(findnz(A)[1], findnz(A)[2])
+        @test v == cc
+    end
+    @testset "error throwing" begin
+        # not undirected
+        bad_mat = spdiagm(([1; 1],), 1, 3, 3)
+        @test_throws ErrorException clustercoeffs(MatrixNetwork(bad_mat))
+        @test_throws ErrorException clustercoeffs(bad_mat)
+        # negative weights
+        @test_throws ErrorException clustercoeffs(MatrixNetwork(-speye(4)))
+        @test_throws ErrorException clustercoeffs(-speye(4))
+    end
+    cc_mn = clustercoeffs(MatrixNetwork(A), false, false)
+    cc_csc = clustercoeffs(A, false, false)
+    cc_csr = clustercoeffs(sparse_to_csr(A)..., false, false)
+    cc_tri = clustercoeffs(findnz(A)[1], findnz(A)[2], false, false)
+    @test cc_mn == cc_csc
+    @test cc_csr == cc_csc
+    @test cc_tri == cc_csc
 end

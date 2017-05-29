@@ -1,4 +1,4 @@
-function sparse_to_csr_test()
+@testset "sparse_to_csr" begin
     i = [1;2;3]
     j = [3;4;4]
     v = [8;9;10]
@@ -22,9 +22,6 @@ function sparse_to_csr_test()
             end
         end
         A2 = sparse(i,j,a,n,m)
-        if ~isequal(A,A2)
-            error("sparse_to_csr_test failed")
-        end
+        @test A == A2
     end
-    return true
 end

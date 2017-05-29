@@ -1,17 +1,35 @@
-function scomponents_test()
+@testset "scomponents" begin
     A = load_matrix_network("cores_example")
-    cc = scomponents(MatrixNetwork(A))
-    
     sizes = [15;1;5]
     components = 3
-    if cc.sizes != sizes
-        error("scomponents failed")
+    @testset "MatrixNetwork" begin
+        cc = scomponents(MatrixNetwork(A))
+        @test cc.sizes == sizes
+        @test length(cc.map) == 21
+        @test cc.number == components
     end
-    if length(cc.map) != 21
-        error("scomponents failed")
+    @testset "SparseMatrixCSC" begin
+        cc = scomponents(A)
+        @test cc.sizes == sizes
+        @test length(cc.map) == 21
+        @test cc.number == components
     end
-    if cc.number != components
-        error("scomponents failed")
+    @testset "CSR" begin
+        cc = scomponents(sparse_to_csr(A)...)
+        @test cc.sizes == sizes
+        @test length(cc.map) == 21
+        @test cc.number == components
     end
-    return true
+    @testset "triplet" begin
+        cc = scomponents(findnz(A)[1], findnz(A)[2])
+        @test cc.sizes == sizes
+        @test length(cc.map) == 21
+        @test cc.number == components
+    end
+    @testset "strong_components_map" begin 
+        sci = strong_components_map(MatrixNetwork(A))
+        @test strong_components_map(A) == sci
+        @test strong_components_map(sparse_to_csr(A)...) == sci
+        @test strong_components_map(findnz(A)[1], findnz(A)[2]) == sci
+    end
 end

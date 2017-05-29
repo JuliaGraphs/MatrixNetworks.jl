@@ -1,9 +1,10 @@
 
 ## Todo
 
-import Compat.LinAlg.checksquare
+import Base.LinAlg.checksquare
 import Base.eltype
 import Base.length
+import Base.ndims
 import Base.*
 import Base.A_mul_B!
 import Base.size
@@ -321,7 +322,7 @@ size(op::MatrixNetworkStochasticMult) = size(op.A)
 ndims(op::MatrixNetworkStochasticMult) = 2
 
 size(op::MatrixNetworkStochasticMult, dim::Integer) = size(op.A,dim)
-length(op::MatrixNetworkStochasticMult) = length(op.A)
+length(op::MatrixNetworkStochasticMult) = prod(size(op.A))
 *(op::MatrixNetworkStochasticMult, b) = A_mul_B(op, b)
 
 A_mul_B{S}(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) = 
@@ -332,7 +333,7 @@ end
 
 function _create_stochastic_mult(M::SparseMatrixCSC)
     n = checksquare(M)
-    d = Array(Float64, n, 1)
+    d = Array{Float64}(n, 1)
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
@@ -348,7 +349,7 @@ end
 function _create_stochastic_mult(M::MatrixNetwork)
     A = sparse_transpose(M) # this involves no work...
     n = checksquare(A) 
-    d = Array(Float64, 1, n)
+    d = Array{Float64}(1, n)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.

@@ -1,4 +1,7 @@
-
+using DataStructures
+# From Julia's v0.6 reslease notes:
+# The Collections module has been removed, and all functions defined 
+# therein have been moved to the DataStructures package (#19800).
 """
 `erdos_renyi_undirected`
 ========================
@@ -62,7 +65,7 @@ function erdos_renyi_undirected(n::Int, p::Float64)
     else
         Aup = A
     end
-    Asym = max(Aup,Aup')
+    Asym = max.(Aup,Aup')
     return _matrix_network_direct(Asym,1)
 end
 erdos_renyi_undirected(n::Int, d::Int) = erdos_renyi_undirected(n, d/n)
@@ -252,7 +255,7 @@ This enables us to generate a Havel Hakimi graph, which can
 be useful.
 """
 function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vector{Int})
-    q = Collections.PriorityQueue(Int,Int,Base.Order.Reverse)
+    q = PriorityQueue(Int,Int,Base.Order.Reverse)
     n = length(degs)
     effective_n = n
     degsum = 0
@@ -278,12 +281,12 @@ function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vect
     enum = 1
     
     while !isempty(q)
-        vi,d = Collections.peek(q) # vi is the cur vertex, d is the cur deg
-        Collections.dequeue!(q)    # remove it
+        vi,d = peek(q) # vi is the cur vertex, d is the cur deg
+        dequeue!(q)    # remove it
         for n=1:d                  # make a list of each neighbor
             if isempty(q); return false; end
-            dlist[n] = Collections.peek(q)
-            Collections.dequeue!(q)
+            dlist[n] = peek(q)
+            dequeue!(q)
         end
         # now "add" an edge from vi->neighbor, and thus, decrease it's 
         # degree when we re-add it

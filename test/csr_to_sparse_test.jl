@@ -1,4 +1,4 @@
-function csr_to_sparse_test()
+@testset "csr_to_sparse" begin
     i = [1;2;3]
     j = [3;4;4]
     v = [8;9;10]
@@ -12,18 +12,16 @@ function csr_to_sparse_test()
     ci = vec(reshape(repmat(1:5,5,1)',25,1))
     ai = ones(Int64,25)
     A = csr_to_sparse_matrix(rp,ci,ai,5,5)
-    if !isequal(full(A),ones(5,5))
-        error("csr_to_sparse_test failed")
-    end
+    @test full(A) == ones(5,5)
+    
+    A = csr_to_sparse_matrix(rp,ci,ai)
+    @test full(A) == ones(5,5)
     
     # 100 random trials
     for t = 1:100
         A = sprand(100,80,0.01)
         (rp,ci,ai) = sparse_to_csr(A)
         A2 = csr_to_sparse_matrix(rp,ci,ai,100,80)
-        if ~isequal(A,A2)
-            error("csr_to_sparse_test failed")
-        end
+        @test A == A2
     end
-    return true
 end
