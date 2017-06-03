@@ -44,3 +44,6 @@ function bipartite_matching_test()
     
     return true
 end
+
+#todo convert this to @testset
+bipartite_matching_test()
