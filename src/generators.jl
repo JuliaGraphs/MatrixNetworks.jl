@@ -1,4 +1,6 @@
 using DataStructures
+import Iterators 
+
 # From Julia's v0.6 reslease notes:
 # The Collections module has been removed, and all functions defined 
 # therein have been moved to the DataStructures package (#19800).
@@ -482,6 +484,211 @@ end
 
 pa_graph = preferential_attachment_graph
 pa_edges! = preferential_attachment_edges!
+
+"""
+`roach_graph`
+=============
+
+Generate a roach graph on 4n vertices which follows the Guattery-Miller 
+description. The roach graph has a body that consists of 2n vertices which
+ard two n-vertex line-graphs that have been connected together. The
+body has two antennae that result from adding an n-vertex line graph 
+to one vertex on each side. 
+
+    # the graph looks like
+    #
+    # (           top body               )   (       top antennae       )    
+    #
+    # o - o - o - ... n vertices total - o - o - ... n vertices total - 0
+    # |   |   |   ...    |   |   |   |   |
+    # o - o - o - ... n vertices total - o - o - ... n vertices total - 0
+    #
+    # (         bottom body              )   (     bottom antennae      )
+    #
+    # there are 4n vertices and 2(2n-1) + n edges 
+    
+    
+Functions
+---------
+  * `roach_graph(n) -> A::MatrixNetwork`
+  * `roach_graph(n, Val{true}) -> (A::MatrixNetwork, Matrix{Float64})` this also
+    returns coordinates for the graph. 
+
+Example
+-------   
+~~~~    
+A = sparse_transpose(roach_graph(3, Val{true})) # get back the matrix 
+L = spdiagm(vec(sum(A,2))) - A
+
+#lams,vecs = eig(full(L))
+
+~~~~
+
+ 
+"""
+function roach_graph end
+
+roach_graph(n::Integer) = roach_graph(n::Integer, Val{false}) 
+
+function roach_graph(n::Integer, ::Type{Val{false}}) 
+    n >= 0 || throw(ArgumentError("n=$(n) must be larger than 0"))
+    line1 = 1:(2n-1)
+    line2 = 2:2n
+    ei = [line1; line2; line1+2n; line2+2n; 1:n; 2n+1:2n+n]
+    ej = [line2; line1; line2+2n; line1+2n; 2n+1:2n+n; 1:n]
+    return _matrix_network_direct(sparse(ei,ej,1,4n,4n))
+end
+
+# get coordinates too
+function roach_graph(n::Integer, ::Type{Val{true}}) 
+    A = roach_graph(n, Val{false})
+    xy = [-n:-1 -ones(n); 1:n -ones(n); -n:-1 ones(n); 1:n ones(n)]
+    return A,xy
+end    
+
+"""
+`lollipop_graph`
+================
+
+Generate a lollipop graph, which consists of a clique with a line tail, so
+it looks like a lollipop.
+
+Functions
+---------
+* `lollipop_graph(n)` generate the graph with an n-node tail and n-node clique
+* `lollipop_graph(n,m)` generate the graph with an n-node tail and m-node clique
+* `lollipop_graph(n,m,Val{true})` produce and return xy coordinates as well. 
+
+Examples
+--------
+
+"""
+function lollipop_graph end
+lollipop_graph(n::Integer) = lollipop_graph(n, n)
+lollipop_graph(n::Integer, ::Type{Val{false}}) = lollipop_graph(n, n)
+lollipop_graph(n::Integer, ::Type{Val{true}}) = lollipop_graph(n, n, Val{true})
+lollipop_graph(n::Integer, m::Integer) = lollipop_graph(n, m, Val{false})
+function lollipop_graph(n::Integer, m::Integer, ::Type{Val{false}})
+    n >= 0 || throw(ArgumentError("n=$(n) must be larger than 0"))
+    m >= 0 || throw(ArgumentError("m=$(m) must be larger than 0"))    
+    line1 = 1:n
+    line2 = 2:n+1
+    clique1 = map(x -> x[1], Iterators.subsets(n+1:n+m,2))
+    clique2 = map(x -> x[2], Iterators.subsets(n+1:n+m,2))
+    ei = [line1; line2; clique1; clique2]
+    ej = [line2; line1; clique2; clique1]
+    return _matrix_network_direct(sparse(ei,ej,1,n+m,n+m))
+end
+function lollipop_graph(n::Integer, m::Integer, ::Type{Val{true}})
+    A = lollipop_graph(n,m, Val{false})
+    xy = [-n:-1 zeros(n);  
+        (-sqrt(m)*cos(2*pi*(m:-1:1)/m)+sqrt(m)+1) sqrt(m)*sin(2*pi*(m:-1:1)/m)]
+    return A, xy
+end
+
+"""
+`random_edge`
+=============
+Identify a random edge of a matrix network or sparse matrix.
+This is used in the rewire! function to grab a pair of edges.
+
+Functions
+---------
+* `random_edge(A::MatrixNetwork) -> (ei,ej,ind)` 
+   gets a random edge/non-zero from the matrix
+   
+* `random_edge(A::SparseMatrixCSC) -> (ei,ej,ind)` 
+   gets a random non-zero from the matrix
+   
+Example
+-------
+~~~~
+G = erdos_renyi_undirected(2,1.0)
+@show random_edge(G)
+@show random_edge(sparse(G))
+~~~~
+"""
+function random_edge(A::MatrixNetwork)
+    ind = rand(1:length(A.ci)) # the index
+    ej = A.ci[ind]
+    ei = searchsortedfirst(A.rp, ind) # uses binary search for efficiency
+    assert(ei <= A.n)
+    return (ei,ej,ind)
+end
+function random_edge(A::SparseMatrixCSC)
+    ind = rand(1:length(A.rowval)) # the index
+    ei = A.rowval[ind]
+    ej = searchsortedfirst(A.colptr, ind) # uses binary search for efficiency
+    assert(ej <= A.n)
+    return (ei,ej,ind)
+end
+
+"""
+    undirected_edges(A) -> srcs,dsts
+
+Produce lists just for the undirected edges. This assumes you want only
+those edges where (target >= source). 
+"""
+function undirected_edges(A::MatrixNetwork)
+    ei = Vector{Int64}()
+    ej = Vector{Int64}()
+    sizehint!(ei, div(A.rp[A.n+1],2))
+    sizehint!(ej, div(A.rp[A.n+1],2))    
+    for i=1:A.n
+        for nzi=A.rp[i]:A.rp[i+1]-1 
+            j = A.ci[nzi]
+            if j >= i
+                push!(ei, i)
+                push!(ej, j)
+            end
+        end
+    end
+    return ei,ej
+end
+
+"""
+    directed_edges(A) -> srcs,dsts
+
+Produce lists just for all edges of the graph, including both sides for
+undirected edges. This is essentially the same as findnz for a sparse matrix,
+optimized not to return the values. 
+"""
+function directed_edges(A::MatrixNetwork)
+    ei = Vector{Int64}()
+    ej = Vector{Int64}()
+    sizehint!(ei, A.rp[A.n+1])
+    sizehint!(ej, A.rp[A.n+1])        
+    for i=1:A.n
+        for nzi=A.rp[i]:A.rp[i+1]-1 
+            j = A.ci[nzi]   
+            push!(ei, i)
+            push!(ej, j)
+        end
+    end
+    return ei,ej
+end
+
+
+function rewire_graph(A::MatrixNetwork, k::Integer)
+    if is_undirected(A)
+        ei,ej = undirected_edges(A)
+    else
+        ei,ej = directed_edges(A)
+    end
+end
+
+#=
+function random_symmetric_edge(A::MatrixNetwork)
+    ei,ej,ind1 = random_edge(A)
+    ind2 = searchsortedfirst(@view A.ci[A.rp[ej]:A.rp[ej+1]-1], ei)
+end
+random_undirected_edge(A::MatrixNetwork)
+
+function reverse_edge_index(A::MatrixNetwork, ei::Integer, ej::Integer)
+    
+end
+=#
+
 
 # TODO Add chung-lu for general floating point weights
 # via union of ER graphs add 

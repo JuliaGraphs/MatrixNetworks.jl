@@ -67,4 +67,47 @@
         @test size(pa_graph(10,-5,5),1) == 10
         @test nnz(sparse_transpose(pa_graph(10,-5,5))) == 20  
     end
+    
+    @testset "roach_graph" begin
+        @test_throws ArgumentError roach_graph(-1)
+        @test is_empty(roach_graph(0))
+        @test is_connected(roach_graph(5))
+        @test is_connected(roach_graph(5, Val{true})[1])
+        @test maximum(bfs(roach_graph(5, Val{false}),20)[1]) == 11
+        @test maximum(bfs(roach_graph(10),40)[1]) == 21        
+        @test (bfs(roach_graph(10),40)[1])[1] == 20   
+        
+        G,xy = roach_graph(5, Val{true})        
+        filt = vec(all(xy .>= 0,2))
+        Asub = sparse_transpose(G)[filt,filt]
+        # Asub should be an antennae...
+        @test bfs(Asub,1)[1][5] == 4
+        filt = vec(all(xy .<= 0,2))
+        Asub = sparse_transpose(G)[filt,filt]
+        # Asub should be an line...
+        @test bfs(Asub,1)[1][5] == 4 
+    end
+    
+    @testset "lollipop_graph" begin
+        @test_throws ArgumentError lollipop_graph(-1)
+        @test_throws ArgumentError lollipop_graph(-1,-1)        
+        @test_throws ArgumentError lollipop_graph(5,-1,Val{true})
+        
+        @test is_connected(lollipop_graph(5))
+        @test is_connected(lollipop_graph(5, Val{true})[1])        
+        @test is_connected(lollipop_graph(5, 10))   
+        @test is_connected(lollipop_graph(10, 5))
+        
+        @test maximum(bfs(lollipop_graph(5,10),1)[1]) == 6
+        @test maximum(bfs(lollipop_graph(10,5),1)[1]) == 11        
+        
+        G,xy = lollipop_graph(6, 5, Val{true})
+        filt = vec(all(xy .<= 0,2))
+        Asub = sparse_transpose(G)[filt,filt]
+        # Asub should be an tail (or a line graph
+        @test bfs(Asub,1)[1][6] == 5
+        Asub = sparse_transpose(G)[~filt,~filt] 
+        @test nnz(Asub) == 5*4 
+        
+    end
 end

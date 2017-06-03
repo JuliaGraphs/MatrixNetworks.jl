@@ -74,7 +74,8 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     erdős_rényi_undirected, erdős_rényi_directed,
     chung_lu_undirected, is_graphical_sequence, havel_hakimi_graph,
     pa_graph, preferential_attachment_graph,
-    pa_edges!, preferential_attachment_edges! 
+    pa_edges!, preferential_attachment_edges!,
+    roach_graph, lollipop_graph
 
 include("biconnected.jl")
 export biconnected_components, biconnected_components!
