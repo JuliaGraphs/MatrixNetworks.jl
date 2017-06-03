@@ -32,4 +32,7 @@
         @test strong_components_map(sparse_to_csr(A)...) == sci
         @test strong_components_map(findnz(A)[1], findnz(A)[2]) == sci
     end
+    @testset "empty" begin
+        @test scomponents(empty_graph(0)).sizes == []
+    end
 end

@@ -14,11 +14,11 @@ SCOMPONENTS
 
 Functions
 ---------
-- cc = scomponents(A::MatrixNetwork)
-- cc = scomponents{T}(A::SparseMatrixCSC{T,Int64}) 
-- sci = strong_components_map(A::MatrixNetwork)
-- sci = strong_components_map{T}(A::SparseMatrixCSC{T,Int64})
-- sc_rich = enrich(cc::Strong_components_output) # check ?enrich for more
+- `cc = scomponents(A::MatrixNetwork)`
+- `cc = scomponents{T}(A::SparseMatrixCSC{T,Int64})`
+- `sci = strong_components_map(A::MatrixNetwork)`
+- `sci = strong_components_map{T}(A::SparseMatrixCSC{T,Int64})`
+- `sc_rich = enrich(cc::Strong_components_output) # check ?enrich for more`
 
 Example
 -------
@@ -41,8 +41,7 @@ A = sprand(5,5,0.5)
 cc = scomponents(A)
 ~~~
 """
-
-:scomponents
+function scomponents end
 
 ###########################
 ##    Type Definitions    #
@@ -164,10 +163,13 @@ strong_components_map{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::
 
 function scomponents(A::MatrixNetwork)
     mapping = strong_components_map(A)
-	number = maximum(mapping)
-	sizes = zeros(Int64,number);
+    number = 0
+    if length(mapping) > 0
+    	number = maximum(mapping)
+    end
+	sizes = zeros(Int64,number)
     for i = 1:length(mapping)
-        sizes[mapping[i]] += 1;
+        sizes[mapping[i]] += 1
     end
     
     return Strong_components_output(mapping, sizes, number, A)
