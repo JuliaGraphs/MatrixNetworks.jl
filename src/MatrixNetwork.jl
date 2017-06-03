@@ -38,7 +38,7 @@ function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64},v)
 end
 
 
-import Base.sparse, Base.size
+import Base.sparse, Base.size, Base.*, Base.A_mul_B!, Base.At_mul_B, Base.At_mul_B!
 
 """
 Return back an adjacency matrix representation
@@ -73,8 +73,9 @@ function size(A::MatrixNetwork, dim::Integer)
     end
 end
 
-A_mul_B{S}(M::MatrixNetwork, b::AbstractVector{S}) = 
-    A_mul_B!(Array(promote_type(Float64,S), size(M,2)), M, b)
+*(M::MatrixNetwork, b) = A_mul_B(M, b)
+A_mul_B{T,S}(M::MatrixNetwork{T}, b::AbstractVector{S}) = 
+    A_mul_B!(Array(promote_type(T,S), size(M,2)), M, b) 
 function A_mul_B!(output, M::MatrixNetwork, b)
     At_mul_B!(output, sparse_transpose(M), b) 
 end
@@ -156,12 +157,9 @@ and false indicating
 """    
 function is_connected end
 
-function is_connected(A::MatrixNetwork)
-    return maximum(scomponents(A).map) == 1
-end
-
-function is_connected(A::SparseMatrixCSC)
-    return maximum(scomponents(A).map) == 1
+function is_connected(A::Union{MatrixNetwork,SparseMatrixCSC})
+    # this is equivalent to maximum with a default value of 0
+    return mapreduce(identity, max, 0, strong_components_map(A)) == 1
 end
 
 """
@@ -170,13 +168,117 @@ end
 
 Returns an empty graph with n vertices and zero edges
 
-usage:
+Functions
+---------
+* `A = empty_graph(n)` generates an empty graph on n edges.
 
-A = empty_graph(n)
+Example
+-------
+~~~~
+is_connected(empty_graph(0))
+is_connected(empty_graph(1))
+~~~~
 """
 
 function empty_graph end
 
-function empty_graph(n::Int64=0)
-    return MatrixNetwork(n,Array{Int64}(1),Array{Int64}(0),Array{Any}(0))
+function empty_graph(n::Integer=0)
+    return MatrixNetwork(n,ones(Int64,n+1),Array{Int64}(0),Array{Float64}(0))
 end
+
+"""
+`random_edge`
+=============
+Identify a random edge of a matrix network or sparse matrix.
+
+Functions
+---------
+* `random_edge(A::MatrixNetwork) -> (ei,ej,ind)` 
+   gets a random edge/non-zero from the matrix
+   
+* `random_edge(A::SparseMatrixCSC) -> (ei,ej,ind)` 
+   gets a random non-zero from the matrix
+   
+Example
+-------
+~~~~
+G = lollipop_graph(5,3)
+# count the number of edges we randomly see between the regions
+C = Dict{Symbol,Int}()
+M = zeros(8,8)
+for i=1:1000000
+  ei,ej = MatrixNetwork.random_edge(G)
+  M[ei,ej] += 1
+  if 1 <= ei <= 5 && 1 <= ej <= 5
+    C[:Stem] = get(C, :Stem, 0) + 1
+  elseif 6 <= ei <= 10 && 6 <= ej <= 10
+    C[:Pop] = get(C, :Pop, 0) + 1  
+  else
+    C[:Bridge] = get(C, :Bridge, 0) + 1  
+  end
+end
+# 4 edges in stem, 3 edges in pop, 1 edge in bridge 
+@show C
+@show M
+~~~~
+"""
+function random_edge(A::MatrixNetwork)
+    ind = rand(1:length(A.ci)) # the index
+    ej = A.ci[ind]
+    ei = searchsortedlast(A.rp, ind) # uses binary search for efficiency
+    assert(ei <= A.n)
+    return (ei,ej,ind)
+end
+function random_edge(A::SparseMatrixCSC)
+    ind = rand(1:length(A.rowval)) # the index
+    ei = A.rowval[ind]
+    ej = searchsortedlast(A.colptr, ind) # uses binary search for efficiency
+    assert(ej <= A.n)
+    return (ei,ej,ind)
+end
+
+"""
+    undirected_edges(A) -> srcs,dsts
+
+Produce lists just for the undirected edges. This assumes you want only
+those edges where (target >= source). 
+"""
+function undirected_edges(A::MatrixNetwork)
+    ei = Vector{Int64}()
+    ej = Vector{Int64}()
+    sizehint!(ei, div(A.rp[A.n+1],2))
+    sizehint!(ej, div(A.rp[A.n+1],2))    
+    for i=1:A.n
+        for nzi=A.rp[i]:A.rp[i+1]-1 
+            j = A.ci[nzi]
+            if j >= i
+                push!(ei, i)
+                push!(ej, j)
+            end
+        end
+    end
+    return ei,ej
+end
+
+"""
+    directed_edges(A) -> srcs,dsts
+
+Produce lists just for all edges of the graph, including both sides for
+undirected edges. This is essentially the same as findnz for a sparse matrix,
+optimized not to return the values. 
+"""
+function directed_edges(A::MatrixNetwork)
+    ei = Vector{Int64}()
+    ej = Vector{Int64}()
+    sizehint!(ei, A.rp[A.n+1])
+    sizehint!(ej, A.rp[A.n+1])        
+    for i=1:A.n
+        for nzi=A.rp[i]:A.rp[i+1]-1 
+            j = A.ci[nzi]   
+            push!(ei, i)
+            push!(ej, j)
+        end
+    end
+    return ei,ej
+end
+
