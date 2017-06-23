@@ -18,12 +18,17 @@
     A = load_matrix_network("clr-24-1")
     T1 = mst_prim_matrix(A)
     T2 = mst_prim_matrix(A,false,5)
+    T3 = mst_prim_matrix(MatrixNetwork(A),false)
     T1T2diff = sparse([2,1],[3,8],[8,-8],9,9)
+    T3T2diff = sparse([2,1],[3,8],[8,-8],9,9)
     
     @test nnz(triu(T1-T2) - T1T2diff) == 0
+    @test nnz(triu(T3-T2) - T3T2diff) == 0
 
     @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)))
     @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)), false)
+    @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)), false, 1)
     @test_throws ErrorException mst_prim(-speye(3))
     @test_throws ErrorException mst_prim(-speye(3), false)
+    @test_throws ErrorException mst_prim(-speye(3), false, 1)
 end
