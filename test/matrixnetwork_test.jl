@@ -8,6 +8,7 @@
     @test size(M) == size(B)
     @test_throws DomainError size(M, 0)
     @test size(M, 4) == 1
+    @test ndims(M) == 2
 
     load_matrix_network_all("minnesota")
     load_matrix_network_all("U3A")
