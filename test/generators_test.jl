@@ -2,15 +2,15 @@
     @testset "erdos_renyi" begin
         @test_throws DomainError erdos_renyi_undirected(10,11.)
         @test_throws DomainError erdos_renyi_directed(10,11.)
-        
+
         n = 100
-        avgdegs = linspace(1.,2*log(n),100) 
-        compsizes = map( (dbar) -> 
+        avgdegs = linspace(1.,2*log(n),100)
+        compsizes = map( (dbar) ->
                 maximum(scomponents(erdos_renyi_undirected(n,dbar)).sizes),
             avgdegs )
-            
+
         @test is_undirected(erdos_renyi_undirected(10,2.))
-        
+
         erdos_renyi_undirected(0, 0.)
         erdos_renyi_undirected(0, 0)
         erdos_renyi_undirected(5, 0)
@@ -41,14 +41,14 @@
         @test is_graphical_sequence([0]) == true
         @test is_graphical_sequence(Int[]) == true
         @test is_graphical_sequence([1,1,1,1]) == true
-        
+
         @test full(sparse_transpose(havel_hakimi_graph(Int[]))) == zeros(Bool,0,0)
         @test full(sparse_transpose(havel_hakimi_graph([0]))) == zeros(Bool,1,1)
         @test full(sparse_transpose(havel_hakimi_graph([1,1]))) == [0 1; 1 0]
         @test full(sparse_transpose(havel_hakimi_graph([2,2,2]))) == [0 1 1; 1 0 1; 1 1 0]
-        six_star = [0 1 1 1 1 1; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0] 
+        six_star = [0 1 1 1 1 1; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0]
         @test full(sparse_transpose(havel_hakimi_graph([5,1,1,1,1,1]))) == six_star
-        
+
         @test_throws ArgumentError is_graphical_sequence([-1])
         @test_throws ArgumentError havel_hakimi_graph([1,2,2])
     end
@@ -65,19 +65,34 @@
         @test maximum(map(first, pa_edges!(5,1,[(1,2),(2,1)],2))) == 7
         @test size(pa_graph(10,5,5),1) == 10
         @test size(pa_graph(10,-5,5),1) == 10
-        @test nnz(sparse_transpose(pa_graph(10,-5,5))) == 20  
+        @test nnz(sparse_transpose(pa_graph(10,-5,5))) == 20
     end
-    
+
+    @testset "gpa_graph" begin
+        @test typeof(gpa_graph(10,0.5,0.3,2)) == MatrixNetwork{Bool}
+        @test typeof(gpa_graph(10,0.5,0.3,2,Val{true})) == MatrixNetwork{Bool}
+        @test typeof(gpa_edges!(4,.75,.25,[(1,1)],1)) == Vector{Tuple{Int,Int}}
+        @test typeof(gpa_edges!(4,.75,.25,[(1,1)],1,Val{true})) == Vector{Tuple{Int,Int}}
+        @test is_empty(gpa_graph(0,0.0,0.0,0)) == true
+        @test all(diag(sparse_transpose(gpa_graph(10, .3,.4, 3))) .== 0.)
+        @test is_undirected(gpa_graph(10, .2, .8,4))
+        @test_throws ArgumentError gpa_graph(-1,.3,.4,5)
+        @test_throws ArgumentError gpa_graph(8,.8,.4,2)
+        @test_throws ArgumentError gpa_graph(10,.3,.4,-2)
+        @test size(gpa_graph(12,.5,.4,2),1) == 12
+        @test size(gpa_graph(21,.1,.1,3),1) == 21
+    end
+
     @testset "roach_graph" begin
         @test_throws ArgumentError roach_graph(-1)
         @test is_empty(roach_graph(0))
         @test is_connected(roach_graph(5))
         @test is_connected(roach_graph(5, Val{true})[1])
         @test maximum(bfs(roach_graph(5, Val{false}),20)[1]) == 11
-        @test maximum(bfs(roach_graph(10),40)[1]) == 21        
-        @test (bfs(roach_graph(10),40)[1])[1] == 20   
-        
-        G,xy = roach_graph(5, Val{true})        
+        @test maximum(bfs(roach_graph(10),40)[1]) == 21
+        @test (bfs(roach_graph(10),40)[1])[1] == 20
+
+        G,xy = roach_graph(5, Val{true})
         filt = vec(all(xy .>= 0,2))
         Asub = sparse_transpose(G)[filt,filt]
         # Asub should be an antennae...
@@ -85,29 +100,29 @@
         filt = vec(all(xy .<= 0,2))
         Asub = sparse_transpose(G)[filt,filt]
         # Asub should be an line...
-        @test bfs(Asub,1)[1][5] == 4 
+        @test bfs(Asub,1)[1][5] == 4
     end
-    
+
     @testset "lollipop_graph" begin
         @test_throws ArgumentError lollipop_graph(-1)
-        @test_throws ArgumentError lollipop_graph(-1,-1)        
+        @test_throws ArgumentError lollipop_graph(-1,-1)
         @test_throws ArgumentError lollipop_graph(5,-1,Val{true})
-        
+
         @test is_connected(lollipop_graph(5))
-        @test is_connected(lollipop_graph(5, Val{true})[1])        
-        @test is_connected(lollipop_graph(5, 10))   
+        @test is_connected(lollipop_graph(5, Val{true})[1])
+        @test is_connected(lollipop_graph(5, 10))
         @test is_connected(lollipop_graph(10, 5))
-        
+
         @test maximum(bfs(lollipop_graph(5,10),1)[1]) == 6
-        @test maximum(bfs(lollipop_graph(10,5),1)[1]) == 11        
-        
+        @test maximum(bfs(lollipop_graph(10,5),1)[1]) == 11
+
         G,xy = lollipop_graph(6, 5, Val{true})
         filt = vec(all(xy .<= 0,2))
         Asub = sparse_transpose(G)[filt,filt]
         # Asub should be an tail (or a line graph
         @test bfs(Asub,1)[1][6] == 5
-        Asub = sparse_transpose(G)[~filt,~filt] 
-        @test nnz(Asub) == 5*4 
-        
+        Asub = sparse_transpose(G)[~filt,~filt]
+        @test nnz(Asub) == 5*4
+
     end
 end
