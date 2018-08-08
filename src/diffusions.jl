@@ -12,7 +12,7 @@ import Base.size
 """
 A simple function that doesn't report any output
 """
-function _noiterfunc{T}(iter::Int, x::Vector{T})
+function _noiterfunc(iter::Int, x::Vector{T}) where T
 end
 
 """
@@ -32,9 +32,8 @@ Internal function
 """
 function _applyv! end
 
-if VERSION >= v"0.5.0-dev+1000"
-function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
-                    alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::SparseVector{T},
+                 alpha::T, gamma::T) where T
     @simd for i in 1:length(x)
         @inbounds x[i] *= alpha
     end
@@ -44,29 +43,28 @@ function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
         @inbounds x[vrows[j]] += gamma*vvals[j]
     end
 end
+ # version 0.5.0-dev
 
-end # version 0.5.0-dev
-
-function _applyv!{T}(x::Vector{T}, v, alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v, alpha::T, gamma::T) where T
     x *= alpha
     x += gamma*v
 end
 
-function _applyv!{T}(x::Vector{T}, v::T, alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::T, alpha::T, gamma::T) where T
     gv = gamma*v
     @simd for i in 1:length(x)
         @inbounds x[i] = alpha*x[i] + gv
     end
 end
 
-function _applyv!{T}(x::Vector{T}, v::Vector{T}, alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::Vector{T}, alpha::T, gamma::T) where T
     @simd for i in 1:length(x)
         @inbounds x[i] = alpha*x[i] + gamma*v[i]
     end
 end
 
-function _applyv!{T}(x::Vector{T}, v::SparseMatrixCSC{T,Int},
-                    alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::SparseMatrixCSC{T,Int},
+                 alpha::T, gamma::T) where T
     @simd for i in 1:length(x)
         @inbounds x[i] *= alpha
     end
@@ -80,14 +78,14 @@ end
 """
 Convert a sparse representation into a dense vector.
 """
-function _densevec{T}(I::Vector{Int}, V::Vector{T}, n::Int)
+function _densevec(I::Vector{Int}, V::Vector{T}, n::Int) where T
     v = zeros(T,n)
     for ind in 1:length(I)
         v[ind] = V[ind]
     end
     return v
 end
-function _densevec{T}(d::Dict{Int,T}, n::Int)
+function _densevec(d::Dict{Int,T}, n::Int) where T
     v = zeros(T,n)
     for (ind,val) in d
         v[ind] = val
@@ -165,9 +163,9 @@ Example
 
 ~~~~
 """
-function pagerank_power!{T}(x::Vector{T}, y::Vector{T},
+function pagerank_power!(x::Vector{T}, y::Vector{T},
     P, alpha::T, v, tol::T,
-    maxiter::Int, iterfunc::Function)
+    maxiter::Int, iterfunc::Function) where T
     ialpha = 1./(1.-alpha)
     xinit = x
     _applyv!(x,v,0.,1.) # iteration number 0
@@ -283,7 +281,7 @@ This type is the result of creating
 an implicit stochastic operator for
 a sparse matrix.
 """
-type SparseMatrixStochasticMult
+mutable struct SparseMatrixStochasticMult
     d::Vector{Float64}
     A::SparseMatrixCSC     
 end 
@@ -296,7 +294,7 @@ size(op::SparseMatrixStochasticMult, dim::Integer) = size(op.A,dim)
 length(op::SparseMatrixStochasticMult) = length(op.A)
 *(op::SparseMatrixStochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B{S}(op::SparseMatrixStochasticMult, b::AbstractVector{S}) = 
+A_mul_B(op::SparseMatrixStochasticMult, b::AbstractVector{S}) where {S} = 
     A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
 function A_mul_B!(output, op::SparseMatrixStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
@@ -312,7 +310,7 @@ This type is the result of creating
 an implicit stochastic operator for
 a matrix network type.
 """
-type MatrixNetworkStochasticMult
+mutable struct MatrixNetworkStochasticMult
     d::Vector{Float64}
     A::MatrixNetwork     
 end 
@@ -325,7 +323,7 @@ size(op::MatrixNetworkStochasticMult, dim::Integer) = size(op.A,dim)
 length(op::MatrixNetworkStochasticMult) = prod(size(op.A))
 *(op::MatrixNetworkStochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B{S}(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) = 
+A_mul_B(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) where {S} = 
     A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
 function A_mul_B!(output, op::MatrixNetworkStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
@@ -558,8 +556,6 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
 
-if VERSION >= v"0.5.0-dev+1000"
-
 personalized_pagerank(A,alpha::Float64,v::SparseVector{Float64},tol::Float64) = 
     personalized_pagerank!(A,alpha,deepcopy(v),tol)
 
@@ -583,7 +579,6 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseVector{Float64}, tol::
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
 
-end
 
 personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64) = 
     personalized_pagerank!(A,alpha,deepcopy(v),tol)
@@ -665,10 +660,10 @@ Example
 ~~~~
 
 """
-function stochastic_heat_kernel_series!{T}(
+function stochastic_heat_kernel_series!(
     x::Vector{T}, y::Vector{T}, z::Vector{T},
     P, t::T, v, eps::T, 
-    maxiter::Int)
+    maxiter::Int) where T
     
     iexpt = exp(-t)
     _applyv!(y,v,0.,1.) # iteration number 0
@@ -817,8 +812,6 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseMatrixCSC{Float64}
     _seeded_heat_kernel_validated(A,t,s,tol)
 end
 
-if VERSION >= v"0.5.0-dev+1000"
-
 seeded_stochastic_heat_kernel(A,t::Float64,s::SparseVector{Float64},tol::Float64) =
     seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
     
@@ -841,8 +834,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseVector{Float64}, t
     end
     _seeded_heat_kernel_validated(A,t,s,tol)
 end
-
-end # sparsevector
+ # sparsevector
 
 seeded_stochastic_heat_kernel(A,t::Float64,s::Vector{Float64},tol::Float64) =
     seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)

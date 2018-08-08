@@ -39,14 +39,14 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     end
     
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
-    if length(find(ai.<0)) != 0
+    if length(findall(ai.<0)) != 0
         error("only positive edge weights allowed")
     end
     return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
 end
 
-function clustercoeffs_phase2{T}(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
-                                          ai::Vector{T}, usew::Bool)
+function clustercoeffs_phase2(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
+                                       ai::Vector{T}, usew::Bool) where T
     n = length(rp) - 1
     cc = Vector{Float64}(n)
     ind = zeros(Bool,n)
@@ -123,7 +123,7 @@ end
 ### Additional functions ###
 ############################
 # sparse matrices:
-function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
+function clustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool) where T
     donorm = true
     usew = true
     if !normalized
@@ -139,13 +139,13 @@ function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized:
     end
 
     (rp,ci,ai) = (At.colptr,At.rowval,At.nzval);
-    if length(find(ai.<0)) != 0
+    if length(findall(ai.<0)) != 0
         error("only positive edge weights allowed")
     end
     return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
 end
 
-function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
+function clustercoeffs(A::SparseMatrixCSC{T,Int64}) where T
     return clustercoeffs(A, true, true);
 end
 
@@ -159,10 +159,10 @@ function clustercoeffs(ei::Vector{Int64},ej::Vector{Int64},weighted::Bool,normal
 end
 
 ## CSR sparse matrices - basically just like type MatrixNetwork
-function clustercoeffs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64)
+function clustercoeffs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) where T
     return clustercoeffs(MatrixNetwork(n,rp,ci,vals))
 end
 
-function clustercoeffs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,weighted::Bool,normalized::Bool)
+function clustercoeffs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,weighted::Bool,normalized::Bool) where T
     return clustercoeffs(MatrixNetwork(n,rp,ci,vals),weighted,normalized)
 end

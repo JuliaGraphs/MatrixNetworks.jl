@@ -35,9 +35,9 @@ Example
 This is an internal function.
 """
 
-function _symeigs_smallest_arpack{V}(
+function _symeigs_smallest_arpack(
             A::SparseMatrixCSC{V,Int},nev::Int,tol::V,maxiter::Int,
-            v0::Vector{V})
+            v0::Vector{V}) where V
 
     n::Int = checksquare(A) # get the size
     @assert n >= 21
@@ -179,8 +179,8 @@ A = A + A'
 # using UnicodePlots; lineplot(v)
 ~~~
 """
-function fiedler_vector{V}(A::SparseMatrixCSC{V,Int};
-    tol=1e-12,maxiter=300,dense=96,nev=2,checksym=true)
+function fiedler_vector(A::SparseMatrixCSC{V,Int};
+    tol=1e-12,maxiter=300,dense=96,nev=2,checksym=true) where V
     n = checksquare(A)
     if checksym
         if !issymmetric(A)
@@ -231,7 +231,7 @@ function fiedler_vector{V}(A::SparseMatrixCSC{V,Int};
     return (x,lam2)
 end
 
-fiedler_vector{T}(A::MatrixNetwork{T};kwargs...) =
+fiedler_vector(A::MatrixNetwork{T};kwargs...) where {T} =
     fiedler_vector(sparse_transpose(A);kwargs...) # sparse_transpose converts directly
 
 """
@@ -258,14 +258,14 @@ haskey(r,1) # returns true
 haskey(r,0) # returns false
 """
 
-type RankedArray{S}
+mutable struct RankedArray{S}
     data::S
 end
 
 import Base: getindex, haskey
 
-haskey{S}(A::RankedArray{S}, x::Int) = x >= 1 && x <= length(A.data)
-getindex{S}(A::RankedArray{S}, i) = A.data[i]
+haskey(A::RankedArray{S}, x::Int) where {S} = x >= 1 && x <= length(A.data)
+getindex(A::RankedArray{S}, i) where {S} = A.data[i]
 
 """
 SweepcutProfile
@@ -290,7 +290,7 @@ See also
 
 """
 
-immutable SweepcutProfile{V,F}
+struct SweepcutProfile{V,F}
     p::Vector{Int}
     conductance::Vector{F}
     cut::Vector{V}
@@ -298,7 +298,7 @@ immutable SweepcutProfile{V,F}
     total_volume::V
     total_nodes::Int
 
-    function (::Type{SweepcutProfile{V,F}}){V,F}(p::Vector{Int},nnodes::Int,totalvol::V)
+    function SweepcutProfile{V,F}(p::Vector{Int},nnodes::Int,totalvol::V) where {V,F}
         n = length(p)
         new{V,F}(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
     end
@@ -374,7 +374,7 @@ T = spectral_cut(A).set # should give you the same set
 # using UnicodePlots; lineplot(p.conductance) # show the conductance
 ~~~~
 """
-function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V, maxvol::T)
+function sweepcut(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V, maxvol::T) where {V,T}
 
     n = checksquare(A)
     nlast = length(p)
@@ -427,7 +427,7 @@ function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V
     return output
 end
 
-function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, x::Vector{T}, vol::V)
+function sweepcut(A::SparseMatrixCSC{V,Int}, x::Vector{T}, vol::V) where {V,T}
     p = sortperm(x,rev=true)
     ranks = Array(Int, length(x))
     for (i,v) in enumerate(p)
@@ -437,13 +437,13 @@ function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, x::Vector{T}, vol::V)
     return sweepcut(A, p, r, vol, Inf)
 end
 
-sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, x::Vector{T}) =
+sweepcut(A::SparseMatrixCSC{V,Int}, x::Vector{T}) where {V,T} =
     sweepcut(A, x, sum(A))
 
-function bestset{V,F}(prof::SweepcutProfile{V,F})
+function bestset(prof::SweepcutProfile{V,F}) where {V,F}
     nnodes = 0
     if !isempty(prof.conductance)
-        bsetind = indmin(prof.conductance)
+        bsetind = argmin(prof.conductance)
         bsetvol = prof.volume[bsetind]
         nnodes = bsetind
         if bsetvol > prof.total_volume - bsetvol
@@ -484,7 +484,7 @@ The most useful outputs are `set` and `lam2`; the others are provided
 for experts who wish to use some of the diagonstics provided.
 """
 
-immutable SpectralCut{V,F}
+struct SpectralCut{V,F}
     set::Vector{Int}
     A::SparseMatrixCSC{V,Int}
     lam2::F
@@ -494,7 +494,7 @@ immutable SpectralCut{V,F}
     largest_component::Int
 end
 
-function show{V,F}(io::IO,obj::SpectralCut{V,F})
+function show(io::IO,obj::SpectralCut{V,F}) where {V,F}
     println(io,"Spectral cut on adjacency matrix with $(size(obj.A,1)) nodes and $(nnz(obj.A)) non-zeros")
     if obj.comps.number > 1
         println(io, "    formed from the largest connected component of the input matrix")
@@ -533,7 +533,7 @@ Inputs
   through another mechanism.
 """
 
-function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
+function spectral_cut(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool) where V
     n = checksquare(A)
     if checksym
         if !issymmetric(A)
@@ -549,7 +549,7 @@ function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
     # need to test for components
     G = MatrixNetwork(n,A.colptr,A.rowval,A.nzval)
     cc = scomponents(G)
-    lccind = indmax(cc.sizes)
+    lccind = argmax(cc.sizes)
     B = A
     if cc.number > 1
         if ccwarn
@@ -558,7 +558,7 @@ function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
         f = cc.map .== lccind
         B = A[f,f] # using logical indexing is faster than find for large sets (2015/11/14)
         # n=10^5;A=sprand(n,n,25/n);f=rand(n).>0.01;s=find(f);@time sum(A);@time A[f,f]; @time A[s,s];
-        subset = find(f)
+        subset = findall(f)
     end
 
     # run the partition
@@ -576,10 +576,10 @@ function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
     return SpectralCut(bset,B,lam2,x,sweep,cc,lccind)
 end
 
-function spectral_cut{V}(A::SparseMatrixCSC{V,Int})
+function spectral_cut(A::SparseMatrixCSC{V,Int}) where V
     return spectral_cut(A,true,true)
 end
 
-function spectral_cut{V}(A::MatrixNetwork{V})
+function spectral_cut(A::MatrixNetwork{V}) where V
     return spectral_cut(sparse_transpose(A),true,true)
 end

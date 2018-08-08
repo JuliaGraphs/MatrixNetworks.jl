@@ -26,7 +26,7 @@ isequal(A,B)
 ##################
 #	Functions    #
 ##################
-function csr_to_sparse{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T})
+function csr_to_sparse(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T}) where T
     nrows = length(rp)-1
     ncols = length(ci)
     nzi = zeros(Int64,ncols)
@@ -40,14 +40,14 @@ function csr_to_sparse{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T})
     return (nzi,nzj,nzv)
 end 
 
-function csr_to_sparse_matrix{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T})
+function csr_to_sparse_matrix(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T}) where T
     (i,j,k) = csr_to_sparse(rp,ci,ai)
     A = sparse(i,j,k)
     return A
 end
 
-function csr_to_sparse_matrix{T}(rp::Vector{Int64},ci::Vector{Int64},
-                                            ai::Vector{T},nrows::Int64,ncols::Int64)
+function csr_to_sparse_matrix(rp::Vector{Int64},ci::Vector{Int64},
+                                         ai::Vector{T},nrows::Int64,ncols::Int64) where T
     (i,j,k) = csr_to_sparse(rp,ci,ai);
     A = sparse(i,j,k,nrows,ncols)
     return A

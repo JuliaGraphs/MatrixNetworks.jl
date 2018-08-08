@@ -55,27 +55,27 @@ end
         A = sparse(G)
         # there are 16 edges, to 100*16*log(16) should randomly generate all of them
         M = zeros(8,8)
-        srand(1) # make it determinstic-ish
+        Random.seed!(1) # make it determinstic-ish
         ntrials = 100*16*4
         for i=1:ntrials # log16 = 4 in base 2
             M[random_edge(G)[1:2]...] += 1
         end
         @test sum(M.*A) == ntrials          # this means we got all 
-        @test all(find(A.*(M .+ A)) .>= 1) # this means we got all entries
-        @test std(M[find(M)]) <= 100
+        @test all(findall(A.*(M .+ A)) .>= 1) # this means we got all entries
+        @test std(M[findall(M)]) <= 100
 
         n = 16
         A = sparse(1:n-1,2:n,1,n,n)
         # there are 15 edges, to 100*15*log(15) should randomly generate all of them
         M = zeros(n,n)
-        srand(1) # make it determinstic-ish
+        Random.seed!(1) # make it determinstic-ish
         ntrials = 100*16*4 # we just use the same one
         for i=1:ntrials # log16 = 4 in base 2
             M[random_edge(A)[1:2]...] += 1
         end
         @test sum(M.*A) == ntrials          # this means we got all 
-        @test all(find(A.*(M .+ A)) .>= 1) # this means we got all entries
-        @test std(M[find(M)]) <= 100
+        @test all(findall(A.*(M .+ A)) .>= 1) # this means we got all entries
+        @test std(M[findall(M)]) <= 100
     end
     @testset "undirected_edges" begin
         @test map(length, undirected_edges(empty_graph(0))) == (0,0) 

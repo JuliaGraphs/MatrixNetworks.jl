@@ -28,12 +28,12 @@ function floydwarshall_phase1(A::MatrixNetwork)
     return (nzi,nzj,nzv,A.n)
 end
 
-function floydwarshall_phase1{T}(A::SparseMatrixCSC{T,Int64})
+function floydwarshall_phase1(A::SparseMatrixCSC{T,Int64}) where T
     (ri,ci,ai) = findnz(A)
     return (ri,ci,ai,A.n)
 end
 
-function floydwarshall_phase2{T}(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{T},n::Int64)
+function floydwarshall_phase2(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{T},n::Int64) where T
 
     nz = length(ai)
     D = Inf*ones(Int64,n,n)
@@ -81,7 +81,7 @@ function floydwarshall(A::MatrixNetwork)
     return (D,P)
 end
 
-function floydwarshall{T}(A::SparseMatrixCSC{T,Int64})
+function floydwarshall(A::SparseMatrixCSC{T,Int64}) where T
     (nzi,nzj,nzv,n) = floydwarshall_phase1(A)
     (D,P) = floydwarshall_phase2(nzi,nzj,nzv,n)
     return (D,P)

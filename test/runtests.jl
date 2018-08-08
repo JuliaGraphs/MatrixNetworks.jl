@@ -1,5 +1,5 @@
 using MatrixNetworks
-using Base.Test
+using Test
 #using Lint
 
 # Todo

@@ -1,12 +1,12 @@
 # create type MatrixNetwork
-type MatrixNetwork{T}
+mutable struct MatrixNetwork{T}
     n::Int64 # number of columns/rows
     rp::Vector{Int64} # row pointers
     ci::Vector{Int64} # column indices
     vals::Vector{T} # corresponding values
 end
 
-function MatrixNetwork{T}(A::SparseMatrixCSC{T,Int64})
+function MatrixNetwork(A::SparseMatrixCSC{T,Int64}) where T
     At = A'
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
@@ -28,11 +28,11 @@ function MatrixNetwork(ei::Vector{Int64},ej::Vector{Int64},n::Int64)
 end
 
 
-function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64})
+function _matrix_network_direct(A::SparseMatrixCSC{T,Int64}) where T
     return MatrixNetwork(size(A,2),A.colptr,A.rowval,A.nzval)
 end
 
-function _matrix_network_direct{T}(A::SparseMatrixCSC{T,Int64},v)
+function _matrix_network_direct(A::SparseMatrixCSC{T,Int64},v) where T
     nzval = ones(typeof(v),length(A.nzval))
     return MatrixNetwork(size(A,2),A.colptr,A.rowval,nzval)
 end
@@ -44,7 +44,7 @@ import Base.sparse, Base.size, Base.*, Base.A_mul_B!, Base.At_mul_B, Base.At_mul
 Return back an adjacency matrix representation
 of the transpose. This requires no work. 
 """
-function sparse_transpose{T}(A::MatrixNetwork{T})
+function sparse_transpose(A::MatrixNetwork{T}) where T
     return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
 end
 
@@ -52,7 +52,7 @@ end
 Return back an adjacency matrix representation
 of the current MatrixNetwork
 """
-function sparse{T}(A::MatrixNetwork{T})
+function sparse(A::MatrixNetwork{T}) where T
     return sparse_transpose(A)'
 end
 
@@ -74,13 +74,13 @@ function size(A::MatrixNetwork, dim::Integer)
 end
 
 *(M::MatrixNetwork, b) = A_mul_B(M, b)
-A_mul_B{T,S}(M::MatrixNetwork{T}, b::AbstractVector{S}) = 
+A_mul_B(M::MatrixNetwork{T}, b::AbstractVector{S}) where {T,S} = 
     A_mul_B!(Array(promote_type(T,S), size(M,2)), M, b) 
 function A_mul_B!(output, M::MatrixNetwork, b)
     At_mul_B!(output, sparse_transpose(M), b) 
 end
 
-At_mul_B{S}(M::MatrixNetwork, b::AbstractVector{S}) = 
+At_mul_B(M::MatrixNetwork, b::AbstractVector{S}) where {S} = 
     At_mul_B!(Array(promote_type(Float64,S), size(M,1)), M, b)
 function At_mul_B!(output, M::MatrixNetwork, b)
     A_mul_B!(output, sparse_transpose(M), b) 
@@ -183,7 +183,7 @@ is_connected(empty_graph(1))
 function empty_graph end
 
 function empty_graph(n::Integer=0)
-    return MatrixNetwork(n,ones(Int64,n+1),Array{Int64}(0),Array{Float64}(0))
+    return MatrixNetwork(n,ones(Int64,n+1),Array{Int64}(undef, 0),Array{Float64}(undef, 0))
 end
 
 """

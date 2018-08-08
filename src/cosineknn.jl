@@ -18,7 +18,7 @@ S = cosineknn(A,2)
 """
 
 ## CSC support
-function cosineknn{T}(A::SparseMatrixCSC{T,Int64},K::Int64)
+function cosineknn(A::SparseMatrixCSC{T,Int64},K::Int64) where T
     (rp,ci,ai) = sparse_to_csr(A)
     (rpt,cit,ait) = sparse_to_csr(A')
     (m,n) = size(A)
@@ -38,8 +38,8 @@ function cosineknn(A::MatrixNetwork,K::Int64)
 
 end
 
-function cosineknn_internal{T}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T},
-                rpt::Vector{Int64},cit::Vector{Int64},ait::Vector{T},m::Int64,K::Int64)
+function cosineknn_internal(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T},
+                rpt::Vector{Int64},cit::Vector{Int64},ait::Vector{T},m::Int64,K::Int64) where T
 
     # accumarray
     rn = zeros(Float64,maximum(cit))

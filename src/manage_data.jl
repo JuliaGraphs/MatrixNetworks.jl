@@ -12,7 +12,7 @@ function readSMAT(filename::AbstractString)
     return A
 end
 
-type MatrixNetworkMetadata
+mutable struct MatrixNetworkMetadata
     A::SparseMatrixCSC{Int64,Int64}
     labels::Vector{AbstractString}
     xy::Array{Float64,2}

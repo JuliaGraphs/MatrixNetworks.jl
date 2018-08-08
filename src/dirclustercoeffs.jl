@@ -34,15 +34,15 @@ labels[maxind]
 ###########################
 ###########################
 
-function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool)
+function dirclustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool) where T
     return dirclustercoeffs(A,weighted,true)
 end
 
-function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
+function dirclustercoeffs(A::SparseMatrixCSC{T,Int64}) where T
     return dirclustercoeffs(A,true,true)
 end
 
-function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
+function dirclustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool) where T
     donorm = true
     usew = true
     

@@ -4,7 +4,7 @@
         @test_throws DomainError erdos_renyi_directed(10,11.)
 
         n = 100
-        avgdegs = linspace(1.,2*log(n),100)
+        avgdegs = range(1., stop=2*log(n), length=100)
         compsizes = map( (dbar) ->
                 maximum(scomponents(erdos_renyi_undirected(n,dbar)).sizes),
             avgdegs )

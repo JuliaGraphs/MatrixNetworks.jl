@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 
 @testset "spectral" begin
     RankedArray = MatrixNetworks.RankedArray
@@ -22,7 +22,7 @@ using Base.Test
         A = sparse(1:n-1,2:n,1,n,n)
         A = A + A' + speye(Int64,n)
         profile = sweepcut(A,x)
-        @test indmin(profile.conductance) == 3
+        @test argmin(profile.conductance) == 3
         @test all(profile.cut .== 1)
     end
     @testset "floats" begin
@@ -31,7 +31,7 @@ using Base.Test
         A = sparse(1:n-1,2:n,0.5,n,n)
         A = A + A' + 1.5*speye(n)
         profile = sweepcut(A,x)
-        @test indmin(profile.conductance) == 3
+        @test argmin(profile.conductance) == 3
         @test all(profile.cut .== 0.5)
     end
     @testset "complement set" begin

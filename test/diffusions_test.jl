@@ -1,6 +1,6 @@
 using MatrixNetworks
 
-using Base.Test
+using Test
 @testset "diffusions" begin
     function _normout(P)
         n = size(P,1)
@@ -208,7 +208,7 @@ using Base.Test
 
     function shkexpm(A,t,v)
         P = full(_normout(A'))
-        return expm(-t*(eye(size(A,1))-P))*v
+        return exp(-t*(eye(size(A,1))-P))*v
     end
 
     @testset "heatkernel" begin
