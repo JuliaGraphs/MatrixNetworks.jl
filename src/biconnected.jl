@@ -184,7 +184,7 @@ number_of_components = bcc.number
 """
 function biconnected_components(A::MatrixNetwork; art::Bool = true, components::Bool = true)
     map = components ? zeros(Int64, length(A.ci)) : zeros(Int64, 0)
-    articulation = art ? zeros(Bool, A.n): zeros(Bool, 0)
+    articulation = art ? zeros(Bool, A.n) : zeros(Bool, 0)
     cn = biconnected_components!(A, articulation, map)
     return Biconnected_components_output(map,articulation,cn,A)
 end

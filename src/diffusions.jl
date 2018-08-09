@@ -32,7 +32,6 @@ Internal function
 """
 function _applyv! end
 
-if VERSION >= v"0.5.0-dev+1000"
 function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
                     alpha::T, gamma::T)
     @simd for i in 1:length(x)
@@ -44,8 +43,7 @@ function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
         @inbounds x[vrows[j]] += gamma*vvals[j]
     end
 end
-
-end # version 0.5.0-dev
+ # version 0.5.0-dev
 
 function _applyv!{T}(x::Vector{T}, v, alpha::T, gamma::T)
     x *= alpha
@@ -558,8 +556,6 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
 
-if VERSION >= v"0.5.0-dev+1000"
-
 personalized_pagerank(A,alpha::Float64,v::SparseVector{Float64},tol::Float64) = 
     personalized_pagerank!(A,alpha,deepcopy(v),tol)
 
@@ -583,7 +579,6 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseVector{Float64}, tol::
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
 
-end
 
 personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64) = 
     personalized_pagerank!(A,alpha,deepcopy(v),tol)
@@ -817,8 +812,6 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseMatrixCSC{Float64}
     _seeded_heat_kernel_validated(A,t,s,tol)
 end
 
-if VERSION >= v"0.5.0-dev+1000"
-
 seeded_stochastic_heat_kernel(A,t::Float64,s::SparseVector{Float64},tol::Float64) =
     seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
     
@@ -841,8 +834,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseVector{Float64}, t
     end
     _seeded_heat_kernel_validated(A,t,s,tol)
 end
-
-end # sparsevector
+ # sparsevector
 
 seeded_stochastic_heat_kernel(A,t::Float64,s::Vector{Float64},tol::Float64) =
     seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
