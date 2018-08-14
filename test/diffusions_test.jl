@@ -10,7 +10,7 @@ using Test
     end
 
     function prlinsys(A::SparseMatrixCSC{Float64,Int64},alpha::Float64,v::Vector{Float64})
-        P = full(_normout(A'))
+        P = Matrix(_normout(A'))
         n = size(A,1)
         z =  (eye(n) - alpha*P) \ v
         z = z /sum(z)
@@ -207,7 +207,7 @@ using Test
     end
 
     function shkexpm(A,t,v)
-        P = full(_normout(A'))
+        P = Matrix(_normout(A'))
         return exp(-t*(eye(size(A,1))-P))*v
     end
 

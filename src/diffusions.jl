@@ -1,12 +1,12 @@
 
 ## Todo
 
-import Base.LinAlg.checksquare
+import LinearAlgebra.checksquare
 import Base.eltype
 import Base.length
 import Base.ndims
 import Base.*
-import Base.A_mul_B!
+import LinearAlgebra.mul!
 import Base.size
 
 """
@@ -166,14 +166,17 @@ Example
 function pagerank_power!(x::Vector{T}, y::Vector{T},
     P, alpha::T, v, tol::T,
     maxiter::Int, iterfunc::Function) where T
-    ialpha = 1./(1.-alpha)
+    ialpha = 1. /(1. -alpha)
     xinit = x
     _applyv!(x,v,0.,1.) # iteration number 0
     iterfunc(0,x)
     for iter=1:maxiter
         # y = P*x
-        A_mul_B!(y,P,x)
-        gamma = 1.-alpha*sum_kbn(y)
+        mul!(y,P,x)
+        @show y
+        @show typeof(y)
+        gamma = 1. -alpha*sum_kbn(y)
+        
         delta = 0.
         _applyv!(y,v,alpha,gamma)
         @simd for i=1:length(x)
@@ -292,11 +295,10 @@ ndims(op::SparseMatrixStochasticMult) = 2
 
 size(op::SparseMatrixStochasticMult, dim::Integer) = size(op.A,dim)
 length(op::SparseMatrixStochasticMult) = length(op.A)
-*(op::SparseMatrixStochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B(op::SparseMatrixStochasticMult, b::AbstractVector{S}) where {S} = 
-    A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
-function A_mul_B!(output, op::SparseMatrixStochasticMult, b)
+*(op::SparseMatrixStochasticMult, b::AbstractVector{S}) where {S} = 
+    mul!(Array{promote_type(Float64,S)}(undef, size(op.A,2)), op, b)
+function mul!(output, op::SparseMatrixStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
 end
 
@@ -324,7 +326,7 @@ length(op::MatrixNetworkStochasticMult) = prod(size(op.A))
 *(op::MatrixNetworkStochasticMult, b) = A_mul_B(op, b)
 
 A_mul_B(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) where {S} = 
-    A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
+    A_mul_B!(Array{promote_type(Float64,S)}(undef, size(op.A,2)), op, b)
 function A_mul_B!(output, op::MatrixNetworkStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
 end
@@ -335,9 +337,9 @@ function _create_stochastic_mult(M::SparseMatrixCSC)
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1. /d[i]
         elseif d[i] < 0.
-            throw(DomainError()) 
+            throw(DomainError(d[i])) 
         end
     end
     Z = SparseMatrixStochasticMult(vec(d),M)
@@ -351,9 +353,9 @@ function _create_stochastic_mult(M::MatrixNetwork)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1. /d[i]
         elseif d[i] < 0.
-            throw(DomainError()) 
+            throw(DomainError(d[i])) 
         end
     end
     MatrixNetworkStochasticMult(vec(d),M)
@@ -413,7 +415,7 @@ function pagerank(A,alpha::Float64)
 end
 
 function pagerank(A,alpha::Float64,tol::Float64)
-    _personalized_pagerank_validated(A,alpha,1./size(A,1),tol)
+    _personalized_pagerank_validated(A,alpha,1. /size(A,1),tol)
 end
 
 """
@@ -492,8 +494,8 @@ function personalized_pagerank(A,alpha::Float64,v)
 end
 
 function personalized_pagerank(A,alpha::Float64,v::Float64,tol::Float64)
-    if abs(v - 1./size(A,1)) >= eps(Float64)
-        throw(DomainError())
+    if abs(v - 1. /size(A,1)) >= eps(Float64)
+        throw(DomainError(-1))
     end
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
@@ -546,10 +548,10 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1. /sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
@@ -569,10 +571,10 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseVector{Float64}, tol::
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1. /sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
@@ -592,10 +594,10 @@ function personalized_pagerank!(A,alpha::Float64,v::Vector{Float64},tol::Float64
         throw(ArgumentError(@sprintf("as a sparsevector, v must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1./sum_kbn(v) 
+    valisum = 1. /sum_kbn(v) 
     @inbounds for ind in eachindex(v)
         if v[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(v[ind]))
         end
         v[ind] *= valisum # normalize to sum to 1 
     end
@@ -621,15 +623,15 @@ end
 `stochastic_heat_kernel_series!`
 ================================
 Compute the stochastic heat kernel, the result
-of \$x = \exp(-t(I - P)) s \$ where \$s\$ is a stochastic
+of \$x = \\exp(-t(I - P)) s \$ where \$s\$ is a stochastic
 seed vector and \$t\$ is a time parameter and
 \$P\$ is a column-stochastic or sub-stochastic
 matrix. 
 
 This function will return a vector \$x\$ such that
-\$ \| x - x_{\mbox{exact}} \|_1 \le \$ `eps`, and
+\$ \\| x - x_{\\mbox{exact}} \\|_1 \\le \$ `eps`, and
 this function further guarantees 
-\$x_{\mbox{exact}} - x \ge 0\$.
+\$x_{\\mbox{exact}} - x \\ge 0\$.
 
 The algorithm is just a direct evaluation of the power
 series represented by the heat kernel operation.  
@@ -697,15 +699,15 @@ end
 ===============================
 
 Compute the stochastic heat kernel, the result
-of \$x = \exp(-t(I - P)) s \$ where \$s\$ is a stochastic
+of \$x = \\exp(-t(I - P)) s \$ where \$s\$ is a stochastic
 seed vector and \$t\$ is a time parameter and
 \$P\$ is a column-stochastic or sub-stochastic
 matrix. 
 
 This function will return a vector \$x\$ such that
-\$ \| x - x_{\mbox{exact}} \|_1 \le \$ `eps`, and
+\$ \\| x - x_{\\mbox{exact}} \\|_1 \\le \$ `eps`, and
 this function further guarantees 
-\$x_{\mbox{exact}} - x \ge 0\$.
+\$x_{\\mbox{exact}} - x \\ge 0\$.
 
 Functions
 ---------
@@ -748,8 +750,8 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s)
 end
 
 function seeded_stochastic_heat_kernel(A,t::Float64,s::Float64,tol::Float64)
-    if abs(s - 1./size(A,1)) >= eps(Float64)
-        throw(DomainError())
+    if abs(s - 1. /size(A,1)) >= eps(Float64)
+        throw(DomainError(-1))
     end
 end
 
@@ -802,10 +804,10 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseMatrixCSC{Float64}
     s = copy(s)
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1. /sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
@@ -825,10 +827,10 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseVector{Float64}, t
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1. /sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
@@ -848,10 +850,10 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::Vector{Float64},tol::Flo
         throw(ArgumentError(@sprintf("as a vector, s must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1./sum_kbn(s) 
+    valisum = 1. /sum_kbn(s) 
     @inbounds for ind in eachindex(s)
         if s[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(s[ind]))
         end
         s[ind] *= valisum # normalize to sum to 1 
     end
@@ -865,9 +867,9 @@ the one norm when P is a stochastic matrix.
 
 Since this is actually exp(-t) exp(tP) and P is a stochastic
 matrix, if we want 
-\$ \| e^{-t} \exp(tP) - e^{-t} TaylorPoly(e^t) \|_1 \le \eps \$
+\$ \\| e^{-t} \\exp(tP) - e^{-t} TaylorPoly(e^t) \\|_1 \\le \\eps \$
 then it is equivalent to get
-\$ \| \exp(tP) -  TaylorPoly(e^t) \|_1 \le \eps e^t  \$
+\$ \\| \\exp(tP) -  TaylorPoly(e^t) \\|_1 \\le \\eps e^t  \$
 and that is what this code computes. 
 
 Returns -1 if maxdeg is insufficient
@@ -935,7 +937,7 @@ length(op::StochasticMult) = op.m*op.n
 
 *(op::StochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B{R,S}(op::StochasticMult{R}, b::AbstractVector{S}) = A_mul_B!(Array(promote_type(R,S), op.m), op, b)
+A_mul_B{R,S}(op::StochasticMult{R}, b::AbstractVector{S}) = A_mul_B!(Array{promote_type(R,S)}(undef, op.m), op, b)
 
 A_mul_B!(output, op::StochasticMult, b) = op.mul(output, b)
 

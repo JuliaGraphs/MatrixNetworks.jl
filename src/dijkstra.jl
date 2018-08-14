@@ -40,7 +40,6 @@ while(u != lax)
 end
 ~~~
 """
-
 function dijkstra(A::MatrixNetwork,u::Int64)
     (rp,ci,ai) = (A.rp, A.ci, A.vals)
     return dijkstra_internal(rp,ci,ai,u)

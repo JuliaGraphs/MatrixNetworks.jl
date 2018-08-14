@@ -19,7 +19,6 @@ A = load_matrix_network("cores_example")
 (d,rt) = corenums(A)
 ~~~
 """
-
 function corenums(A::MatrixNetwork)
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1

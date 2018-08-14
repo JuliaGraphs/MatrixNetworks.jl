@@ -3,8 +3,8 @@
 function readSMAT(filename::AbstractString)
     (rows,header) = readdlm(filename;header=true)
     A = sparse(
-               convert(Array{Int64,1},rows[1:parse(Int,header[3]),1])+1, 
-               convert(Array{Int64,1},rows[1:parse(Int,header[3]),2])+1, 
+               convert(Array{Int64,1},rows[1:parse(Int,header[3]),1]).+1, 
+               convert(Array{Int64,1},rows[1:parse(Int,header[3]),2]).+1, 
                convert(Array{Int64,1},rows[1:parse(Int,header[3]),3]),
                parse(Int,header[1]), 
                parse(Int,header[2])
@@ -25,7 +25,8 @@ function load_matrix_network_all(name::AbstractString)
     
     meta_source = joinpath(pathname,"$(name).source")
     if isfile(meta_source)
-        source = open(readstring, meta_source)
+        # source = open(readstring, meta_source)
+        source = open(s->read(s,String),meta_source)
     else
         source = "(None given)"
     end

@@ -1,5 +1,9 @@
 using MatrixNetworks
 using Test
+using Random
+using Statistics
+using SparseArrays
+using Arpack
 #using Lint
 
 # Todo
@@ -7,25 +11,27 @@ using Test
 
 
 
-all_tests = ["matrixnetwork",
-             "generators",
-             "bfs",
-             "biconnected",
-             "bipartite_matching",
-             "clustercoeffs",
-             "corenums",
-             "cosineknn",
-             "csr_to_sparse",
-             "dfs",
-             "diffusions",
-             "dijkstra",
-             "dirclustercoeffs",
-             "floydwarshall",
-             "largest_component",
-             "mst_prim",
-             "scomponents",
-             "spectral",
-             "sparse_to_csr"]
+all_tests = [
+             #"matrixnetwork",
+             #"generators",
+             #"bfs",
+             #"biconnected",
+             #"bipartite_matching",
+             #"clustercoeffs",
+             #"corenums",
+             #"cosineknn",
+             #"csr_to_sparse",
+             #"dfs",
+             "diffusions", # not tested yet
+             #"dijkstra",
+             #"dirclustercoeffs",
+             #"floydwarshall",
+             #"largest_component",
+             #"mst_prim",
+             #"scomponents",
+             #"spectral",
+             #"sparse_to_csr"
+             ]
 
 for t in all_tests
     test_name = join(["$(t)", "_test",".jl"])

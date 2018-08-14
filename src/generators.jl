@@ -56,7 +56,7 @@ plot(avgdegs,compsizes,xaxis=("average degree"),yaxis=("largest component size")
 ~~~~    
 """
 function erdos_renyi_undirected(n::Int, p::Float64)
-    if p < 0 || p > n throw(DomainError()) end
+    if p < 0 || p > n throw(DomainError(p)) end
 
     if p >= 1. # interpret as average degree
         p = p/n # convert to probability
@@ -109,14 +109,15 @@ Output
 - A matrix network type for the Erdős-Rényi graph. 
 """
 function erdos_renyi_directed(n::Int, p::Float64)
-    if p < 0 || p > n throw(DomainError()) end
+    if p < 0 || p > n throw(DomainError(p)) end
     if p >= 1. # interpret as average degree
         p = p/n # convert to probability
     end
     
     A = sprand(n,n,p)
     
-    return _matrix_network_direct(A-spdiagm(diag(A),0)) # directions don't matter
+    # return _matrix_network_direct(A-spdiagm(diag(A),0)) # directions don't matter
+    return _matrix_network_direct(A-spdiagm(0 => diag(A))) # directions don't matter
 end
 erdos_renyi_directed(n::Int, d::Int) = erdos_renyi_directed(n,d/n)
 
@@ -172,7 +173,7 @@ function chung_lu_undirected(d::Vector{Int}, nedges::Int)
     # TODO find some standard function for this
     for v in d
         if v < 0
-            throw(DomainError())
+            throw(DomainError(v))
         end
     end
     
@@ -257,7 +258,8 @@ This enables us to generate a Havel Hakimi graph, which can
 be useful.
 """
 function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vector{Int})
-    q = PriorityQueue(Int,Int,Base.Order.Reverse)
+    # q = PriorityQueue(Int,Int,Base.Order.Reverse)
+    q = PriorityQueue{Int,Int}(Base.Order.Reverse)
     n = length(degs)
     effective_n = n
     degsum = 0
@@ -705,8 +707,8 @@ function roach_graph(n::Integer, ::Type{Val{false}})
     n >= 0 || throw(ArgumentError("n=$(n) must be larger than 0"))
     line1 = 1:(2n-1)
     line2 = 2:2n
-    ei = [line1; line2; line1+2n; line2+2n; 1:n; 2n+1:2n+n]
-    ej = [line2; line1; line2+2n; line1+2n; 2n+1:2n+n; 1:n]
+    ei = [line1; line2; line1.+2n; line2.+2n; 1:n; 2n+1:2n+n]
+    ej = [line2; line1; line2.+2n; line1.+2n; 2n+1:2n+n; 1:n]
     return _matrix_network_direct(sparse(ei,ej,1,4n,4n))
 end
 
@@ -753,7 +755,7 @@ end
 function lollipop_graph(n::Integer, m::Integer, ::Type{Val{true}})
     A = lollipop_graph(n,m, Val{false})
     xy = [-n:-1 zeros(n);  
-        (-sqrt(m)*cos(2*pi*(m:-1:1)/m)+sqrt(m)+1) sqrt(m)*sin(2*pi*(m:-1:1)/m)]
+        (-sqrt(m)*cos.(2*pi*(m:-1:1)/m)+sqrt(m)+1) sqrt(m)*sin.(2*pi*(m:-1:1)/m)]
     return A, xy
 end
 

@@ -84,7 +84,7 @@ using Test
         @test abs(lam2 - 3.026826881103339417e-03) <= dtol # result from LAPACK graph_eigs
         @test abs(v[1] - 1.878339361656544346e-02) <= dtol # result from Matlab
         # check inverse participation ratio score from graph_eigs
-        @test abs.(sum(abs(v).^4)/(sum(abs(v).^2)^2) - 6.761596909820281540e-03) <= dtol
+        @test abs.(sum(abs.(v).^4)/(sum(abs.(v).^2)^2) - 6.761596909820281540e-03) <= dtol
 
         n = 25
         A = sparse(1:n-1,2:n,1.,n,n)

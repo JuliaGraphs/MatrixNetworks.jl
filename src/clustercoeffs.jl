@@ -19,7 +19,6 @@ A = load_matrix_network("clique-10")
 cc = clustercoeffs(MatrixNetwork(A))    
 ~~~
 """
-
 function clustercoeffs(A::MatrixNetwork)
     return clustercoeffs(A, true, true);
 end
@@ -133,7 +132,7 @@ function clustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bo
         usew = false
     end
     
-    At = A'
+    At = copy(A')
     if !(At == A)
         error("Only undirected (symmetric) inputs are allowed")
     end

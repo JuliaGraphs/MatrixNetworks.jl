@@ -1,4 +1,4 @@
-# create type MatrixNetwork
+# create type MatrixNetwork <: AbstractMatrix{T}
 mutable struct MatrixNetwork{T}
     n::Int64 # number of columns/rows
     rp::Vector{Int64} # row pointers
@@ -7,7 +7,7 @@ mutable struct MatrixNetwork{T}
 end
 
 function MatrixNetwork(A::SparseMatrixCSC{T,Int64}) where T
-    At = A'
+    At = copy(A')
     return MatrixNetwork(size(At,2),At.colptr,At.rowval,At.nzval)
 end
 
@@ -38,7 +38,7 @@ function _matrix_network_direct(A::SparseMatrixCSC{T,Int64},v) where T
 end
 
 
-import Base.sparse, Base.size, Base.*, Base.A_mul_B!, Base.At_mul_B, Base.At_mul_B!
+import SparseArrays.sparse, Base.size, Base.*, LinearAlgebra.mul!, Base.convert, Base.adjoint
 
 """
 Return back an adjacency matrix representation
@@ -48,12 +48,33 @@ function sparse_transpose(A::MatrixNetwork{T}) where T
     return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
 end
 
+# function adjoint(A::MatrixNetwork{T}) where T
+#     return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
+# end
+# function adjoint(A::MatrixNetwork{T}) where T
+#     SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
+#     return
+# end
+function adjoint(A::MatrixNetwork{T}) where T
+    return sparse_transpose(A)
+end
+
+function convert(::Type{SparseMatrixCSC{T}},A::Adjoint{MatrixNetwork{T}}) where {T}
+    return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
+end
+convert(::Type{SparseMatrixCSC}, A::Adjoint{MatrixNetwork{T}}) where {T} = convert(SparseMatrixCSC{T}, A)
+
+function convert(::Type{Adjoint{SparseMatrixCSC{T}}},A::MatrixNetwork{T}) where {T}
+    return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
+end
+convert(AS::Type{Adjoint{<:SparseMatrixCSC}}, A::MatrixNetwork{T}) where {T} = convert(AS, A)
+
 """
 Return back an adjacency matrix representation
 of the current MatrixNetwork
 """
 function sparse(A::MatrixNetwork{T}) where T
-    return sparse_transpose(A)'
+    return copy(sparse_transpose(A)')
 end
 
 function size(A::MatrixNetwork)
@@ -69,22 +90,35 @@ function size(A::MatrixNetwork, dim::Integer)
     elseif dim > 2
         return 1
     else
-        throw(DomainError())
+        throw(DomainError(dim))
     end
 end
 
 *(M::MatrixNetwork, b) = A_mul_B(M, b)
-A_mul_B(M::MatrixNetwork{T}, b::AbstractVector{S}) where {T,S} = 
-    A_mul_B!(Array(promote_type(T,S), size(M,2)), M, b) 
+A_mul_B(M::MatrixNetwork{T}, b::AbstractVector{S}) where {T,S}= 
+    A_mul_B!(Array{promote_type(T,S)}(undef,size(M,2)), M, b) 
 function A_mul_B!(output, M::MatrixNetwork, b)
-    At_mul_B!(output, sparse_transpose(M), b) 
+    # mul!(output, sparse_transpose(M), b) 
+    mul!(output, sparse_transpose(M)', b) # adjoint operation is a lazy transpose, and the `sparse_transpose` is non-allocating
 end
 
-At_mul_B(M::MatrixNetwork, b::AbstractVector{S}) where {S} = 
-    At_mul_B!(Array(promote_type(Float64,S), size(M,1)), M, b)
-function At_mul_B!(output, M::MatrixNetwork, b)
-    A_mul_B!(output, sparse_transpose(M), b) 
-end
+# At_mul_B{S}(M::MatrixNetwork, b::AbstractVector{S}) = 
+#     At_mul_B!(Array(promote_type(Float64,S), size(M,1)), M, b)
+# function At_mul_B!(output, M::MatrixNetwork, b)
+#     mul!(output, sparse_transpose(M), b) 
+# end
+
+# *(M::MatrixNetwork{T}, b::AbstractVector{S}) where {T,S} = 
+#     mul!(Array(promote_type(T,S), size(M,2)), M, b) 
+# function mul!(output, M::MatrixNetwork, b)
+#     mul!(output, convert(Adjoint{<:SparseMatrixCSC}, M), b)
+# end
+
+# *(M::Adjoint{<:MatrixNetwork}, b::AbstractVector{S}) where {S} = 
+#     mul!(Array(promote_type(Float64,S), size(M,2)), M, b)
+# function mul!(output, M::Adjoint{<:MatrixNetwork}, b)
+#     mul!(output, convert(SparseMatrixCSC, M), b) 
+# end
 
     
 
@@ -159,7 +193,8 @@ function is_connected end
 
 function is_connected(A::Union{MatrixNetwork,SparseMatrixCSC})
     # this is equivalent to maximum with a default value of 0
-    return mapreduce(identity, max, 0, strong_components_map(A)) == 1
+    # return mapreduce(identity, max, 0, strong_components_map(A)) == 1
+    return mapreduce(identity, max, strong_components_map(A); init=0) == 1
 end
 
 """
@@ -179,7 +214,6 @@ is_connected(empty_graph(0))
 is_connected(empty_graph(1))
 ~~~~
 """
-
 function empty_graph end
 
 function empty_graph(n::Integer=0)
@@ -226,14 +260,14 @@ function random_edge(A::MatrixNetwork)
     ind = rand(1:length(A.ci)) # the index
     ej = A.ci[ind]
     ei = searchsortedlast(A.rp, ind) # uses binary search for efficiency
-    assert(ei <= A.n)
+    @assert ei <= A.n
     return (ei,ej,ind)
 end
 function random_edge(A::SparseMatrixCSC)
     ind = rand(1:length(A.rowval)) # the index
     ei = A.rowval[ind]
     ej = searchsortedlast(A.colptr, ind) # uses binary search for efficiency
-    assert(ej <= A.n)
+    @assert ej <= A.n
     return (ei,ej,ind)
 end
 

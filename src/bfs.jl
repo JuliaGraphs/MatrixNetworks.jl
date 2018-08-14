@@ -20,7 +20,6 @@ A = load_matrix_network("bfs_example")
 (d,dt,pred) = bfs(A,1)
 ~~~
 """
-
 function bfs(A::MatrixNetwork,u::Int64,target::Int64)
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1

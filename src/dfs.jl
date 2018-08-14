@@ -21,7 +21,6 @@ A = load_matrix_network("dfs_example")
 (d,dt,ft,pred)  = dfs(A,1)
 ~~~
 """
-
 function dfs(A::MatrixNetwork,u::Int64,full::Int64,target::Int64)
 
     (rp,ci) = (A.rp,A.ci)

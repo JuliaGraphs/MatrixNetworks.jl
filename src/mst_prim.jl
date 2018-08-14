@@ -34,7 +34,6 @@ A = sparse(A)
 (ti,tj,tv,nverts) = mst_prim(A)
 ~~~
 """
-
 function mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
     
     (rp,ci,ai) = (A.rp,A.ci,A.vals)

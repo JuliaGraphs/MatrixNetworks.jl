@@ -9,7 +9,6 @@ other at shared vertices called cut vertices or articulation points.
 This implementation is based on the algorithm provided by Tarjan 
 in "Depth-First Search and Linear Graph Algorithms".  
 """
-
 mutable struct Biconnected_components_output
     map::Vector{Int64} #biconnected_component_number
     articulation_points::Vector{Bool}
@@ -43,7 +42,6 @@ A = load_matrix_network("biconnected_example")
 B = MatrixNetwork(A)
 number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
 """
-
 function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, map::Vector{Int64})
     n=length(A.rp)-1
     rp=A.rp

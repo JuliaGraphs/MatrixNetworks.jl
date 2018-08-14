@@ -16,11 +16,9 @@ A = load_matrix_network("bfs_example")
 S = cosineknn(A,2)
 ~~~
 """
-
-## CSC support
 function cosineknn(A::SparseMatrixCSC{T,Int64},K::Int64) where T
     (rp,ci,ai) = sparse_to_csr(A)
-    (rpt,cit,ait) = sparse_to_csr(A')
+    (rpt,cit,ait) = sparse_to_csr(copy(A'))
     (m,n) = size(A)
     return cosineknn_internal(rp,ci,ai,rpt,cit,ait,m,K)
 end
@@ -48,8 +46,8 @@ function cosineknn_internal(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{T},
     end
     rn = sqrt.(rn)
     
-    
-    rn[rn.>eps()] = 1./rn[rn.>eps()] # do division once
+     
+    rn[rn.>eps()] = 1 ./rn[rn.>eps()] # do division once
     
     si = zeros(Int64,m*K)
     sj = zeros(Int64,m*K)

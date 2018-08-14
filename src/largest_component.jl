@@ -27,8 +27,6 @@ A = load_matrix_network("dfs_example")
 (Acc,p) = largest_component(A)
 ~~~
 """
-
-
 function largest_component(A::SparseMatrixCSC{T,Int64}) where T
     return largest_component(A,false)
 end

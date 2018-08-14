@@ -1,4 +1,5 @@
-import Base.LinAlg.checksquare
+import LinearAlgebra: checksquare, BlasInt
+
 
 ## Todo
 # 1. Add method for partial sweep cut
@@ -34,7 +35,6 @@ Example
 -------
 This is an internal function.
 """
-
 function _symeigs_smallest_arpack(
             A::SparseMatrixCSC{V,Int},nev::Int,tol::V,maxiter::Int,
             v0::Vector{V}) where V
@@ -53,26 +53,27 @@ function _symeigs_smallest_arpack(
     ritzvec = true
     sigma = 0.
 
-    TOL = Array(V,1)
-    TOL[1] = tol
+    #TOL = Array{V}(undef,1)
+    #TOL[1] = tol
+    TOL = Ref(tol)
     lworkl = ncv*(ncv + 8)
-    v = Array(V, n, ncv)
-    workd = Array(V, 3*n)
-    workl = Array(V, lworkl)
-    resid = Array(V, n)
+    v = Array{V}(undef, n, ncv)
+    workd = Array{V}(undef, 3*n)
+    workl = Array{V}(undef, lworkl)
+    resid = Array{V}(undef, n)
 
     resid[:] = v0[:]
 
-    info = zeros(Base.LinAlg.BlasInt, 1)
+    info = zeros(BlasInt, 1)
     info[1] = 1
 
-    iparam = zeros(Base.LinAlg.BlasInt, 11)
-    ipntr = zeros(Base.LinAlg.BlasInt, 11)
-    ido = zeros(Base.LinAlg.BlasInt, 1)
+    iparam = zeros(BlasInt, 11)
+    ipntr = zeros(BlasInt, 11)
+    ido = zeros(BlasInt, 1)
 
-    iparam[1] = Base.LinAlg.BlasInt(1)
-    iparam[3] = Base.LinAlg.BlasInt(maxiter)
-    iparam[7] = Base.LinAlg.BlasInt(mode)
+    iparam[1] = BlasInt(1)
+    iparam[3] = BlasInt(maxiter)
+    iparam[7] = BlasInt(mode)
 
     # this is a helpful indexing vector
     zernm1 = 0:(n-1)
@@ -81,7 +82,7 @@ function _symeigs_smallest_arpack(
         # This is the reverse communication step that ARPACK does
         # we need to extract the desired vector and multiply it by A
         # unless the code says to stop
-        Base.LinAlg.ARPACK.saupd(
+        Arpack.saupd(
             ido, bmat, n, whichstr, nev, TOL, resid, ncv, v, n,
             iparam, ipntr, workd, workl, lworkl, info)
 
@@ -104,12 +105,12 @@ function _symeigs_smallest_arpack(
 
     # calls to eupd
     howmny = String("A")
-    select = Array(Base.LinAlg.BlasInt, ncv)
+    select = Array{BlasInt}(undef, ncv)
 
-    d = Array(V, nev)
+    d = Array{V}(undef, nev)
     sigmar = ones(V,1)*sigma
     ldv = n
-    Base.LinAlg.ARPACK.seupd(ritzvec, howmny, select, d, v, ldv, sigmar,
+    Arpack.seupd(ritzvec, howmny, select, d, v, ldv, sigmar,
         bmat, n, whichstr, nev, TOL, resid, ncv, v, ldv,
         iparam, ipntr, workd, workl, lworkl, info)
     if info[1] != 0
@@ -189,7 +190,7 @@ function fiedler_vector(A::SparseMatrixCSC{V,Int};
     end
 
     d = vec(sum(A,1))
-    d = sqrt(d)
+    d = sqrt.(d)
 
     if n == 1
         X = zeros(V,1,2)
@@ -197,14 +198,14 @@ function fiedler_vector(A::SparseMatrixCSC{V,Int};
     elseif n <= dense
         ai,aj,av = findnz(A)
         L = sparse(ai,aj,-av./((d[ai].*d[aj])),n,n) # applied sqrt above
-        L = full(L) + 2*eye(n)
+        L = Matrix(L) + 2I
         F = eigfact!(Symmetric(L))
         lam2 = F.values[2]-1.
         X = F.vectors
     else
         ai,aj,av = findnz(A)
         L = sparse(ai,aj,-av./((d[ai].*d[aj])),n,n) # applied sqrt above
-        L = L + 2.*speye(n)
+        L = L + 2. *speye(n)
 
         (lams,X,nconv) = _symeigs_smallest_arpack(L,nev,tol,maxiter,d)
         lam2 = lams[2]-1.
@@ -257,7 +258,6 @@ haskey(r,11) # returns false
 haskey(r,1) # returns true
 haskey(r,0) # returns false
 """
-
 mutable struct RankedArray{S}
     data::S
 end
@@ -289,7 +289,6 @@ See also
 * `spectral_cut`
 
 """
-
 struct SweepcutProfile{V,F}
     p::Vector{Int}
     conductance::Vector{F}
@@ -300,7 +299,7 @@ struct SweepcutProfile{V,F}
 
     function SweepcutProfile{V,F}(p::Vector{Int},nnodes::Int,totalvol::V) where {V,F}
         n = length(p)
-        new{V,F}(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
+        new{V,F}(p,Array{F}(undef,n-1),Array{V}(undef,n-1),Array{V}(undef,n-1),totalvol,nnodes)
     end
 end
 
@@ -429,7 +428,7 @@ end
 
 function sweepcut(A::SparseMatrixCSC{V,Int}, x::Vector{T}, vol::V) where {V,T}
     p = sortperm(x,rev=true)
-    ranks = Array(Int, length(x))
+    ranks = Array{Int}(undef, length(x))
     for (i,v) in enumerate(p)
         ranks[v] = i
     end
@@ -483,7 +482,6 @@ Fields
 The most useful outputs are `set` and `lam2`; the others are provided
 for experts who wish to use some of the diagonstics provided.
 """
-
 struct SpectralCut{V,F}
     set::Vector{Int}
     A::SparseMatrixCSC{V,Int}
@@ -532,7 +530,6 @@ Inputs
   This useful in larger subroutines where this is handled
   through another mechanism.
 """
-
 function spectral_cut(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool) where V
     n = checksquare(A)
     if checksym

@@ -19,14 +19,8 @@ v = [8;9;10]
 (rp,ci,ai,m) = sparse_to_csr(i,j,v)
 ~~~
 """
-
-
-#################
-#   Functions   #
-#################
-
 function sparse_to_csr(A::SparseMatrixCSC{T,Int64}) where T
-    At = A';
+    At = copy(A');
     return (At.colptr,At.rowval,At.nzval,At.m);
 end
 

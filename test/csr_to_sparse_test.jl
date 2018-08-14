@@ -9,13 +9,14 @@
     # more tests added here
     # clique to sparse test
     rp = collect(1:5:26)
-    ci = vec(reshape(repmat(1:5,5,1)',25,1))
+    #ci = vec(reshape(repmat(1:5,5,1)',25,1))
+    ci = copy(vec(repeat(1:5,5,1)'))
     ai = ones(Int64,25)
     A = csr_to_sparse_matrix(rp,ci,ai,5,5)
-    @test full(A) == ones(5,5)
+    @test Matrix(A) == ones(5,5)
     
     A = csr_to_sparse_matrix(rp,ci,ai)
-    @test full(A) == ones(5,5)
+    @test Matrix(A) == ones(5,5)
     
     # 100 random trials
     for t = 1:100

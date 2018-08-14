@@ -32,13 +32,8 @@ S = create_sparse(bipartite_matching(W)) # get the sparse matrix
 (m1,m2) = edge_list(bipartite_matching(W)) # get the edgelist
 ~~~
 """
+function bipartite_matching end
 
-:bipartite_matching
-
-
-###########################
-##    Type Definitions    #
-###########################
 mutable struct Matching_setup
     rp::Array{Int64,1}
     ci::Array{Int64,1}
@@ -367,7 +362,7 @@ end
 
 ##########
 function edge_indicator(M_output::Matching_output, ei::Vector, ej::Vector)
-    assert(length(ei) == length(ej))
+    @assert length(ei) == length(ej)
     ind = zeros(Int64,length(ei))
     for i=1:length(ei)
         if M_output.match[ei[i]] == ej[i]
