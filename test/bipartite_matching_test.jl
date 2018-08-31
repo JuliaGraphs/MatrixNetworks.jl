@@ -1,4 +1,6 @@
-function bipartite_matching_test()
+using LinearAlgebra
+
+@testset "bipartite_matching_test" begin
     W = sprand(10,8,0.5)
     bipartite_matching(W)
     bipartite_matching([10;12;13],[1;2;3],[3;2;4])
@@ -13,11 +15,9 @@ function bipartite_matching_test()
     M1 = bipartite_matching(A)
     (m1,m2) = edge_list(M1)
      
-    if M1.weight != 25 || !isequal(m1,m2)
-        error("bipartite matching failed")
-    end
+    @test M1.weight == 25 && isequal(m1,m2)
     
-    A = ones(Int64,6,5) - eye(Int64,6,5)
+    A = ones(Int64,6,5) - Matrix(I,6,5)
     A = sparse(A')
     (ei,ej,ev) = csr_to_sparse(A.colptr,A.rowval,A.nzval)
     ai = [1;2;3;4;5;ei]
@@ -27,23 +27,14 @@ function bipartite_matching_test()
     M2 = bipartite_matching(av,ai,aj)
     mi = MatrixNetworks.edge_indicator(M2,ai,aj)
     mitrue = zeros(Int64,length(av))
-    mitrue[1:5] = 1
+    mitrue[1:5] .= 1
     
-    if M2.weight != 25 || !isequal(m1,m2) || sum(mi) !=5 || !isequal(mi,mitrue)
-        error("bipartite matching failed")
-    end
+    @test M2.weight == 25 && isequal(m1,m2) && sum(mi) ==5 && isequal(mi,mitrue)
     
     M2 = bipartite_matching(av,ai,aj,maximum(ai),maximum(aj))
     mi = MatrixNetworks.edge_indicator(M2,ai,aj)
     mitrue = zeros(Int64,length(av))
-    mitrue[1:5] = 1
+    mitrue[1:5] .= 1
     
-    if M2.weight != 25 || !isequal(m1,m2) || sum(mi) !=5 || !isequal(mi,mitrue)
-        error("bipartite matching failed")
-    end
-    
-    return true
+    @test M2.weight == 25 && isequal(m1,m2) && sum(mi) ==5 && isequal(mi,mitrue)
 end
-
-#todo convert this to @testset
-bipartite_matching_test()

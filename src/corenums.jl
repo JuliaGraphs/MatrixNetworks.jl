@@ -44,7 +44,7 @@ function corenums(A::MatrixNetwork)
     end # plus 2 because degrees start at 0
     
     dp=cumsum(dp)
-    dp=dp+1
+    dp=dp.+1
     for i=1:n
         vs[dp[d[i]+1]]=i
         vi[i]=dp[d[i]+1]

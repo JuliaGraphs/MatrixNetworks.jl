@@ -1,3 +1,4 @@
+using LinearAlgebra
 @testset "biconnected" begin
     n = 10
     O = ones(Int64,n-1)
@@ -5,8 +6,9 @@
     A = Tridiagonal(O,Z,O)
     B = MatrixNetwork(dropzeros!(sparse(A)))
     obj = biconnected_components(B)
-    i = 0
-    for i = 2:n
+    global i = 0
+    for ii = 2:n
+        global i = ii
         if obj.articulation_points[i]==0
             break
         end
@@ -21,7 +23,8 @@
     B = dropzeros!(sparse(A))
     obj = biconnected_components(B)
     i = 0
-    for i = 2:n
+    for ii = 2:n
+        global i = ii
         if obj.articulation_points[i]==0
             break
         end
@@ -34,7 +37,8 @@
     B = sparse_to_csr(dropzeros!(sparse(A)))
     obj = biconnected_components(B...)
     i = 0
-    for i = 2:n
+    for ii = 2:n
+        global i = ii
         if obj.articulation_points[i]==0
             break
         end
@@ -47,7 +51,8 @@
     B = findnz(dropzeros!(sparse(A)))
     obj = biconnected_components(B[1], B[2])
     i = 0
-    for i = 2:n
+    for ii = 2:n
+        global i = ii
         if obj.articulation_points[i]==0
             break
         end

@@ -1,3 +1,5 @@
+using LinearAlgebra
+
 @testset "generators" begin
     @testset "erdos_renyi" begin
         @test_throws DomainError erdos_renyi_undirected(10,11.)

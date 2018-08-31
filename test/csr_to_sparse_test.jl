@@ -1,8 +1,8 @@
 @testset "csr_to_sparse" begin
-    i = [1;2;3]
-    j = [3;4;4]
-    v = [8;9;10]
-    (rp,ci,ai,m) = sparse_to_csr(i,j,v)
+    ei = [1;2;3]
+    ej = [3;4;4]
+    ev = [8;9;10]
+    (rp,ci,ai,m) = sparse_to_csr(ei,ej,ev)
     (nzi,nzj,nzv) = csr_to_sparse(rp,ci,ai)
     A = sparse(nzi,nzj,nzv,length(rp)-1,maximum(ci))
     

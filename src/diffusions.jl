@@ -8,6 +8,7 @@ import Base.ndims
 import Base.*
 import LinearAlgebra.mul!
 import Base.size
+import KahanSummation
 
 """
 A simple function that doesn't report any output
@@ -171,12 +172,13 @@ function pagerank_power!(x::Vector{T}, y::Vector{T},
     _applyv!(x,v,0.,1.) # iteration number 0
     iterfunc(0,x)
     for iter=1:maxiter
+        #@show typeof(P)
         # y = P*x
         mul!(y,P,x)
-        @show y
-        @show typeof(y)
-        gamma = 1. -alpha*sum_kbn(y)
-        
+        #@show y
+        #@show typeof(y)
+        gamma = 1. -alpha*KahanSummation.sum_kbn(y)
+
         delta = 0.
         _applyv!(y,v,alpha,gamma)
         @simd for i=1:length(x)
@@ -189,7 +191,7 @@ function pagerank_power!(x::Vector{T}, y::Vector{T},
         end
     end
     if !(x === xinit) # x is not xinit, so we need to copy it over
-        xinit[:] = x
+        xinit[:] .= x
     end
     xinit # always return xinit
 end
@@ -323,17 +325,16 @@ ndims(op::MatrixNetworkStochasticMult) = 2
 
 size(op::MatrixNetworkStochasticMult, dim::Integer) = size(op.A,dim)
 length(op::MatrixNetworkStochasticMult) = prod(size(op.A))
-*(op::MatrixNetworkStochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) where {S} = 
-    A_mul_B!(Array{promote_type(Float64,S)}(undef, size(op.A,2)), op, b)
-function A_mul_B!(output, op::MatrixNetworkStochasticMult, b)
+*(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) where {S} = 
+    mul!(Array{promote_type(Float64,S)}(undef, size(op.A,2)), op, b)
+function mul!(output, op::MatrixNetworkStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
 end
 
 function _create_stochastic_mult(M::SparseMatrixCSC)
     n = checksquare(M)
-    d = Array{Float64}(n, 1)
+    d = Array{Float64}(undef, n, 1)
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
@@ -349,7 +350,7 @@ end
 function _create_stochastic_mult(M::MatrixNetwork)
     A = sparse_transpose(M) # this involves no work...
     n = checksquare(A) 
-    d = Array{Float64}(1, n)
+    d = Array{Float64}(undef,1, n)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
@@ -548,7 +549,7 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1. /sum_kbn(vals)
+    valisum = 1. /KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -571,7 +572,7 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseVector{Float64}, tol::
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1. /sum_kbn(vals)
+    valisum = 1. /KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -594,7 +595,7 @@ function personalized_pagerank!(A,alpha::Float64,v::Vector{Float64},tol::Float64
         throw(ArgumentError(@sprintf("as a sparsevector, v must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1. /sum_kbn(v) 
+    valisum = 1. /KahanSummation.sum_kbn(v) 
     @inbounds for ind in eachindex(v)
         if v[ind] < 0. 
             throw(DomainError(v[ind]))
@@ -679,7 +680,7 @@ function stochastic_heat_kernel_series!(
     coeff = 1.
     
     for k=1:maxiter
-        A_mul_B!(z,P,y)       # compute z = P*y
+        mul!(z,P,y)       # compute z = P*y
         coeff = coeff*t/k  
         BLAS.axpy!(iexpt*coeff, z, x)
         y,z = z,y # swap
@@ -804,7 +805,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseMatrixCSC{Float64}
     s = copy(s)
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1. /sum_kbn(vals)
+    valisum = 1. /KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -827,7 +828,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseVector{Float64}, t
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1. /sum_kbn(vals)
+    valisum = 1. /KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -850,7 +851,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::Vector{Float64},tol::Flo
         throw(ArgumentError(@sprintf("as a vector, s must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1. /sum_kbn(s) 
+    valisum = 1. /KahanSummation.sum_kbn(s) 
     @inbounds for ind in eachindex(s)
         if s[ind] < 0. 
             throw(DomainError(s[ind]))
@@ -908,7 +909,6 @@ function _seeded_heat_kernel_validated(A,t::Float64,s,tol::Float64)
     if maxiter == -1 
         throw(ArgumentError("the value of t=$t is too large and requires over $bigmaxiter iterations"))
     end  
-    
     return stochastic_heat_kernel_series!(x, y, z,
                  _create_stochastic_mult(A), 
                 t, s, tol, maxiter)

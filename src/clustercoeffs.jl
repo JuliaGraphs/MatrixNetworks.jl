@@ -47,7 +47,7 @@ end
 function clustercoeffs_phase2(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
                                        ai::Vector{T}, usew::Bool) where T
     n = length(rp) - 1
-    cc = Vector{Float64}(n)
+    cc = Vector{Float64}(undef,n)
     ind = zeros(Bool,n)
     cache = zeros(Float64,usew ? n : 0)
 

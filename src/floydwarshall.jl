@@ -52,8 +52,8 @@ function floydwarshall_phase2(ri::Vector{Int64},ci::Vector{Int64},ai::Vector{T},
         end
     end
     
-    ids = sub2ind((n,n),1:n,1:n)
-    D[ids] = 0 # set diagonal to 0
+    ids = (LinearIndices((n,n)))[CartesianIndex.(1:n, 1:n)]
+    D[ids] .= 0 # set diagonal to 0
     
     for k=1:n
         for i=1:n

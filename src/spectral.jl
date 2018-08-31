@@ -1,4 +1,5 @@
 import LinearAlgebra: checksquare, BlasInt
+import Printf
 
 
 ## Todo
@@ -86,8 +87,8 @@ function _symeigs_smallest_arpack(
             ido, bmat, n, whichstr, nev, TOL, resid, ncv, v, n,
             iparam, ipntr, workd, workl, lworkl, info)
 
-        load_idx = ipntr[1] + zernm1
-        store_idx = ipntr[2] + zernm1
+        load_idx = ipntr[1] .+ zernm1
+        store_idx = ipntr[2] .+ zernm1
 
         x = workd[load_idx]
 
@@ -189,7 +190,7 @@ function fiedler_vector(A::SparseMatrixCSC{V,Int};
         end
     end
 
-    d = vec(sum(A,1))
+    d = vec(sum(A,dims=1))
     d = sqrt.(d)
 
     if n == 1
@@ -199,23 +200,24 @@ function fiedler_vector(A::SparseMatrixCSC{V,Int};
         ai,aj,av = findnz(A)
         L = sparse(ai,aj,-av./((d[ai].*d[aj])),n,n) # applied sqrt above
         L = Matrix(L) + 2I
-        F = eigfact!(Symmetric(L))
+        F = eigen!(Symmetric(L))
         lam2 = F.values[2]-1.
         X = F.vectors
     else
         ai,aj,av = findnz(A)
         L = sparse(ai,aj,-av./((d[ai].*d[aj])),n,n) # applied sqrt above
-        L = L + 2. *speye(n)
+        L = L + 2. *sparse(1.0I,n,n)
 
         (lams,X,nconv) = _symeigs_smallest_arpack(L,nev,tol,maxiter,d)
         lam2 = lams[2]-1.
     end
     x1err = norm(X[:,1]*sign(X[1,1]) - d/norm(d))
     if x1err >= sqrt(tol)
-        warn(@sprintf("""
+        s = @sprintf("""
         the null-space vector associated with the normalized Laplacian
         was computed inaccurately (diff=%.3e); the Fiedler vector is
-        probably wrong or the graph is disconnected""",x1err))
+        probably wrong or the graph is disconnected""",x1err)
+        @warn s
     end
 
     x = vec(X[:,2])
@@ -451,11 +453,11 @@ function bestset(prof::SweepcutProfile{V,F}) where {V,F}
         end
     end
 
-    bset = Vector{Int}(nnodes)
+    bset = Vector{Int}(undef,nnodes)
     if isempty(prof.conductance)
     elseif bsetvol > prof.total_volume - bsetvol
         # ick, we need the complement
-        bset[:] = collect(setdiff(IntSet(Int(1):Int(prof.total_nodes)),prof.p[1:bsetind]))
+        bset[:] = collect(setdiff(BitSet(Int(1):Int(prof.total_nodes)),prof.p[1:bsetind]))
     else
         # easy
         bset[:] = prof.p[1:bsetind]
@@ -550,7 +552,7 @@ function spectral_cut(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool) whe
     B = A
     if cc.number > 1
         if ccwarn
-            warn("The input matrix had $(cc.number) components, running on largest...")
+            @warn "The input matrix had $(cc.number) components, running on largest..."
         end
         f = cc.map .== lccind
         B = A[f,f] # using logical indexing is faster than find for large sets (2015/11/14)

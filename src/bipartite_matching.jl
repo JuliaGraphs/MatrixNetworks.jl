@@ -93,7 +93,7 @@ function bipartite_matching_setup(A::SparseMatrixCSC{T,Int64}) where T
         rp[i+1]=rp[i]
     end
     rp[1]=0
-    rp=rp+1
+    rp=rp.+1
     
     #check for duplicates in the data
     colind = zeros(Int64,m+n)
@@ -152,7 +152,7 @@ function bipartite_matching_setup(x::Vector{T},ei::Vector{Int64},
     end
     
     rp[1]=0
-    rp=rp+1
+    rp=rp.+1
     
     #check for duplicates in the data
     colind = zeros(Int64,m+n)

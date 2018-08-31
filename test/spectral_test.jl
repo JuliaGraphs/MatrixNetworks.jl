@@ -20,7 +20,7 @@ using Test
         n = 6
         x = collect(1.:Float64(n))
         A = sparse(1:n-1,2:n,1,n,n)
-        A = A + A' + speye(Int64,n)
+        A = A + A' + sparse(1.0I,n,n)
         profile = sweepcut(A,x)
         @test argmin(profile.conductance) == 3
         @test all(profile.cut .== 1)
@@ -29,7 +29,7 @@ using Test
         n = 6
         x = collect(1.:Float64(n))
         A = sparse(1:n-1,2:n,0.5,n,n)
-        A = A + A' + 1.5*speye(n)
+        A = A + A' + 1.5*sparse(1.0I,n,n)
         profile = sweepcut(A,x)
         @test argmin(profile.conductance) == 3
         @test all(profile.cut .== 0.5)
@@ -54,7 +54,7 @@ using Test
         profile = sweepcut(sparse(zeros(1,1)),x)
         @test isempty(profile.conductance)
 
-        @test_throws ArgumentError fiedler_vector(speye(2) + sparse([1],[2],1.,2,2))
+        @test_throws ArgumentError fiedler_vector(sparse(1.0I,2,2) + sparse([1],[2],1.,2,2))
 
         @test isempty(spectral_cut(sparse(zeros(5,5)),true,true).set)
         n = 50
@@ -69,8 +69,8 @@ using Test
         M = MatrixNetwork(A)
         @test length(spectral_cut(M).set) == 50
 
-        @test_throws ArgumentError spectral_cut(speye(2) + spdiagm(([1],), 1, 2, 2), true, false)
-        @test_throws ArgumentError spectral_cut(-speye(2), false, false) 
+        @test_throws ArgumentError spectral_cut(sparse(1.0I,2,2) + spdiagm(1=>[1]), true, false)
+        @test_throws ArgumentError spectral_cut(-sparse(1.0I,2,2), false, false) 
     end
     dtol = 1.e-8 # default tolerance
     @testset "fiedler_vector" begin

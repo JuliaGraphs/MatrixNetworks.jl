@@ -1,5 +1,5 @@
 using DataStructures
-import Iterators 
+import IterTools 
 
 # From Julia's v0.6 reslease notes:
 # The Collections module has been removed, and all functions defined 
@@ -281,7 +281,7 @@ function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vect
         resize!(ej,degsum)
     end
     
-    dlist = Vector{Pair{Int,Int}}(dmax)
+    dlist = Vector{Pair{Int,Int}}(undef,dmax)
     enum = 1
     
     while !isempty(q)
@@ -746,8 +746,8 @@ function lollipop_graph(n::Integer, m::Integer, ::Type{Val{false}})
     m >= 0 || throw(ArgumentError("m=$(m) must be larger than 0"))    
     line1 = 1:n
     line2 = 2:n+1
-    clique1 = map(x -> x[1], Iterators.subsets(n+1:n+m,2))
-    clique2 = map(x -> x[2], Iterators.subsets(n+1:n+m,2))
+    clique1 = map(x -> x[1], IterTools.subsets(n+1:n+m,2))
+    clique2 = map(x -> x[2], IterTools.subsets(n+1:n+m,2))
     ei = [line1; line2; clique1; clique2]
     ej = [line2; line1; clique2; clique1]
     return _matrix_network_direct(sparse(ei,ej,1,n+m,n+m))
@@ -755,7 +755,7 @@ end
 function lollipop_graph(n::Integer, m::Integer, ::Type{Val{true}})
     A = lollipop_graph(n,m, Val{false})
     xy = [-n:-1 zeros(n);  
-        (-sqrt(m)*cos.(2*pi*(m:-1:1)/m)+sqrt(m)+1) sqrt(m)*sin.(2*pi*(m:-1:1)/m)]
+        (-sqrt(m)*cos.(2*pi*(m:-1:1)/m).+(sqrt(m)+1)) sqrt(m)*sin.(2*pi*(m:-1:1)/m)]
     return A, xy
 end
 

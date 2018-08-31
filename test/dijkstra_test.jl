@@ -11,5 +11,5 @@
     @test maximum(d) == 540
     @test pred[end] == lax
     
-    @test_throws ErrorException dijkstra(-speye(2), 1)
+    @test_throws ErrorException dijkstra(-sparse(1.0I,2,2), 1)
 end
