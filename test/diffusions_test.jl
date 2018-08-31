@@ -33,7 +33,7 @@ using Test
 
         A = load_matrix_network("celegans")
         x = pagerank(A, 0.85)
-        y = pagerank(A, 0.85, 1e.-2)
+        y = pagerank(A, 0.85, 1e-2)
         
         n = 10
         A = sparse(1.0I,10,10)
@@ -99,8 +99,8 @@ using Test
         z = zeros(n)
         z[1] = 1.
         z[2] = 1.85
-        for i=3:n
-            z[i] = z[i-1] + 0.85*(z[i-1]-z[i-2])
+        for ii=3:n
+            z[ii] = z[ii-1] + 0.85*(z[ii-1]-z[ii-2])
         end
         z = z/KahanSummation.sum_kbn(z)
         @test norm(x-z,1) <= n*tol
@@ -143,8 +143,8 @@ using Test
         z = zeros(n)
         z[1] = 1.
 
-        for i=2:n
-            z[i] = 0.85*z[i-1]
+        for ii=2:n
+            z[ii] = 0.85*z[ii-1]
         end
         z = z/KahanSummation.sum_kbn(z)
         @test norm(x-z,1) <= n*tol
@@ -172,8 +172,8 @@ using Test
         z[1] = 1.
         z[2] = 1.85
 
-        for i=3:n
-            z[i] = z[i-1] + 0.85*(z[i-1]-z[i-2])
+        for ii=3:n
+            z[ii] = z[ii-1] + 0.85*(z[ii-1]-z[ii-2])
         end
         z = z/KahanSummation.sum_kbn(z)
 
@@ -214,8 +214,7 @@ using Test
         P2 = MatrixNetworks._create_stochastic_mult(A)
         dt2 = @elapsed y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
         
-        # XXX
-        #@test dt2 <= 2*dt
+        @test dt2 <= 2*dt
         @test norm(x-y) <= n*eps(Float64) 
         
         # now test with matrix networks
@@ -277,8 +276,8 @@ using Test
         x = seeded_stochastic_heat_kernel(A,t,v)
         z = zeros(n)
         z[1] = exp(-t)
-        for i=2:n
-            z[i] = z[i-1]*t./(i-1.)
+        for ii=2:n
+            z[ii] = z[ii-1]*t./(ii-1.)
         end
         @test norm(x-z,1) <= n*eps(Float64)
         
