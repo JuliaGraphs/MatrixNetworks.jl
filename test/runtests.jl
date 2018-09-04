@@ -13,26 +13,26 @@ using LinearAlgebra
 
 
 all_tests = [
-             "matrixnetwork",
-             "utility",
+             #"matrixnetwork",
+             #"utility",
              "generators",
-             "bfs",
-             "biconnected",
-             "bipartite_matching",
-             "clustercoeffs",
-             "corenums",
-             "cosineknn",
-             "csr_to_sparse",
-             "dfs",
-             "diffusions", # not tested yet
-             "dijkstra",
-             "dirclustercoeffs",
-             "floydwarshall",
-             "largest_component",
-             "mst_prim",
-             "scomponents",
-             "spectral",
-             "sparse_to_csr"
+             #"bfs",
+             #"biconnected",
+             #"bipartite_matching",
+             #"clustercoeffs",
+             #"corenums",
+             #"cosineknn",
+             #"csr_to_sparse",
+             #"dfs",
+             #"diffusions", # not tested yet
+             #"dijkstra",
+             #"dirclustercoeffs",
+             #"floydwarshall",
+             #"largest_component",
+             #"mst_prim",
+             #"scomponents",
+             #"spectral",
+             #"sparse_to_csr"
              ]
 
 #for t in all_tests

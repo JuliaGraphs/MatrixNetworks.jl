@@ -634,16 +634,14 @@ function generalized_preferential_attachment_edges!(
             push!(edges, (v[1], i+1))
             i = i+1;
         elseif x < p+r #edge event, no self-loops permitted
-            loop = 1
-            while loop == 1
+            v1 = rand(edges)[1]
+            v2 = rand(edges)[1]
+            while (v1 == v2 && i != 1) #i != 1 because we want more than 1 node for this to work
                 v1 = rand(edges)[1]
                 v2 = rand(edges)[1]
-                if !(v1 == v2)
-                    loop = 0
-                    push!(edges, (v1, v2))
-                    push!(edges, (v2, v1))
-                end
             end
+            push!(edges, (v1, v2))
+            push!(edges, (v2, v1))
         else #component event
             if i+2 <= n #only allow this step if there is room for two more nodes
                 push!(edges, (i+1, i+2))
