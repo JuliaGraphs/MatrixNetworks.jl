@@ -24,7 +24,7 @@ all_tests = [
              "cosineknn",
              "csr_to_sparse",
              "dfs",
-             "diffusions", # not tested yet
+             "diffusions",
              "dijkstra",
              "dirclustercoeffs",
              "floydwarshall",

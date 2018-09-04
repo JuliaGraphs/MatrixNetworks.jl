@@ -215,9 +215,6 @@ using Test
         dt2 = @elapsed y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
         dt2 = @elapsed y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
 
-        @show dt
-        @show dt2
-        
         @test dt2 <= 2*dt
         @test norm(x-y) <= n*eps(Float64) 
         

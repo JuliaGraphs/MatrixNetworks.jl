@@ -172,11 +172,8 @@ function pagerank_power!(x::Vector{T}, y::Vector{T},
     _applyv!(x,v,0.,1.) # iteration number 0
     iterfunc(0,x)
     for iter=1:maxiter
-        #@show typeof(P)
         y = P*x
         # mul!(y,P,x)
-        #@show y
-        #@show typeof(y)
         gamma = 1. -alpha*KahanSummation.sum_kbn(y)
 
         delta = 0.
