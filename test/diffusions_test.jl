@@ -63,16 +63,16 @@ using Test
 
         x = personalized_pagerank(A,0.85,Set(collect(1:8)))
         
-        @test norm(x - sparsevec(collect(1:8),1. /8,n),1) <= n*eps(Float64)
+        @test norm(x - sparsevec(collect(1:8),1.0/8,n),1) <= n*eps(Float64)
         
 
         x = personalized_pagerank(A,0.85,Dict{Int64,Float64}(zip(1:8, ones(8))))
-        @test norm(x - sparsevec(collect(1:8),1. /8,n),1) <= n*eps(Float64)
+        @test norm(x - sparsevec(collect(1:8),1.0/8,n),1) <= n*eps(Float64)
         
         @test_throws ArgumentError personalized_pagerank(A,0.85,sparsevec(Dict{Int64,Float64}(zip(1:8, ones(8)))))
         
         x = personalized_pagerank(A,0.85,sparsevec(Dict{Int64,Float64}(zip(4:10, ones(7)))))
-        @test norm(x - sparsevec(collect(4:10),1. /7,n),1) <= n*eps(Float64)
+        @test norm(x - sparsevec(collect(4:10),1.0/7,n),1) <= n*eps(Float64)
         
         x = personalized_pagerank(A, 0.85, sparsevec([5], [2.], 10))
         @test norm(x -xtrue,1) <= n*eps(Float64)
@@ -93,7 +93,7 @@ using Test
         n = 10
         #A = spdiagm(ones(n-1),-1,n,n)'
         A = spdiagm(1=>ones(n-1))
-        v = 1. /n
+        v = 1.0/n
         tol = 1e-8
         x = pagerank(A,0.85)
         z = zeros(n)
@@ -137,7 +137,7 @@ using Test
 
         # P = spdiagm(ones(n-1),-1,n,n)
         P = spdiagm(-1=>ones(n-1))
-        v[:] .= 0.
+        v .= 0.0
         v[1] = 1.
         x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,iterfunc)
         z = zeros(n)
@@ -166,7 +166,7 @@ using Test
         x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,(iter,x) -> @show iter, norm(x,1))
         @test norm(x-z,1) <= n*tol
 
-        v = 1. /n
+        v = 1.0/n
         tol = 1e-8
         x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,iterfunc)
         z[1] = 1.
@@ -189,7 +189,7 @@ using Test
         y = zeros(n)
         z = zeros(n)
         tol = 1e-8
-        v = 1. /n
+        v = 1.0/n
         A = LinearAlgebra.fillstored!(copy(sprand(n,n,25/n)),1)
 
         P = _normout(A')
@@ -204,7 +204,7 @@ using Test
         x = zeros(n)
         y = zeros(n)
         z = zeros(n)
-        v = 1. /n
+        v = 1.0/n
         tol = 1e-8
         #A = spones(sprand(n,n,25/n))
         A = LinearAlgebra.fillstored!(copy(sprand(n,n,25/n)), 1)
@@ -249,7 +249,7 @@ using Test
         v = zeros(5)
         v[1] = 1.
         seeded_stochastic_heat_kernel(sparse(1.0I,5,5),2.,v)
-        seeded_stochastic_heat_kernel(sparse(1.0I,5,5),2.,1. /5.)
+        seeded_stochastic_heat_kernel(sparse(1.0I,5,5),2.,1.0/5.0)
 
         n = 5
         v = rand(5)

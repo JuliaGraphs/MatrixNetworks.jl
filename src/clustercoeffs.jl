@@ -132,8 +132,7 @@ function clustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bo
         usew = false
     end
     
-    At = copy(A')
-    if !(At == A)
+    if !is_undirected(A)
         error("Only undirected (symmetric) inputs are allowed")
     end
 

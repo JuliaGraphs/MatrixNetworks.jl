@@ -258,7 +258,6 @@ This enables us to generate a Havel Hakimi graph, which can
 be useful.
 """
 function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vector{Int})
-    # q = PriorityQueue(Int,Int,Base.Order.Reverse)
     q = PriorityQueue{Int,Int}(Base.Order.Reverse)
     n = length(degs)
     effective_n = n

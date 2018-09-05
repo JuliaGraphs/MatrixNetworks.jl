@@ -167,14 +167,13 @@ Example
 function pagerank_power!(x::Vector{T}, y::Vector{T},
     P, alpha::T, v, tol::T,
     maxiter::Int, iterfunc::Function) where T
-    ialpha = 1. /(1. -alpha)
+    ialpha = 1.0/(1.0-alpha)
     xinit = x
-    _applyv!(x,v,0.,1.) # iteration number 0
+    _applyv!(x,v,0.,1.0) # iteration number 0
     iterfunc(0,x)
     for iter=1:maxiter
-        y = P*x
-        # mul!(y,P,x)
-        gamma = 1. -alpha*KahanSummation.sum_kbn(y)
+        mul!(y,P,x)
+        gamma = 1.0-alpha*KahanSummation.sum_kbn(y)
 
         delta = 0.
         _applyv!(y,v,alpha,gamma)
@@ -335,7 +334,7 @@ function _create_stochastic_mult(M::SparseMatrixCSC)
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1. /d[i]
+            d[i] = 1.0/d[i]
         elseif d[i] < 0.
             throw(DomainError(d[i])) 
         end
@@ -351,7 +350,7 @@ function _create_stochastic_mult(M::MatrixNetwork)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1. /d[i]
+            d[i] = 1.0/d[i]
         elseif d[i] < 0.
             throw(DomainError(d[i])) 
         end
@@ -413,7 +412,7 @@ function pagerank(A,alpha::Float64)
 end
 
 function pagerank(A,alpha::Float64,tol::Float64)
-    _personalized_pagerank_validated(A,alpha,1. /size(A,1),tol)
+    _personalized_pagerank_validated(A,alpha,1.0/size(A,1),tol)
 end
 
 """
@@ -492,7 +491,7 @@ function personalized_pagerank(A,alpha::Float64,v)
 end
 
 function personalized_pagerank(A,alpha::Float64,v::Float64,tol::Float64)
-    if abs(v - 1. /size(A,1)) >= eps(Float64)
+    if abs(v - 1.0/size(A,1)) >= eps(Float64)
         throw(DomainError(-1))
     end
     _personalized_pagerank_validated(A,alpha,v,tol)
@@ -546,7 +545,7 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1. /KahanSummation.sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -569,7 +568,7 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseVector{Float64}, tol::
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1. /KahanSummation.sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -592,7 +591,7 @@ function personalized_pagerank!(A,alpha::Float64,v::Vector{Float64},tol::Float64
         throw(ArgumentError(@sprintf("as a sparsevector, v must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1. /KahanSummation.sum_kbn(v) 
+    valisum = 1.0/KahanSummation.sum_kbn(v) 
     @inbounds for ind in eachindex(v)
         if v[ind] < 0. 
             throw(DomainError(v[ind]))
@@ -748,7 +747,7 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s)
 end
 
 function seeded_stochastic_heat_kernel(A,t::Float64,s::Float64,tol::Float64)
-    if abs(s - 1. /size(A,1)) >= eps(Float64)
+    if abs(s - 1.0/size(A,1)) >= eps(Float64)
         throw(DomainError(-1))
     end
 end
@@ -802,7 +801,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseMatrixCSC{Float64}
     s = copy(s)
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1. /KahanSummation.sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -825,7 +824,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseVector{Float64}, t
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1. /KahanSummation.sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
             throw(DomainError(vals[ind]))
@@ -848,7 +847,7 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::Vector{Float64},tol::Flo
         throw(ArgumentError(@sprintf("as a vector, s must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1. /KahanSummation.sum_kbn(s) 
+    valisum = 1.0/KahanSummation.sum_kbn(s) 
     @inbounds for ind in eachindex(s)
         if s[ind] < 0. 
             throw(DomainError(s[ind]))
@@ -983,7 +982,7 @@ function _create_stochastic_mult(A::MatrixNetwork{V})
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         end
     end
     mul = (x) -> M*(d.*x)
@@ -996,7 +995,7 @@ function _handle_pagerank_network(A::SparseMatrixCSC)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         end
     end
     M = A'
@@ -1015,7 +1014,7 @@ function _create_stochastic_mult(A::SparseMatrixCSC)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         end
     end  
 end
@@ -1073,7 +1072,7 @@ end
 function pagerank{V,FA<:AbstractFloat}(A::SparseMatrixCSC{V}, alpha::FA)
     F = promote_type(V,FA)
     return pagerank_power(_create_stochastic_mult{V,F}(A),
-                F(alpha), F(1./size(A,1)), eps(one(F)))
+                F(alpha), F(1.0/size(A,1)), eps(one(F)))
 end
 
 =#

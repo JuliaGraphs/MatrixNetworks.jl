@@ -48,13 +48,6 @@ function sparse_transpose(A::MatrixNetwork{T}) where T
     return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
 end
 
-# function adjoint(A::MatrixNetwork{T}) where T
-#     return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
-# end
-# function adjoint(A::MatrixNetwork{T}) where T
-#     SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
-#     return
-# end
 function adjoint(A::MatrixNetwork{T}) where T
     return sparse_transpose(A)
 end
@@ -102,25 +95,6 @@ function A_mul_B!(output, M::MatrixNetwork, b)
     mul!(output, sparse_transpose(M)', b) # adjoint operation is a lazy transpose, and the `sparse_transpose` is non-allocating
 end
 
-# At_mul_B{S}(M::MatrixNetwork, b::AbstractVector{S}) = 
-#     At_mul_B!(Array(promote_type(Float64,S), size(M,1)), M, b)
-# function At_mul_B!(output, M::MatrixNetwork, b)
-#     mul!(output, sparse_transpose(M), b) 
-# end
-
-# *(M::MatrixNetwork{T}, b::AbstractVector{S}) where {T,S} = 
-#     mul!(Array(promote_type(T,S), size(M,2)), M, b) 
-# function mul!(output, M::MatrixNetwork, b)
-#     mul!(output, convert(Adjoint{<:SparseMatrixCSC}, M), b)
-# end
-
-# *(M::Adjoint{<:MatrixNetwork}, b::AbstractVector{S}) where {S} = 
-#     mul!(Array(promote_type(Float64,S), size(M,2)), M, b)
-# function mul!(output, M::Adjoint{<:MatrixNetwork}, b)
-#     mul!(output, convert(SparseMatrixCSC, M), b) 
-# end
-
-    
 
 """
 `is_empty`
@@ -193,7 +167,6 @@ function is_connected end
 
 function is_connected(A::Union{MatrixNetwork,SparseMatrixCSC})
     # this is equivalent to maximum with a default value of 0
-    # return mapreduce(identity, max, 0, strong_components_map(A)) == 1
     return mapreduce(identity, max, strong_components_map(A); init=0) == 1
 end
 
