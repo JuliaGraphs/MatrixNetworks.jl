@@ -206,7 +206,7 @@ function fiedler_vector(A::SparseMatrixCSC{V,Int};
     else
         ai,aj,av = findnz(A)
         L = sparse(ai,aj,-av./((d[ai].*d[aj])),n,n) # applied sqrt above
-        L = L + 2. *sparse(1.0I,n,n)
+        L = L + sparse(2.0I,n,n)
 
         (lams,X,nconv) = _symeigs_smallest_arpack(L,nev,tol,maxiter,d)
         lam2 = lams[2]-1.

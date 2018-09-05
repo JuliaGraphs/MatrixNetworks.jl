@@ -29,7 +29,7 @@ using Test
         n = 6
         x = collect(1.:Float64(n))
         A = sparse(1:n-1,2:n,0.5,n,n)
-        A = A + A' + 1.5*sparse(1.0I,n,n)
+        A = A + A' + sparse(1.5I,n,n)
         profile = sweepcut(A,x)
         @test argmin(profile.conductance) == 3
         @test all(profile.cut .== 0.5)
