@@ -14,10 +14,7 @@ using Test
     function _normout(P::LinearAlgebra.Adjoint{Float64,SparseArrays.SparseMatrixCSC{T,Int64}}) where T
         n = size(P,1)
         colsums = sum(P,dims=1)
-        (pi,pj,pv) = begin
-            II = findall(!iszero, P)
-            (getindex.(II, 1), getindex.(II, 2), P[II])
-        end
+        pj,pi,pv = findnz(P.parent)
         P = sparse(pi,pj,pv./colsums[pj],n,n)
     end
 

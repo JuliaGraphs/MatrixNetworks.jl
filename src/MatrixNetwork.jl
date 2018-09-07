@@ -1,4 +1,3 @@
-# create type MatrixNetwork <: AbstractMatrix{T}
 mutable struct MatrixNetwork{T}
     n::Int64 # number of columns/rows
     rp::Vector{Int64} # row pointers
@@ -38,7 +37,7 @@ function _matrix_network_direct(A::SparseMatrixCSC{T,Int64},v) where T
 end
 
 
-import SparseArrays.sparse, Base.size, Base.*, LinearAlgebra.mul!, Base.convert, Base.adjoint
+import SparseArrays.sparse, Base.size, Base.*, LinearAlgebra.mul!, Base.convert, Base.adjoint, Base.copy
 
 """
 Return back an adjacency matrix representation
@@ -48,19 +47,7 @@ function sparse_transpose(A::MatrixNetwork{T}) where T
     return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
 end
 
-function adjoint(A::MatrixNetwork{T}) where T
-    return sparse_transpose(A)
-end
-
-function convert(::Type{SparseMatrixCSC{T}},A::Adjoint{MatrixNetwork{T}}) where {T}
-    return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
-end
-convert(::Type{SparseMatrixCSC}, A::Adjoint{MatrixNetwork{T}}) where {T} = convert(SparseMatrixCSC{T}, A)
-
-function convert(::Type{Adjoint{SparseMatrixCSC{T}}},A::MatrixNetwork{T}) where {T}
-    return SparseMatrixCSC(A.n,A.n,A.rp,A.ci,A.vals)
-end
-convert(AS::Type{Adjoint{<:SparseMatrixCSC}}, A::MatrixNetwork{T}) where {T} = convert(AS, A)
+adjoint(A::MatrixNetwork{T}) where T = Adjoint{Any,MatrixNetwork{T}}(A)
 
 """
 Return back an adjacency matrix representation
@@ -87,14 +74,18 @@ function size(A::MatrixNetwork, dim::Integer)
     end
 end
 
-*(M::MatrixNetwork, b) = A_mul_B(M, b)
-A_mul_B(M::MatrixNetwork{T}, b::AbstractVector{S}) where {T,S}= 
-    A_mul_B!(Array{promote_type(T,S)}(undef,size(M,2)), M, b) 
-function A_mul_B!(output, M::MatrixNetwork, b)
-    # mul!(output, sparse_transpose(M), b) 
-    mul!(output, sparse_transpose(M)', b) # adjoint operation is a lazy transpose, and the `sparse_transpose` is non-allocating
-end
+*(M::MatrixNetwork{T}, b::AbstractVector{S}) where {T,S} = 
+    mul!(Array{promote_type(T,S)}(undef,size(M,2)),sparse_transpose(M)',b)
 
+mul!(output,M::MatrixNetwork,b) = mul!(output,sparse_transpose(M)',b)
+
+*(M::Adjoint{<:Any,<:MatrixNetwork{T}}, b::AbstractVector{S}) where {T,S} = 
+    mul!(Array{promote_type(T,S)}(undef,size(M.parent,2)),sparse_transpose(M.parent),b)
+
+mul!(output,M::Adjoint{<:Any,<:MatrixNetwork},b) = mul!(output,sparse_transpose(M.parent),b)
+
+sparse(M::Adjoint{<:Any,<:MatrixNetwork}) = sparse_transpose(M.parent)
+copy(M::Adjoint{<:Any,<:MatrixNetwork}) = sparse_transpose(M.parent)
 
 """
 `is_empty`

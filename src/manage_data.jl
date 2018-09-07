@@ -1,16 +1,29 @@
-#using Lint
+using DelimitedFiles
 
 function readSMAT(filename::AbstractString)
-    (rows,header) = readdlm(filename;header=true)
-    A = sparse(
-               convert(Array{Int64,1},rows[1:parse(Int,header[3]),1]).+1, 
-               convert(Array{Int64,1},rows[1:parse(Int,header[3]),2]).+1, 
-               convert(Array{Int64,1},rows[1:parse(Int,header[3]),3]),
-               parse(Int,header[1]), 
-               parse(Int,header[2])
+    f = open(filename)
+    header = readline(f)
+    headerparts = split(header," ")
+    nedges = parse(Int,headerparts[3])
+    ei = zeros(Int64,nedges)
+    ej = zeros(Int64, nedges)
+    ev = zeros(Float64, nedges)
+    @inbounds for i = 1:nedges
+        curline = readline(f)
+        parts = split(curline," ")
+        ei[i] = parse(Int, parts[1])+1
+        ej[i] = parse(Int, parts[2])+1
+        ev[i] = parse(Float64, parts[3])
+    end
+    close(f)
+    A = sparse(ei, ej, ev,
+               parse(Int,headerparts[1]), 
+               parse(Int,headerparts[2])
                )
     return A
 end
+
+
 
 mutable struct MatrixNetworkMetadata
     A::SparseMatrixCSC{Int64,Int64}
@@ -78,10 +91,9 @@ end
 function matrix_network_datasets()
     datasets_location = joinpath(dirname(dirname(@__FILE__)),"data")
     content = readdir(datasets_location)
-    smat_files = filter(x->contains(x,".smat"),content)
+    cc = map(i->match(r".smat",content[i]),1:length(content))
+    smat_files = content[findall(typeof.(cc).!=Nothing)]
     for i = 1:length(smat_files)
-        # no need for this lintpragma anymore
-        # @lintpragma( "Ignore use of undeclared variable end")
         smat_files[i] = smat_files[i][1:end-5]
     end
     return smat_files

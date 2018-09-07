@@ -38,7 +38,7 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     end
     
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
-    if typeof(findfirst(x.<0)) != Nothing
+    if typeof(findfirst(ai.<0)) != Nothing
         error("only positive edge weights allowed")
     end
     return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
@@ -137,7 +137,7 @@ function clustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bo
     end
 
     (rp,ci,ai) = (A.colptr,A.rowval,A.nzval)
-    if typeof(findfirst(x.<0)) != Nothing
+    if typeof(findfirst(ai.<0)) != Nothing
         error("only positive edge weights allowed")
     end
     return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
