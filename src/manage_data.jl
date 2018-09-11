@@ -3,14 +3,14 @@ using DelimitedFiles
 function readSMAT(filename::AbstractString)
     f = open(filename)
     header = readline(f)
-    headerparts = split(header," ")
+    headerparts = split(header)
     nedges = parse(Int,headerparts[3])
     ei = zeros(Int64,nedges)
     ej = zeros(Int64, nedges)
     ev = zeros(Float64, nedges)
     @inbounds for i = 1:nedges
         curline = readline(f)
-        parts = split(curline," ")
+        parts = split(curline)
         ei[i] = parse(Int, parts[1])+1
         ej[i] = parse(Int, parts[2])+1
         ev[i] = parse(Float64, parts[3])

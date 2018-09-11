@@ -624,6 +624,13 @@ end
 function generalized_preferential_attachment_edges!(
     n::Int,p::Float64,r::Float64,edges::Vector{Tuple{Int,Int}},n0::Int,::Type{Val{false}})
     i = n0
+    if all(length.(unique.(edges)) .== 2)
+        throw(ArgumentError("The starting graph must have at least two nodes with no self loops"))
+    end
+    # alternatively, if we want to allow adding to a graph with existing self loops
+    # if any(length.(unique.(edges)) .== 2)
+    #     throw(ArgumentError("There must be at least two nodes and one edge in the graph"))
+    # end
     while i < n
         #generate a random value between 0 and 1
         x = rand()
