@@ -19,7 +19,6 @@ A = load_matrix_network("cores_example")
 (d,rt) = corenums(A)
 ~~~
 """
-
 function corenums(A::MatrixNetwork)
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1
@@ -45,7 +44,7 @@ function corenums(A::MatrixNetwork)
     end # plus 2 because degrees start at 0
     
     dp=cumsum(dp)
-    dp=dp+1
+    dp=dp.+1
     for i=1:n
         vs[dp[d[i]+1]]=i
         vi[i]=dp[d[i]+1]
@@ -94,7 +93,7 @@ end
 ############################
 
 ## CSC:
-function corenums{T}(A::SparseMatrixCSC{T,Int64})
+function corenums(A::SparseMatrixCSC{T,Int64}) where T
     return corenums(MatrixNetwork(A))
 end
 
@@ -104,6 +103,6 @@ function corenums(ei::Vector{Int64},ej::Vector{Int64})
 end
 
 ## CSR sparse matrices:
-function corenums{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64)
+function corenums(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) where T
     return corenums(MatrixNetwork(n,rp,ci,vals))
 end

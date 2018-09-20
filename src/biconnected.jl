@@ -9,8 +9,7 @@ other at shared vertices called cut vertices or articulation points.
 This implementation is based on the algorithm provided by Tarjan 
 in "Depth-First Search and Linear Graph Algorithms".  
 """
-
-type Biconnected_components_output
+mutable struct Biconnected_components_output
     map::Vector{Int64} #biconnected_component_number
     articulation_points::Vector{Bool}
     number::Int64
@@ -43,7 +42,6 @@ A = load_matrix_network("biconnected_example")
 B = MatrixNetwork(A)
 number_of_components = biconnected_components!(B, zeros(Bool,0), zeros(Int64,0))
 """
-
 function biconnected_components!(A::MatrixNetwork, articulation::Vector{Bool}, map::Vector{Int64})
     n=length(A.rp)-1
     rp=A.rp
@@ -184,7 +182,7 @@ number_of_components = bcc.number
 """
 function biconnected_components(A::MatrixNetwork; art::Bool = true, components::Bool = true)
     map = components ? zeros(Int64, length(A.ci)) : zeros(Int64, 0)
-    articulation = art ? zeros(Bool, A.n): zeros(Bool, 0)
+    articulation = art ? zeros(Bool, A.n) : zeros(Bool, 0)
     cn = biconnected_components!(A, articulation, map)
     return Biconnected_components_output(map,articulation,cn,A)
 end
@@ -200,4 +198,4 @@ biconnected_components(A::SparseMatrixCSC;kwargs...) = biconnected_components(Ma
 biconnected_components(ei::Vector{Int64},ej::Vector{Int64};kwargs...) = biconnected_components(MatrixNetwork(ei,ej);kwargs...)
 
 #CSR
-biconnected_components{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64; kwargs...) = biconnected_components(MatrixNetwork(n,rp,ci,vals);kwargs...)
+biconnected_components(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64; kwargs...) where {T} = biconnected_components(MatrixNetwork(n,rp,ci,vals);kwargs...)

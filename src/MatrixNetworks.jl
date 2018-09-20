@@ -1,6 +1,14 @@
 module MatrixNetworks
 
 using DataStructures
+using SparseArrays
+using LinearAlgebra
+using Printf
+using Arpack
+using DelimitedFiles
+using Random
+using Statistics
+using KahanSummation
 
 """
 Module ``MatrixNetworks``: Documentation on the module

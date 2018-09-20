@@ -30,19 +30,15 @@ Example
 labels[maxind]
 ~~~
 """
-
-###########################
-###########################
-
-function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool)
+function dirclustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool) where T
     return dirclustercoeffs(A,weighted,true)
 end
 
-function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
+function dirclustercoeffs(A::SparseMatrixCSC{T,Int64}) where T
     return dirclustercoeffs(A,true,true)
 end
 
-function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
+function dirclustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool) where T
     donorm = true
     usew = true
     
@@ -55,10 +51,10 @@ function dirclustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normaliz
     
     if usew
         (rp,ci,ai) = sparse_to_csr(A)
-        (col_ptr,ri,ati) = sparse_to_csr(A')
+        (col_ptr,ri,ati) = sparse_to_csr(copy(A'))
     else
         (rp,ci) = sparse_to_csr(A)
-        (col_ptr,ri) = sparse_to_csr(A') 
+        (col_ptr,ri) = sparse_to_csr(copy(A'))
     end
     
     if any(ai.<0)

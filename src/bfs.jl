@@ -20,7 +20,6 @@ A = load_matrix_network("bfs_example")
 (d,dt,pred) = bfs(A,1)
 ~~~
 """
-
 function bfs(A::MatrixNetwork,u::Int64,target::Int64)
     (rp,ci) = (A.rp,A.ci)
     n=length(rp)-1
@@ -69,11 +68,11 @@ function bfs(A::MatrixNetwork,u::Int64)
 end
 
 ## CSC sparse matrices:
-function bfs{T}(A::SparseMatrixCSC{T,Int64},u::Int64)
+function bfs(A::SparseMatrixCSC{T,Int64},u::Int64) where T
     return bfs(MatrixNetwork(A),u)
 end
 
-function bfs{T}(A::SparseMatrixCSC{T,Int64},u::Int64,target::Int64)
+function bfs(A::SparseMatrixCSC{T,Int64},u::Int64,target::Int64) where T
     return bfs(MatrixNetwork(A),u,target)
 end
 
@@ -87,10 +86,10 @@ function bfs(ei::Vector{Int64},ej::Vector{Int64},u::Int64,target::Int64)
 end
 
 ## CSR sparse matrices:
-function bfs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,u::Int64)
+function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,u::Int64) where T
     return bfs(MatrixNetwork(n,rp,ci,vals),u)
 end
 
-function bfs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,u::Int64,target::Int64)
+function bfs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,u::Int64,target::Int64) where T
     return bfs(MatrixNetwork(n,rp,ci,vals),u,target)
 end

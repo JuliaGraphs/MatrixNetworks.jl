@@ -19,7 +19,6 @@ A = load_matrix_network("clique-10")
 cc = clustercoeffs(MatrixNetwork(A))    
 ~~~
 """
-
 function clustercoeffs(A::MatrixNetwork)
     return clustercoeffs(A, true, true);
 end
@@ -39,16 +38,16 @@ function clustercoeffs(A::MatrixNetwork,weighted::Bool,normalized::Bool)
     end
     
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
-    if length(find(ai.<0)) != 0
+    if typeof(findfirst(ai.<0)) != Nothing
         error("only positive edge weights allowed")
     end
     return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
 end
 
-function clustercoeffs_phase2{T}(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
-                                          ai::Vector{T}, usew::Bool)
+function clustercoeffs_phase2(donorm::Bool,rp::Vector{Int64},ci::Vector{Int64},
+                                       ai::Vector{T}, usew::Bool) where T
     n = length(rp) - 1
-    cc = Vector{Float64}(n)
+    cc = Vector{Float64}(undef,n)
     ind = zeros(Bool,n)
     cache = zeros(Float64,usew ? n : 0)
 
@@ -123,7 +122,7 @@ end
 ### Additional functions ###
 ############################
 # sparse matrices:
-function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool)
+function clustercoeffs(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized::Bool) where T
     donorm = true
     usew = true
     if !normalized
@@ -133,19 +132,18 @@ function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64},weighted::Bool,normalized:
         usew = false
     end
     
-    At = A'
-    if !(At == A)
+    if !is_undirected(A)
         error("Only undirected (symmetric) inputs are allowed")
     end
 
-    (rp,ci,ai) = (At.colptr,At.rowval,At.nzval);
-    if length(find(ai.<0)) != 0
+    (rp,ci,ai) = (A.colptr,A.rowval,A.nzval)
+    if typeof(findfirst(ai.<0)) != Nothing
         error("only positive edge weights allowed")
     end
     return clustercoeffs_phase2(donorm,rp,ci,ai,usew)
 end
 
-function clustercoeffs{T}(A::SparseMatrixCSC{T,Int64})
+function clustercoeffs(A::SparseMatrixCSC{T,Int64}) where T
     return clustercoeffs(A, true, true);
 end
 
@@ -159,10 +157,10 @@ function clustercoeffs(ei::Vector{Int64},ej::Vector{Int64},weighted::Bool,normal
 end
 
 ## CSR sparse matrices - basically just like type MatrixNetwork
-function clustercoeffs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64)
+function clustercoeffs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) where T
     return clustercoeffs(MatrixNetwork(n,rp,ci,vals))
 end
 
-function clustercoeffs{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,weighted::Bool,normalized::Bool)
+function clustercoeffs(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64,weighted::Bool,normalized::Bool) where T
     return clustercoeffs(MatrixNetwork(n,rp,ci,vals),weighted,normalized)
 end

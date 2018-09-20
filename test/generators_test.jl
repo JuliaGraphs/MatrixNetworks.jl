@@ -1,10 +1,12 @@
+using LinearAlgebra
+
 @testset "generators" begin
     @testset "erdos_renyi" begin
         @test_throws DomainError erdos_renyi_undirected(10,11.)
         @test_throws DomainError erdos_renyi_directed(10,11.)
 
         n = 100
-        avgdegs = linspace(1.,2*log(n),100)
+        avgdegs = range(1., stop=2*log(n), length=100)
         compsizes = map( (dbar) ->
                 maximum(scomponents(erdos_renyi_undirected(n,dbar)).sizes),
             avgdegs )
@@ -42,12 +44,12 @@
         @test is_graphical_sequence(Int[]) == true
         @test is_graphical_sequence([1,1,1,1]) == true
 
-        @test full(sparse_transpose(havel_hakimi_graph(Int[]))) == zeros(Bool,0,0)
-        @test full(sparse_transpose(havel_hakimi_graph([0]))) == zeros(Bool,1,1)
-        @test full(sparse_transpose(havel_hakimi_graph([1,1]))) == [0 1; 1 0]
-        @test full(sparse_transpose(havel_hakimi_graph([2,2,2]))) == [0 1 1; 1 0 1; 1 1 0]
+        @test Matrix(sparse_transpose(havel_hakimi_graph(Int[]))) == zeros(Bool,0,0)
+        @test Matrix(sparse_transpose(havel_hakimi_graph([0]))) == zeros(Bool,1,1)
+        @test Matrix(sparse_transpose(havel_hakimi_graph([1,1]))) == [0 1; 1 0]
+        @test Matrix(sparse_transpose(havel_hakimi_graph([2,2,2]))) == [0 1 1; 1 0 1; 1 1 0]
         six_star = [0 1 1 1 1 1; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0; 1 0 0 0 0 0]
-        @test full(sparse_transpose(havel_hakimi_graph([5,1,1,1,1,1]))) == six_star
+        @test Matrix(sparse_transpose(havel_hakimi_graph([5,1,1,1,1,1]))) == six_star
 
         @test_throws ArgumentError is_graphical_sequence([-1])
         @test_throws ArgumentError havel_hakimi_graph([1,2,2])
@@ -71,7 +73,8 @@
     @testset "gpa_graph" begin
         @test typeof(gpa_graph(10,0.5,0.3,2)) == MatrixNetwork{Bool}
         @test typeof(gpa_graph(10,0.5,0.3,2,Val{true})) == MatrixNetwork{Bool}
-        @test typeof(gpa_edges!(4,.75,.25,[(1,1)],1)) == Vector{Tuple{Int,Int}}
+        @test typeof(gpa_edges!(4,.75,.25,[(1,2)],1)) == Vector{Tuple{Int,Int}}
+        @test_throws ArgumentError gpa_edges!(4,.75,.25,[(1,1)],1)
         @test typeof(gpa_edges!(4,.75,.25,[(1,1)],1,Val{true})) == Vector{Tuple{Int,Int}}
         @test is_empty(gpa_graph(0,0.0,0.0,0)) == true
         @test all(diag(sparse_transpose(gpa_graph(10, .3,.4, 3))) .== 0.)
@@ -93,11 +96,11 @@
         @test (bfs(roach_graph(10),40)[1])[1] == 20
 
         G,xy = roach_graph(5, Val{true})
-        filt = vec(all(xy .>= 0,2))
+        filt = vec(all(xy .>= 0,dims = 2))
         Asub = sparse_transpose(G)[filt,filt]
         # Asub should be an antennae...
         @test bfs(Asub,1)[1][5] == 4
-        filt = vec(all(xy .<= 0,2))
+        filt = vec(all(xy .<= 0,dims = 2))
         Asub = sparse_transpose(G)[filt,filt]
         # Asub should be an line...
         @test bfs(Asub,1)[1][5] == 4
@@ -117,11 +120,11 @@
         @test maximum(bfs(lollipop_graph(10,5),1)[1]) == 11
 
         G,xy = lollipop_graph(6, 5, Val{true})
-        filt = vec(all(xy .<= 0,2))
+        filt = vec(all(xy .<= 0, dims = 2))
         Asub = sparse_transpose(G)[filt,filt]
         # Asub should be an tail (or a line graph
         @test bfs(Asub,1)[1][6] == 5
-        Asub = sparse_transpose(G)[~filt,~filt]
+        Asub = sparse_transpose(G)[.~filt,.~filt]
         @test nnz(Asub) == 5*4
 
     end

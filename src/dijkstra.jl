@@ -40,18 +40,17 @@ while(u != lax)
 end
 ~~~
 """
-
 function dijkstra(A::MatrixNetwork,u::Int64)
     (rp,ci,ai) = (A.rp, A.ci, A.vals)
     return dijkstra_internal(rp,ci,ai,u)
 end
 
-function dijkstra{F}(A::SparseMatrixCSC{F,Int64},u::Int64)
+function dijkstra(A::SparseMatrixCSC{F,Int64},u::Int64) where F
     (rp,ci,ai) = sparse_to_csr(A)
     return dijkstra_internal(rp,ci,ai,u)
 end
 
-function dijkstra_internal{F}(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{F},u::Int64)
+function dijkstra_internal(rp::Vector{Int64},ci::Vector{Int64},ai::Vector{F},u::Int64) where F
 
     if any(ai.<0)
         error("dijkstra''s algorithm cannot handle negative edge weights")

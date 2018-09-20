@@ -1,5 +1,5 @@
 using DataStructures
-import Iterators 
+import IterTools 
 
 # From Julia's v0.6 reslease notes:
 # The Collections module has been removed, and all functions defined 
@@ -56,7 +56,7 @@ plot(avgdegs,compsizes,xaxis=("average degree"),yaxis=("largest component size")
 ~~~~    
 """
 function erdos_renyi_undirected(n::Int, p::Float64)
-    if p < 0 || p > n throw(DomainError()) end
+    if p < 0 || p > n throw(DomainError(p)) end
 
     if p >= 1. # interpret as average degree
         p = p/n # convert to probability
@@ -109,14 +109,15 @@ Output
 - A matrix network type for the Erdős-Rényi graph. 
 """
 function erdos_renyi_directed(n::Int, p::Float64)
-    if p < 0 || p > n throw(DomainError()) end
+    if p < 0 || p > n throw(DomainError(p)) end
     if p >= 1. # interpret as average degree
         p = p/n # convert to probability
     end
     
     A = sprand(n,n,p)
     
-    return _matrix_network_direct(A-spdiagm(diag(A),0)) # directions don't matter
+    # return _matrix_network_direct(A-spdiagm(diag(A),0)) # directions don't matter
+    return _matrix_network_direct(A-spdiagm(0 => diag(A))) # directions don't matter
 end
 erdos_renyi_directed(n::Int, d::Int) = erdos_renyi_directed(n,d/n)
 
@@ -172,7 +173,7 @@ function chung_lu_undirected(d::Vector{Int}, nedges::Int)
     # TODO find some standard function for this
     for v in d
         if v < 0
-            throw(DomainError())
+            throw(DomainError(v))
         end
     end
     
@@ -257,7 +258,7 @@ This enables us to generate a Havel Hakimi graph, which can
 be useful.
 """
 function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vector{Int})
-    q = PriorityQueue(Int,Int,Base.Order.Reverse)
+    q = PriorityQueue{Int,Int}(Base.Order.Reverse)
     n = length(degs)
     effective_n = n
     degsum = 0
@@ -279,7 +280,7 @@ function _havel_hakimi(degs::Vector{Int}, store::Bool, ei::Vector{Int}, ej::Vect
         resize!(ej,degsum)
     end
     
-    dlist = Vector{Pair{Int,Int}}(dmax)
+    dlist = Vector{Pair{Int,Int}}(undef,dmax)
     enum = 1
     
     while !isempty(q)
@@ -620,9 +621,23 @@ function generalized_preferential_attachment_edges!(
     return edges
 end
 
+function _check_for_two_distinct_nodes(edges::Vector{Tuple{Int,Int}})
+    length(edges) > 0 || throw(ArgumentError("requires at least one edge"))
+    firstnode = edges[1][1]
+    return any(IterTools.imap(x -> firstnode != x[1] || firstnode != x[2], edges))
+end
+
 function generalized_preferential_attachment_edges!(
     n::Int,p::Float64,r::Float64,edges::Vector{Tuple{Int,Int}},n0::Int,::Type{Val{false}})
     i = n0
+    if i >= n
+        return edges
+    end
+    
+    if !_check_for_two_distinct_nodes(edges::Vector{Tuple{Int,Int}})
+        throw(ArgumentError("The starting graph must have at least two distinct nodes"))
+    end
+
     while i < n
         #generate a random value between 0 and 1
         x = rand()
@@ -632,16 +647,14 @@ function generalized_preferential_attachment_edges!(
             push!(edges, (v[1], i+1))
             i = i+1;
         elseif x < p+r #edge event, no self-loops permitted
-            loop = 1
-            while loop == 1
+            v1 = rand(edges)[1]
+            v2 = rand(edges)[1]
+            while (v1 == v2 && i != 1) #i != 1 because we want more than 1 node for this to work
                 v1 = rand(edges)[1]
                 v2 = rand(edges)[1]
-                if !(v1 == v2)
-                    loop = 0
-                    push!(edges, (v1, v2))
-                    push!(edges, (v2, v1))
-                end
             end
+            push!(edges, (v1, v2))
+            push!(edges, (v2, v1))
         else #component event
             if i+2 <= n #only allow this step if there is room for two more nodes
                 push!(edges, (i+1, i+2))
@@ -705,8 +718,8 @@ function roach_graph(n::Integer, ::Type{Val{false}})
     n >= 0 || throw(ArgumentError("n=$(n) must be larger than 0"))
     line1 = 1:(2n-1)
     line2 = 2:2n
-    ei = [line1; line2; line1+2n; line2+2n; 1:n; 2n+1:2n+n]
-    ej = [line2; line1; line2+2n; line1+2n; 2n+1:2n+n; 1:n]
+    ei = [line1; line2; line1.+2n; line2.+2n; 1:n; 2n+1:2n+n]
+    ej = [line2; line1; line2.+2n; line1.+2n; 2n+1:2n+n; 1:n]
     return _matrix_network_direct(sparse(ei,ej,1,4n,4n))
 end
 
@@ -744,8 +757,8 @@ function lollipop_graph(n::Integer, m::Integer, ::Type{Val{false}})
     m >= 0 || throw(ArgumentError("m=$(m) must be larger than 0"))    
     line1 = 1:n
     line2 = 2:n+1
-    clique1 = map(x -> x[1], Iterators.subsets(n+1:n+m,2))
-    clique2 = map(x -> x[2], Iterators.subsets(n+1:n+m,2))
+    clique1 = map(x -> x[1], IterTools.subsets(n+1:n+m,2))
+    clique2 = map(x -> x[2], IterTools.subsets(n+1:n+m,2))
     ei = [line1; line2; clique1; clique2]
     ej = [line2; line1; clique2; clique1]
     return _matrix_network_direct(sparse(ei,ej,1,n+m,n+m))
@@ -753,7 +766,7 @@ end
 function lollipop_graph(n::Integer, m::Integer, ::Type{Val{true}})
     A = lollipop_graph(n,m, Val{false})
     xy = [-n:-1 zeros(n);  
-        (-sqrt(m)*cos(2*pi*(m:-1:1)/m)+sqrt(m)+1) sqrt(m)*sin(2*pi*(m:-1:1)/m)]
+        (-sqrt(m)*cos.(2*pi*(m:-1:1)/m).+(sqrt(m)+1)) sqrt(m)*sin.(2*pi*(m:-1:1)/m)]
     return A, xy
 end
 

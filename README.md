@@ -18,6 +18,7 @@ The package provides documentation with sample runs for all functions - viewable
 ## Package Installation:
 ##### To install package
 ```
+using Pkg
 Pkg.add("MatrixNetworks")
 using MatrixNetworks
 ```

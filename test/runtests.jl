@@ -1,5 +1,10 @@
 using MatrixNetworks
-using Base.Test
+using Test
+using Random
+using Statistics
+using SparseArrays
+using Arpack
+using LinearAlgebra
 #using Lint
 
 # Todo
@@ -7,7 +12,9 @@ using Base.Test
 
 
 
-all_tests = ["matrixnetwork",
+all_tests = [
+             "matrixnetwork",
+             "utility",
              "generators",
              "bfs",
              "biconnected",
@@ -25,10 +32,14 @@ all_tests = ["matrixnetwork",
              "mst_prim",
              "scomponents",
              "spectral",
-             "sparse_to_csr"]
+             "sparse_to_csr"
+             ]
 
-for t in all_tests
+#for t in all_tests
+for ti = 1:length(all_tests)
+    t = all_tests[ti]
     test_name = join(["$(t)", "_test",".jl"])
+    @show test_name
     test_path = joinpath(dirname(@__FILE__), test_name)
     include(test_path)
 end

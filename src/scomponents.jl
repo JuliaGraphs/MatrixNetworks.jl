@@ -46,14 +46,14 @@ function scomponents end
 ###########################
 ##    Type Definitions    #
 ###########################
-type Strong_components_output
+mutable struct Strong_components_output
     map::Vector{Int64}    # The indicator map
     sizes::Vector{Int64}  # Array of sizes corresponding to map
     number::Int64         # Int64
     A::MatrixNetwork      # MatrixNetwork
 end
 
-type Strong_components_rich_output
+mutable struct Strong_components_rich_output
     reduction_matrix::SparseMatrixCSC{Int64,Int64} # the reduction matrix (restriction matrix)
     transitive_order::SparseMatrixCSC{Int64,Int64}
     transitive_map::SparseMatrixCSC{Int64,Int64}
@@ -148,13 +148,13 @@ end
 ##    Conversion Functions for strong_components_map   #
 ########################################################
 # CSC:
-strong_components_map{T}(A::SparseMatrixCSC{T,Int64}) = 
+strong_components_map(A::SparseMatrixCSC{T,Int64}) where {T} = 
                                         strong_components_map(MatrixNetwork(A))
 # Triplet:
 strong_components_map(ei::Vector{Int64},ej::Vector{Int64}) = 
                                         strong_components_map(MatrixNetwork(ei,ej))
 # CSR
-strong_components_map{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) = 
+strong_components_map(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) where {T} = 
                                         strong_components_map(MatrixNetwork(n,rp,ci,vals))
 
 ######################
@@ -180,11 +180,11 @@ end
 ###############################
 
 # CSC:
-scomponents{T}(A::SparseMatrixCSC{T,Int64}) = scomponents(MatrixNetwork(A))
+scomponents(A::SparseMatrixCSC{T,Int64}) where {T} = scomponents(MatrixNetwork(A))
 # Triplet:
 scomponents(ei::Vector{Int64},ej::Vector{Int64}) = scomponents(MatrixNetwork(ei,ej))
 # CSR
-scomponents{T}(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) = scomponents(MatrixNetwork(n,rp,ci,vals))
+scomponents(rp::Vector{Int64},ci::Vector{Int64},vals::Vector{T},n::Int64) where {T} = scomponents(MatrixNetwork(n,rp,ci,vals))
 
 """ 
 This function adds the following helpers variables

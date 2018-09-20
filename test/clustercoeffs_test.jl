@@ -19,12 +19,13 @@
     end
     @testset "error throwing" begin
         # not undirected
-        bad_mat = spdiagm(([1; 1],), 1, 3, 3)
+        bad_mat = spdiagm(1=>[1;1]) #spdiagm(([1; 1],), 1, 3, 3)
+
         @test_throws ErrorException clustercoeffs(MatrixNetwork(bad_mat))
         @test_throws ErrorException clustercoeffs(bad_mat)
         # negative weights
-        @test_throws ErrorException clustercoeffs(MatrixNetwork(-speye(4)))
-        @test_throws ErrorException clustercoeffs(-speye(4))
+        @test_throws ErrorException clustercoeffs(MatrixNetwork(-sparse(1.0I,4,4)))
+        @test_throws ErrorException clustercoeffs(-sparse(1.0I,4,4))
     end
     cc_mn = clustercoeffs(MatrixNetwork(A), false, false)
     cc_csc = clustercoeffs(A, false, false)

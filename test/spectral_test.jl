@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 
 @testset "spectral" begin
     RankedArray = MatrixNetworks.RankedArray
@@ -20,18 +20,18 @@ using Base.Test
         n = 6
         x = collect(1.:Float64(n))
         A = sparse(1:n-1,2:n,1,n,n)
-        A = A + A' + speye(Int64,n)
+        A = A + A' + sparse(1.0I,n,n)
         profile = sweepcut(A,x)
-        @test indmin(profile.conductance) == 3
+        @test argmin(profile.conductance) == 3
         @test all(profile.cut .== 1)
     end
     @testset "floats" begin
         n = 6
         x = collect(1.:Float64(n))
         A = sparse(1:n-1,2:n,0.5,n,n)
-        A = A + A' + 1.5*speye(n)
+        A = A + A' + sparse(1.5I,n,n)
         profile = sweepcut(A,x)
-        @test indmin(profile.conductance) == 3
+        @test argmin(profile.conductance) == 3
         @test all(profile.cut .== 0.5)
     end
     @testset "complement set" begin
@@ -54,7 +54,7 @@ using Base.Test
         profile = sweepcut(sparse(zeros(1,1)),x)
         @test isempty(profile.conductance)
 
-        @test_throws ArgumentError fiedler_vector(speye(2) + sparse([1],[2],1.,2,2))
+        @test_throws ArgumentError fiedler_vector(sparse(1.0I,2,2) + sparse([1],[2],1.,2,2))
 
         @test isempty(spectral_cut(sparse(zeros(5,5)),true,true).set)
         n = 50
@@ -69,8 +69,8 @@ using Base.Test
         M = MatrixNetwork(A)
         @test length(spectral_cut(M).set) == 50
 
-        @test_throws ArgumentError spectral_cut(speye(2) + spdiagm(([1],), 1, 2, 2), true, false)
-        @test_throws ArgumentError spectral_cut(-speye(2), false, false) 
+        @test_throws ArgumentError spectral_cut(sparse(1.0I,2,2) + spdiagm(1=>[1]), true, false)
+        @test_throws ArgumentError spectral_cut(-sparse(1.0I,2,2), false, false) 
     end
     dtol = 1.e-8 # default tolerance
     @testset "fiedler_vector" begin
@@ -84,7 +84,7 @@ using Base.Test
         @test abs(lam2 - 3.026826881103339417e-03) <= dtol # result from LAPACK graph_eigs
         @test abs(v[1] - 1.878339361656544346e-02) <= dtol # result from Matlab
         # check inverse participation ratio score from graph_eigs
-        @test abs.(sum(abs(v).^4)/(sum(abs(v).^2)^2) - 6.761596909820281540e-03) <= dtol
+        @test abs.(sum(abs.(v).^4)/(sum(abs.(v).^2)^2) - 6.761596909820281540e-03) <= dtol
 
         n = 25
         A = sparse(1:n-1,2:n,1.,n,n)

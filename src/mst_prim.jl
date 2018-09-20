@@ -34,7 +34,6 @@ A = sparse(A)
 (ti,tj,tv,nverts) = mst_prim(A)
 ~~~
 """
-
 function mst_prim(A::MatrixNetwork,full::Bool,u::Int64)
     
     (rp,ci,ai) = (A.rp,A.ci,A.vals)
@@ -209,9 +208,9 @@ mst_prim(A::MatrixNetwork,full::Bool) = mst_prim(A,full,1)
 
 ### Support sparse matrices:
 
-mst_prim{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim(MatrixNetwork(A),full,u)
-mst_prim{T}(A::SparseMatrixCSC{T,Int64},full::Bool) = mst_prim(MatrixNetwork(A),full,1)
-mst_prim{T}(A::SparseMatrixCSC{T,Int64}) = mst_prim(MatrixNetwork(A),false,1)
+mst_prim(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) where {T} = mst_prim(MatrixNetwork(A),full,u)
+mst_prim(A::SparseMatrixCSC{T,Int64},full::Bool) where {T} = mst_prim(MatrixNetwork(A),full,1)
+mst_prim(A::SparseMatrixCSC{T,Int64}) where {T} = mst_prim(MatrixNetwork(A),false,1)
 
 
 ### Output modifiers:
@@ -224,6 +223,6 @@ end
 mst_prim_matrix(A::MatrixNetwork) = mst_prim_matrix(A,false,1)
 mst_prim_matrix(A::MatrixNetwork,full::Bool) = mst_prim_matrix(A,full,1)
 
-mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) = mst_prim_matrix(MatrixNetwork(A),full,u)
-mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64},full::Bool) = mst_prim_matrix(MatrixNetwork(A),full,1)
-mst_prim_matrix{T}(A::SparseMatrixCSC{T,Int64}) = mst_prim_matrix(MatrixNetwork(A),false,1)
+mst_prim_matrix(A::SparseMatrixCSC{T,Int64},full::Bool,u::Int64) where {T} = mst_prim_matrix(MatrixNetwork(A),full,u)
+mst_prim_matrix(A::SparseMatrixCSC{T,Int64},full::Bool) where {T} = mst_prim_matrix(MatrixNetwork(A),full,1)
+mst_prim_matrix(A::SparseMatrixCSC{T,Int64}) where {T} = mst_prim_matrix(MatrixNetwork(A),false,1)

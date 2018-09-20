@@ -1,4 +1,6 @@
-import Base.LinAlg.checksquare
+import LinearAlgebra: checksquare, BlasInt
+import Printf
+
 
 ## Todo
 # 1. Add method for partial sweep cut
@@ -34,10 +36,9 @@ Example
 -------
 This is an internal function.
 """
-
-function _symeigs_smallest_arpack{V}(
+function _symeigs_smallest_arpack(
             A::SparseMatrixCSC{V,Int},nev::Int,tol::V,maxiter::Int,
-            v0::Vector{V})
+            v0::Vector{V}) where V
 
     n::Int = checksquare(A) # get the size
     @assert n >= 21
@@ -53,26 +54,27 @@ function _symeigs_smallest_arpack{V}(
     ritzvec = true
     sigma = 0.
 
-    TOL = Array(V,1)
-    TOL[1] = tol
+    #TOL = Array{V}(undef,1)
+    #TOL[1] = tol
+    TOL = Ref(tol)
     lworkl = ncv*(ncv + 8)
-    v = Array(V, n, ncv)
-    workd = Array(V, 3*n)
-    workl = Array(V, lworkl)
-    resid = Array(V, n)
+    v = Array{V}(undef, n, ncv)
+    workd = Array{V}(undef, 3*n)
+    workl = Array{V}(undef, lworkl)
+    resid = Array{V}(undef, n)
 
     resid[:] = v0[:]
 
-    info = zeros(Base.LinAlg.BlasInt, 1)
+    info = zeros(BlasInt, 1)
     info[1] = 1
 
-    iparam = zeros(Base.LinAlg.BlasInt, 11)
-    ipntr = zeros(Base.LinAlg.BlasInt, 11)
-    ido = zeros(Base.LinAlg.BlasInt, 1)
+    iparam = zeros(BlasInt, 11)
+    ipntr = zeros(BlasInt, 11)
+    ido = zeros(BlasInt, 1)
 
-    iparam[1] = Base.LinAlg.BlasInt(1)
-    iparam[3] = Base.LinAlg.BlasInt(maxiter)
-    iparam[7] = Base.LinAlg.BlasInt(mode)
+    iparam[1] = BlasInt(1)
+    iparam[3] = BlasInt(maxiter)
+    iparam[7] = BlasInt(mode)
 
     # this is a helpful indexing vector
     zernm1 = 0:(n-1)
@@ -81,12 +83,12 @@ function _symeigs_smallest_arpack{V}(
         # This is the reverse communication step that ARPACK does
         # we need to extract the desired vector and multiply it by A
         # unless the code says to stop
-        Base.LinAlg.ARPACK.saupd(
+        Arpack.saupd(
             ido, bmat, n, whichstr, nev, TOL, resid, ncv, v, n,
             iparam, ipntr, workd, workl, lworkl, info)
 
-        load_idx = ipntr[1] + zernm1
-        store_idx = ipntr[2] + zernm1
+        load_idx = ipntr[1] .+ zernm1
+        store_idx = ipntr[2] .+ zernm1
 
         x = workd[load_idx]
 
@@ -104,12 +106,12 @@ function _symeigs_smallest_arpack{V}(
 
     # calls to eupd
     howmny = String("A")
-    select = Array(Base.LinAlg.BlasInt, ncv)
+    select = Array{BlasInt}(undef, ncv)
 
-    d = Array(V, nev)
+    d = Array{V}(undef, nev)
     sigmar = ones(V,1)*sigma
     ldv = n
-    Base.LinAlg.ARPACK.seupd(ritzvec, howmny, select, d, v, ldv, sigmar,
+    Arpack.seupd(ritzvec, howmny, select, d, v, ldv, sigmar,
         bmat, n, whichstr, nev, TOL, resid, ncv, v, ldv,
         iparam, ipntr, workd, workl, lworkl, info)
     if info[1] != 0
@@ -179,8 +181,8 @@ A = A + A'
 # using UnicodePlots; lineplot(v)
 ~~~
 """
-function fiedler_vector{V}(A::SparseMatrixCSC{V,Int};
-    tol=1e-12,maxiter=300,dense=96,nev=2,checksym=true)
+function fiedler_vector(A::SparseMatrixCSC{V,Int};
+    tol=1e-12,maxiter=300,dense=96,nev=2,checksym=true) where V
     n = checksquare(A)
     if checksym
         if !issymmetric(A)
@@ -188,8 +190,8 @@ function fiedler_vector{V}(A::SparseMatrixCSC{V,Int};
         end
     end
 
-    d = vec(sum(A,1))
-    d = sqrt(d)
+    d = vec(sum(A,dims=1))
+    d = sqrt.(d)
 
     if n == 1
         X = zeros(V,1,2)
@@ -197,24 +199,25 @@ function fiedler_vector{V}(A::SparseMatrixCSC{V,Int};
     elseif n <= dense
         ai,aj,av = findnz(A)
         L = sparse(ai,aj,-av./((d[ai].*d[aj])),n,n) # applied sqrt above
-        L = full(L) + 2*eye(n)
-        F = eigfact!(Symmetric(L))
+        L = Matrix(L) + 2I
+        F = eigen!(Symmetric(L))
         lam2 = F.values[2]-1.
         X = F.vectors
     else
         ai,aj,av = findnz(A)
         L = sparse(ai,aj,-av./((d[ai].*d[aj])),n,n) # applied sqrt above
-        L = L + 2.*speye(n)
+        L = L + sparse(2.0I,n,n)
 
         (lams,X,nconv) = _symeigs_smallest_arpack(L,nev,tol,maxiter,d)
         lam2 = lams[2]-1.
     end
     x1err = norm(X[:,1]*sign(X[1,1]) - d/norm(d))
     if x1err >= sqrt(tol)
-        warn(@sprintf("""
+        s = @sprintf("""
         the null-space vector associated with the normalized Laplacian
         was computed inaccurately (diff=%.3e); the Fiedler vector is
-        probably wrong or the graph is disconnected""",x1err))
+        probably wrong or the graph is disconnected""",x1err)
+        @warn s
     end
 
     x = vec(X[:,2])
@@ -231,7 +234,7 @@ function fiedler_vector{V}(A::SparseMatrixCSC{V,Int};
     return (x,lam2)
 end
 
-fiedler_vector{T}(A::MatrixNetwork{T};kwargs...) =
+fiedler_vector(A::MatrixNetwork{T};kwargs...) where {T} =
     fiedler_vector(sparse_transpose(A);kwargs...) # sparse_transpose converts directly
 
 """
@@ -257,15 +260,14 @@ haskey(r,11) # returns false
 haskey(r,1) # returns true
 haskey(r,0) # returns false
 """
-
-type RankedArray{S}
+mutable struct RankedArray{S}
     data::S
 end
 
 import Base: getindex, haskey
 
-haskey{S}(A::RankedArray{S}, x::Int) = x >= 1 && x <= length(A.data)
-getindex{S}(A::RankedArray{S}, i) = A.data[i]
+haskey(A::RankedArray{S}, x::Int) where {S} = x >= 1 && x <= length(A.data)
+getindex(A::RankedArray{S}, i) where {S} = A.data[i]
 
 """
 SweepcutProfile
@@ -289,8 +291,7 @@ See also
 * `spectral_cut`
 
 """
-
-immutable SweepcutProfile{V,F}
+struct SweepcutProfile{V,F}
     p::Vector{Int}
     conductance::Vector{F}
     cut::Vector{V}
@@ -298,9 +299,9 @@ immutable SweepcutProfile{V,F}
     total_volume::V
     total_nodes::Int
 
-    function (::Type{SweepcutProfile{V,F}}){V,F}(p::Vector{Int},nnodes::Int,totalvol::V)
+    function SweepcutProfile{V,F}(p::Vector{Int},nnodes::Int,totalvol::V) where {V,F}
         n = length(p)
-        new{V,F}(p,Array(F,n-1),Array(V,n-1),Array(V,n-1),totalvol,nnodes)
+        new{V,F}(p,Array{F}(undef,n-1),Array{V}(undef,n-1),Array{V}(undef,n-1),totalvol,nnodes)
     end
 end
 
@@ -374,7 +375,7 @@ T = spectral_cut(A).set # should give you the same set
 # using UnicodePlots; lineplot(p.conductance) # show the conductance
 ~~~~
 """
-function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V, maxvol::T)
+function sweepcut(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V, maxvol::T) where {V,T}
 
     n = checksquare(A)
     nlast = length(p)
@@ -427,9 +428,9 @@ function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, p::Vector{Int}, r, totalvol::V
     return output
 end
 
-function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, x::Vector{T}, vol::V)
+function sweepcut(A::SparseMatrixCSC{V,Int}, x::Vector{T}, vol::V) where {V,T}
     p = sortperm(x,rev=true)
-    ranks = Array(Int, length(x))
+    ranks = Array{Int}(undef, length(x))
     for (i,v) in enumerate(p)
         ranks[v] = i
     end
@@ -437,13 +438,13 @@ function sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, x::Vector{T}, vol::V)
     return sweepcut(A, p, r, vol, Inf)
 end
 
-sweepcut{V,T}(A::SparseMatrixCSC{V,Int}, x::Vector{T}) =
+sweepcut(A::SparseMatrixCSC{V,Int}, x::Vector{T}) where {V,T} =
     sweepcut(A, x, sum(A))
 
-function bestset{V,F}(prof::SweepcutProfile{V,F})
+function bestset(prof::SweepcutProfile{V,F}) where {V,F}
     nnodes = 0
     if !isempty(prof.conductance)
-        bsetind = indmin(prof.conductance)
+        bsetind = argmin(prof.conductance)
         bsetvol = prof.volume[bsetind]
         nnodes = bsetind
         if bsetvol > prof.total_volume - bsetvol
@@ -452,11 +453,11 @@ function bestset{V,F}(prof::SweepcutProfile{V,F})
         end
     end
 
-    bset = Vector{Int}(nnodes)
+    bset = Vector{Int}(undef,nnodes)
     if isempty(prof.conductance)
     elseif bsetvol > prof.total_volume - bsetvol
         # ick, we need the complement
-        bset[:] = collect(setdiff(IntSet(Int(1):Int(prof.total_nodes)),prof.p[1:bsetind]))
+        bset[:] = collect(setdiff(BitSet(Int(1):Int(prof.total_nodes)),prof.p[1:bsetind]))
     else
         # easy
         bset[:] = prof.p[1:bsetind]
@@ -483,8 +484,7 @@ Fields
 The most useful outputs are `set` and `lam2`; the others are provided
 for experts who wish to use some of the diagonstics provided.
 """
-
-immutable SpectralCut{V,F}
+struct SpectralCut{V,F}
     set::Vector{Int}
     A::SparseMatrixCSC{V,Int}
     lam2::F
@@ -494,7 +494,7 @@ immutable SpectralCut{V,F}
     largest_component::Int
 end
 
-function show{V,F}(io::IO,obj::SpectralCut{V,F})
+function show(io::IO,obj::SpectralCut{V,F}) where {V,F}
     println(io,"Spectral cut on adjacency matrix with $(size(obj.A,1)) nodes and $(nnz(obj.A)) non-zeros")
     if obj.comps.number > 1
         println(io, "    formed from the largest connected component of the input matrix")
@@ -532,8 +532,7 @@ Inputs
   This useful in larger subroutines where this is handled
   through another mechanism.
 """
-
-function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
+function spectral_cut(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool) where V
     n = checksquare(A)
     if checksym
         if !issymmetric(A)
@@ -549,16 +548,16 @@ function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
     # need to test for components
     G = MatrixNetwork(n,A.colptr,A.rowval,A.nzval)
     cc = scomponents(G)
-    lccind = indmax(cc.sizes)
+    lccind = argmax(cc.sizes)
     B = A
     if cc.number > 1
         if ccwarn
-            warn("The input matrix had $(cc.number) components, running on largest...")
+            @warn "The input matrix had $(cc.number) components, running on largest..."
         end
         f = cc.map .== lccind
         B = A[f,f] # using logical indexing is faster than find for large sets (2015/11/14)
         # n=10^5;A=sprand(n,n,25/n);f=rand(n).>0.01;s=find(f);@time sum(A);@time A[f,f]; @time A[s,s];
-        subset = find(f)
+        subset = findall(f)
     end
 
     # run the partition
@@ -576,10 +575,10 @@ function spectral_cut{V}(A::SparseMatrixCSC{V,Int},checksym::Bool,ccwarn::Bool)
     return SpectralCut(bset,B,lam2,x,sweep,cc,lccind)
 end
 
-function spectral_cut{V}(A::SparseMatrixCSC{V,Int})
+function spectral_cut(A::SparseMatrixCSC{V,Int}) where V
     return spectral_cut(A,true,true)
 end
 
-function spectral_cut{V}(A::MatrixNetwork{V})
+function spectral_cut(A::MatrixNetwork{V}) where V
     return spectral_cut(sparse_transpose(A),true,true)
 end

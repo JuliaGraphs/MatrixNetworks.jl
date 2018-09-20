@@ -1,18 +1,19 @@
 
 ## Todo
 
-import Base.LinAlg.checksquare
+import LinearAlgebra.checksquare
 import Base.eltype
 import Base.length
 import Base.ndims
 import Base.*
-import Base.A_mul_B!
+import LinearAlgebra.mul!
 import Base.size
+import KahanSummation
 
 """
 A simple function that doesn't report any output
 """
-function _noiterfunc{T}(iter::Int, x::Vector{T})
+function _noiterfunc(iter::Int, x::Vector{T}) where T
 end
 
 """
@@ -32,9 +33,8 @@ Internal function
 """
 function _applyv! end
 
-if VERSION >= v"0.5.0-dev+1000"
-function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
-                    alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::SparseVector{T},
+                 alpha::T, gamma::T) where T
     @simd for i in 1:length(x)
         @inbounds x[i] *= alpha
     end
@@ -44,29 +44,28 @@ function _applyv!{T}(x::Vector{T}, v::SparseVector{T},
         @inbounds x[vrows[j]] += gamma*vvals[j]
     end
 end
+ # version 0.5.0-dev
 
-end # version 0.5.0-dev
-
-function _applyv!{T}(x::Vector{T}, v, alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v, alpha::T, gamma::T) where T
     x *= alpha
     x += gamma*v
 end
 
-function _applyv!{T}(x::Vector{T}, v::T, alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::T, alpha::T, gamma::T) where T
     gv = gamma*v
     @simd for i in 1:length(x)
         @inbounds x[i] = alpha*x[i] + gv
     end
 end
 
-function _applyv!{T}(x::Vector{T}, v::Vector{T}, alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::Vector{T}, alpha::T, gamma::T) where T
     @simd for i in 1:length(x)
         @inbounds x[i] = alpha*x[i] + gamma*v[i]
     end
 end
 
-function _applyv!{T}(x::Vector{T}, v::SparseMatrixCSC{T,Int},
-                    alpha::T, gamma::T)
+function _applyv!(x::Vector{T}, v::SparseMatrixCSC{T,Int},
+                 alpha::T, gamma::T) where T
     @simd for i in 1:length(x)
         @inbounds x[i] *= alpha
     end
@@ -80,14 +79,14 @@ end
 """
 Convert a sparse representation into a dense vector.
 """
-function _densevec{T}(I::Vector{Int}, V::Vector{T}, n::Int)
+function _densevec(I::Vector{Int}, V::Vector{T}, n::Int) where T
     v = zeros(T,n)
     for ind in 1:length(I)
         v[ind] = V[ind]
     end
     return v
 end
-function _densevec{T}(d::Dict{Int,T}, n::Int)
+function _densevec(d::Dict{Int,T}, n::Int) where T
     v = zeros(T,n)
     for (ind,val) in d
         v[ind] = val
@@ -165,17 +164,17 @@ Example
 
 ~~~~
 """
-function pagerank_power!{T}(x::Vector{T}, y::Vector{T},
+function pagerank_power!(x::Vector{T}, y::Vector{T},
     P, alpha::T, v, tol::T,
-    maxiter::Int, iterfunc::Function)
-    ialpha = 1./(1.-alpha)
+    maxiter::Int, iterfunc::Function) where T
+    ialpha = 1.0/(1.0-alpha)
     xinit = x
-    _applyv!(x,v,0.,1.) # iteration number 0
+    _applyv!(x,v,0.,1.0) # iteration number 0
     iterfunc(0,x)
     for iter=1:maxiter
-        # y = P*x
-        A_mul_B!(y,P,x)
-        gamma = 1.-alpha*sum_kbn(y)
+        mul!(y,P,x)
+        gamma = 1.0-alpha*KahanSummation.sum_kbn(y)
+
         delta = 0.
         _applyv!(y,v,alpha,gamma)
         @simd for i=1:length(x)
@@ -188,7 +187,7 @@ function pagerank_power!{T}(x::Vector{T}, y::Vector{T},
         end
     end
     if !(x === xinit) # x is not xinit, so we need to copy it over
-        xinit[:] = x
+        xinit[:] .= x
     end
     xinit # always return xinit
 end
@@ -283,7 +282,7 @@ This type is the result of creating
 an implicit stochastic operator for
 a sparse matrix.
 """
-type SparseMatrixStochasticMult
+mutable struct SparseMatrixStochasticMult
     d::Vector{Float64}
     A::SparseMatrixCSC     
 end 
@@ -294,11 +293,10 @@ ndims(op::SparseMatrixStochasticMult) = 2
 
 size(op::SparseMatrixStochasticMult, dim::Integer) = size(op.A,dim)
 length(op::SparseMatrixStochasticMult) = length(op.A)
-*(op::SparseMatrixStochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B{S}(op::SparseMatrixStochasticMult, b::AbstractVector{S}) = 
-    A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
-function A_mul_B!(output, op::SparseMatrixStochasticMult, b)
+*(op::SparseMatrixStochasticMult, b::AbstractVector{S}) where {S} = 
+    mul!(Array{promote_type(Float64,S)}(undef, size(op.A,2)), op, b)
+function mul!(output, op::SparseMatrixStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
 end
 
@@ -312,7 +310,7 @@ This type is the result of creating
 an implicit stochastic operator for
 a matrix network type.
 """
-type MatrixNetworkStochasticMult
+mutable struct MatrixNetworkStochasticMult
     d::Vector{Float64}
     A::MatrixNetwork     
 end 
@@ -323,23 +321,22 @@ ndims(op::MatrixNetworkStochasticMult) = 2
 
 size(op::MatrixNetworkStochasticMult, dim::Integer) = size(op.A,dim)
 length(op::MatrixNetworkStochasticMult) = prod(size(op.A))
-*(op::MatrixNetworkStochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B{S}(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) = 
-    A_mul_B!(Array(promote_type(Float64,S), size(op.A,2)), op, b)
-function A_mul_B!(output, op::MatrixNetworkStochasticMult, b)
+*(op::MatrixNetworkStochasticMult, b::AbstractVector{S}) where {S} = 
+    mul!(Array{promote_type(Float64,S)}(undef, size(op.A,2)), op, b)
+function mul!(output, op::MatrixNetworkStochasticMult, b)
     stochastic_mult!(output, op.A, b, op.d)
 end
 
 function _create_stochastic_mult(M::SparseMatrixCSC)
     n = checksquare(M)
-    d = Array{Float64}(n, 1)
+    d = Array{Float64}(undef, n, 1)
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         elseif d[i] < 0.
-            throw(DomainError()) 
+            throw(DomainError(d[i])) 
         end
     end
     Z = SparseMatrixStochasticMult(vec(d),M)
@@ -349,13 +346,13 @@ end
 function _create_stochastic_mult(M::MatrixNetwork)
     A = sparse_transpose(M) # this involves no work...
     n = checksquare(A) 
-    d = Array{Float64}(1, n)
+    d = Array{Float64}(undef,1, n)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         elseif d[i] < 0.
-            throw(DomainError()) 
+            throw(DomainError(d[i])) 
         end
     end
     MatrixNetworkStochasticMult(vec(d),M)
@@ -415,7 +412,7 @@ function pagerank(A,alpha::Float64)
 end
 
 function pagerank(A,alpha::Float64,tol::Float64)
-    _personalized_pagerank_validated(A,alpha,1./size(A,1),tol)
+    _personalized_pagerank_validated(A,alpha,1.0/size(A,1),tol)
 end
 
 """
@@ -494,8 +491,8 @@ function personalized_pagerank(A,alpha::Float64,v)
 end
 
 function personalized_pagerank(A,alpha::Float64,v::Float64,tol::Float64)
-    if abs(v - 1./size(A,1)) >= eps(Float64)
-        throw(DomainError())
+    if abs(v - 1.0/size(A,1)) >= eps(Float64)
+        throw(DomainError(-1))
     end
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
@@ -548,17 +545,15 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseMatrixCSC{Float64},tol
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
-
-if VERSION >= v"0.5.0-dev+1000"
 
 personalized_pagerank(A,alpha::Float64,v::SparseVector{Float64},tol::Float64) = 
     personalized_pagerank!(A,alpha,deepcopy(v),tol)
@@ -573,17 +568,16 @@ function personalized_pagerank!(A,alpha::Float64,v::SparseVector{Float64}, tol::
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(v)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
     _personalized_pagerank_validated(A,alpha,v,tol)
 end
 
-end
 
 personalized_pagerank(A,alpha::Float64,v::Vector{Float64},tol::Float64) = 
     personalized_pagerank!(A,alpha,deepcopy(v),tol)
@@ -597,10 +591,10 @@ function personalized_pagerank!(A,alpha::Float64,v::Vector{Float64},tol::Float64
         throw(ArgumentError(@sprintf("as a sparsevector, v must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1./sum_kbn(v) 
+    valisum = 1.0/KahanSummation.sum_kbn(v) 
     @inbounds for ind in eachindex(v)
         if v[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(v[ind]))
         end
         v[ind] *= valisum # normalize to sum to 1 
     end
@@ -626,15 +620,15 @@ end
 `stochastic_heat_kernel_series!`
 ================================
 Compute the stochastic heat kernel, the result
-of \$x = \exp(-t(I - P)) s \$ where \$s\$ is a stochastic
+of \$x = \\exp(-t(I - P)) s \$ where \$s\$ is a stochastic
 seed vector and \$t\$ is a time parameter and
 \$P\$ is a column-stochastic or sub-stochastic
 matrix. 
 
 This function will return a vector \$x\$ such that
-\$ \| x - x_{\mbox{exact}} \|_1 \le \$ `eps`, and
+\$ \\| x - x_{\\mbox{exact}} \\|_1 \\le \$ `eps`, and
 this function further guarantees 
-\$x_{\mbox{exact}} - x \ge 0\$.
+\$x_{\\mbox{exact}} - x \\ge 0\$.
 
 The algorithm is just a direct evaluation of the power
 series represented by the heat kernel operation.  
@@ -665,10 +659,10 @@ Example
 ~~~~
 
 """
-function stochastic_heat_kernel_series!{T}(
+function stochastic_heat_kernel_series!(
     x::Vector{T}, y::Vector{T}, z::Vector{T},
     P, t::T, v, eps::T, 
-    maxiter::Int)
+    maxiter::Int) where T
     
     iexpt = exp(-t)
     _applyv!(y,v,0.,1.) # iteration number 0
@@ -682,7 +676,7 @@ function stochastic_heat_kernel_series!{T}(
     coeff = 1.
     
     for k=1:maxiter
-        A_mul_B!(z,P,y)       # compute z = P*y
+        mul!(z,P,y)       # compute z = P*y
         coeff = coeff*t/k  
         BLAS.axpy!(iexpt*coeff, z, x)
         y,z = z,y # swap
@@ -702,15 +696,15 @@ end
 ===============================
 
 Compute the stochastic heat kernel, the result
-of \$x = \exp(-t(I - P)) s \$ where \$s\$ is a stochastic
+of \$x = \\exp(-t(I - P)) s \$ where \$s\$ is a stochastic
 seed vector and \$t\$ is a time parameter and
 \$P\$ is a column-stochastic or sub-stochastic
 matrix. 
 
 This function will return a vector \$x\$ such that
-\$ \| x - x_{\mbox{exact}} \|_1 \le \$ `eps`, and
+\$ \\| x - x_{\\mbox{exact}} \\|_1 \\le \$ `eps`, and
 this function further guarantees 
-\$x_{\mbox{exact}} - x \ge 0\$.
+\$x_{\\mbox{exact}} - x \\ge 0\$.
 
 Functions
 ---------
@@ -753,8 +747,8 @@ function seeded_stochastic_heat_kernel(A,t::Float64,s)
 end
 
 function seeded_stochastic_heat_kernel(A,t::Float64,s::Float64,tol::Float64)
-    if abs(s - 1./size(A,1)) >= eps(Float64)
-        throw(DomainError())
+    if abs(s - 1.0/size(A,1)) >= eps(Float64)
+        throw(DomainError(-1))
     end
 end
 
@@ -807,17 +801,15 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseMatrixCSC{Float64}
     s = copy(s)
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
     _seeded_heat_kernel_validated(A,t,s,tol)
 end
-
-if VERSION >= v"0.5.0-dev+1000"
 
 seeded_stochastic_heat_kernel(A,t::Float64,s::SparseVector{Float64},tol::Float64) =
     seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
@@ -832,17 +824,16 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::SparseVector{Float64}, t
     end
     # This function automatically normalizes the values. 
     vals = nonzeros(s)
-    valisum = 1./sum_kbn(vals)
+    valisum = 1.0/KahanSummation.sum_kbn(vals)
     for ind in eachindex(vals)
         if vals[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(vals[ind]))
         end
         vals[ind] *= valisum # normalize to sum to 1 
     end
     _seeded_heat_kernel_validated(A,t,s,tol)
 end
-
-end # sparsevector
+ # sparsevector
 
 seeded_stochastic_heat_kernel(A,t::Float64,s::Vector{Float64},tol::Float64) =
     seeded_stochastic_heat_kernel!(A,t,deepcopy(s),tol)
@@ -856,10 +847,10 @@ function seeded_stochastic_heat_kernel!(A,t::Float64,s::Vector{Float64},tol::Flo
         throw(ArgumentError(@sprintf("as a vector, s must be n-by-1 where n=%i", n)))
     end
     # This function automatically normalizes the values.
-    valisum = 1./sum_kbn(s) 
+    valisum = 1.0/KahanSummation.sum_kbn(s) 
     @inbounds for ind in eachindex(s)
         if s[ind] < 0. 
-            throw(DomainError())
+            throw(DomainError(s[ind]))
         end
         s[ind] *= valisum # normalize to sum to 1 
     end
@@ -873,9 +864,9 @@ the one norm when P is a stochastic matrix.
 
 Since this is actually exp(-t) exp(tP) and P is a stochastic
 matrix, if we want 
-\$ \| e^{-t} \exp(tP) - e^{-t} TaylorPoly(e^t) \|_1 \le \eps \$
+\$ \\| e^{-t} \\exp(tP) - e^{-t} TaylorPoly(e^t) \\|_1 \\le \\eps \$
 then it is equivalent to get
-\$ \| \exp(tP) -  TaylorPoly(e^t) \|_1 \le \eps e^t  \$
+\$ \\| \\exp(tP) -  TaylorPoly(e^t) \\|_1 \\le \\eps e^t  \$
 and that is what this code computes. 
 
 Returns -1 if maxdeg is insufficient
@@ -914,7 +905,6 @@ function _seeded_heat_kernel_validated(A,t::Float64,s,tol::Float64)
     if maxiter == -1 
         throw(ArgumentError("the value of t=$t is too large and requires over $bigmaxiter iterations"))
     end  
-    
     return stochastic_heat_kernel_series!(x, y, z,
                  _create_stochastic_mult(A), 
                 t, s, tol, maxiter)
@@ -943,7 +933,7 @@ length(op::StochasticMult) = op.m*op.n
 
 *(op::StochasticMult, b) = A_mul_B(op, b)
 
-A_mul_B{R,S}(op::StochasticMult{R}, b::AbstractVector{S}) = A_mul_B!(Array(promote_type(R,S), op.m), op, b)
+A_mul_B{R,S}(op::StochasticMult{R}, b::AbstractVector{S}) = A_mul_B!(Array{promote_type(R,S)}(undef, op.m), op, b)
 
 A_mul_B!(output, op::StochasticMult, b) = op.mul(output, b)
 
@@ -992,7 +982,7 @@ function _create_stochastic_mult(A::MatrixNetwork{V})
     sum!(d,M) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         end
     end
     mul = (x) -> M*(d.*x)
@@ -1005,7 +995,7 @@ function _handle_pagerank_network(A::SparseMatrixCSC)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         end
     end
     M = A'
@@ -1024,7 +1014,7 @@ function _create_stochastic_mult(A::SparseMatrixCSC)
     sum!(d,A) # compute out-degrees
     for i=1:length(d)
         if d[i]>0.
-            d[i] = 1./d[i]
+            d[i] = 1.0/d[i]
         end
     end  
 end
@@ -1082,7 +1072,7 @@ end
 function pagerank{V,FA<:AbstractFloat}(A::SparseMatrixCSC{V}, alpha::FA)
     F = promote_type(V,FA)
     return pagerank_power(_create_stochastic_mult{V,F}(A),
-                F(alpha), F(1./size(A,1)), eps(one(F)))
+                F(alpha), F(1.0/size(A,1)), eps(one(F)))
 end
 
 =#

@@ -13,5 +13,5 @@
     (maxval, maxind) = findmax(cc)
     @test maxind == 113
     # negative weights
-    @test_throws Exception dirclustercoeffs(-speye(5))
+    @test_throws Exception dirclustercoeffs(-sparse(1.0I,5,5))
 end

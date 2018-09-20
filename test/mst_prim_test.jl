@@ -25,10 +25,10 @@
     @test nnz(triu(T1-T2) - T1T2diff) == 0
     @test nnz(triu(T3-T2) - T3T2diff) == 0
 
-    @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)))
-    @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)), false)
-    @test_throws ErrorException mst_prim(MatrixNetwork(-speye(3)), false, 1)
-    @test_throws ErrorException mst_prim(-speye(3))
-    @test_throws ErrorException mst_prim(-speye(3), false)
-    @test_throws ErrorException mst_prim(-speye(3), false, 1)
+    @test_throws ErrorException mst_prim(MatrixNetwork(-sparse(1.0I,3,3)))
+    @test_throws ErrorException mst_prim(MatrixNetwork(-sparse(1.0I,3,3)), false)
+    @test_throws ErrorException mst_prim(MatrixNetwork(-sparse(1.0I,3,3)), false, 1)
+    @test_throws ErrorException mst_prim(-sparse(1.0I,3,3))
+    @test_throws ErrorException mst_prim(-sparse(1.0I,3,3), false)
+    @test_throws ErrorException mst_prim(-sparse(1.0I,3,3), false, 1)
 end

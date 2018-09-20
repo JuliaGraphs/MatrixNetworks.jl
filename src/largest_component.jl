@@ -27,13 +27,11 @@ A = load_matrix_network("dfs_example")
 (Acc,p) = largest_component(A)
 ~~~
 """
-
-
-function largest_component{T}(A::SparseMatrixCSC{T,Int64})
+function largest_component(A::SparseMatrixCSC{T,Int64}) where T
     return largest_component(A,false)
 end
 
-function largest_component{T}(A::SparseMatrixCSC{T,Int64},sym::Bool)
+function largest_component(A::SparseMatrixCSC{T,Int64},sym::Bool) where T
     if sym
         # As = A|A' until Julia implements this on sparse matrices, use this:
         As = max.(A,A')
@@ -41,10 +39,10 @@ function largest_component{T}(A::SparseMatrixCSC{T,Int64},sym::Bool)
     else
         cc = scomponents(A)
     end
-    cind = indmax(cc.sizes)
+    cind = argmax(cc.sizes)
     p = cc.map .== cind
     # no logical indexing so:
-    idx = find(p)
+    idx = findall(p)
     Acc = A[idx,idx]
     return (Acc,p)
 end

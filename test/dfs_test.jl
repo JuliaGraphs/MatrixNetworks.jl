@@ -6,7 +6,7 @@
     O = ones(Int64,n-1)
     Z = zeros(Int64,n)
     A_ref = Tridiagonal(O,Z,O)
-    B = sparse(full(A_ref))
+    B = sparse(Matrix(A_ref))
     @testset "SparseMatrixCSC" begin
         dfs(A,1)
         

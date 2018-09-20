@@ -32,14 +32,9 @@ S = create_sparse(bipartite_matching(W)) # get the sparse matrix
 (m1,m2) = edge_list(bipartite_matching(W)) # get the edgelist
 ~~~
 """
+function bipartite_matching end
 
-:bipartite_matching
-
-
-###########################
-##    Type Definitions    #
-###########################
-type Matching_setup
+mutable struct Matching_setup
     rp::Array{Int64,1}
     ci::Array{Int64,1}
     ai::Array{Float64,1}
@@ -48,7 +43,7 @@ type Matching_setup
     n::Int64
 end
 
-type Matching_output
+mutable struct Matching_output
     m::Int64
     n::Int64
     weight::Float64
@@ -60,12 +55,12 @@ end
 #   setup  funtions  #
 ######################
 
-function bipartite_matching_setup_phase1{T}(A::SparseMatrixCSC{T,Int64})
+function bipartite_matching_setup_phase1(A::SparseMatrixCSC{T,Int64}) where T
     (nzi,nzj,nzv) = findnz(A)
     return (nzi,nzj,nzv)
 end
 
-function bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
+function bipartite_matching_setup(A::SparseMatrixCSC{T,Int64}) where T
     (nzi,nzj,nzv) = bipartite_matching_setup_phase1(A)
     nedges = length(nzi)
     (m,n)=size(A)
@@ -98,7 +93,7 @@ function bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
         rp[i+1]=rp[i]
     end
     rp[1]=0
-    rp=rp+1
+    rp=rp.+1
     
     #check for duplicates in the data
     colind = zeros(Int64,m+n)
@@ -120,8 +115,8 @@ function bipartite_matching_setup{T}(A::SparseMatrixCSC{T,Int64})
 end
 
 
-function bipartite_matching_setup{T}(x::Vector{T},ei::Vector{Int64},
-                                        ej::Vector{Int64},m::Int64,n::Int64)
+function bipartite_matching_setup(x::Vector{T},ei::Vector{Int64},
+                                     ej::Vector{Int64},m::Int64,n::Int64) where T
     (nzi,nzj,nzv) = (ei,ej,x)
     nedges = length(nzi)
     
@@ -157,7 +152,7 @@ function bipartite_matching_setup{T}(x::Vector{T},ei::Vector{Int64},
     end
     
     rp[1]=0
-    rp=rp+1
+    rp=rp.+1
     
     #check for duplicates in the data
     colind = zeros(Int64,m+n)
@@ -182,8 +177,8 @@ end
 #   primal-dual  #
 ##################
 
-function bipartite_matching_primal_dual{T}(rp::Vector{Int64}, ci::Vector{Int64}, 
-                    ai::Vector{T}, m::Int64, n::Int64)
+function bipartite_matching_primal_dual(rp::Vector{Int64}, ci::Vector{Int64}, 
+                    ai::Vector{T}, m::Int64, n::Int64) where T
     
     # variables used for the primal-dual algorithm
     alpha=zeros(Float64,m)
@@ -295,18 +290,18 @@ end
 ##    Functions    #
 ####################
 
-function bipartite_matching{T}(A::SparseMatrixCSC{T,Int64})
+function bipartite_matching(A::SparseMatrixCSC{T,Int64}) where T
     return bipartite_matching_primal_dual(bipartite_matching_setup(A))
 end
 
 
-function bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
-                                        ej::Vector{Int64},m::Int64,n::Int64)
+function bipartite_matching(w::Vector{T},ei::Vector{Int64},
+                                     ej::Vector{Int64},m::Int64,n::Int64) where T
     return bipartite_matching_primal_dual(bipartite_matching_setup(w,ei,ej,m,n))
 end
 
-function bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},
-                                        ej::Vector{Int64})
+function bipartite_matching(w::Vector{T},ei::Vector{Int64},
+                                     ej::Vector{Int64}) where T
     return bipartite_matching_primal_dual(bipartite_matching_setup(
         w,ei,ej,maximum(ei),maximum(ej)))
 end
@@ -320,8 +315,8 @@ Returns the matching indicator of a matrix stored in triplet format
 Example:
 bipartite_matching_indicator([10;12;13],[1;2;3],[3;2;4])
 """
-function bipartite_matching_indicator{T}(w::Vector{T},ei::Vector{Int64},
-                                        ej::Vector{Int64})
+function bipartite_matching_indicator(w::Vector{T},ei::Vector{Int64},
+                                     ej::Vector{Int64}) where T
     M_setup = bipartite_matching_setup(w, ei, ei, maximum(ei), maximum(ej))
     M_out = bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
                                            M_setup.m, M_setup.n)
@@ -367,7 +362,7 @@ end
 
 ##########
 function edge_indicator(M_output::Matching_output, ei::Vector, ej::Vector)
-    assert(length(ei) == length(ej))
+    @assert length(ei) == length(ej)
     ind = zeros(Int64,length(ei))
     for i=1:length(ei)
         if M_output.match[ei[i]] == ej[i]
