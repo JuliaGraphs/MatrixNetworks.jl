@@ -621,16 +621,23 @@ function generalized_preferential_attachment_edges!(
     return edges
 end
 
+function _check_for_two_distinct_nodes(edges::Vector{Tuple{Int,Int}})
+    length(edges) > 0 || throw(ArgumentError("requires at least one edge"))
+    firstnode = edges[1][1]
+    return any(IterTools.imap(x -> firstnode != x[1] || firstnode != x[2], edges))
+end
+
 function generalized_preferential_attachment_edges!(
     n::Int,p::Float64,r::Float64,edges::Vector{Tuple{Int,Int}},n0::Int,::Type{Val{false}})
     i = n0
-    if all(length.(unique.(edges)) .== 2)
-        throw(ArgumentError("The starting graph must have at least two nodes with no self loops"))
+    if i >= n
+        return edges
     end
-    # alternatively, if we want to allow adding to a graph with existing self loops
-    # if any(length.(unique.(edges)) .== 2)
-    #     throw(ArgumentError("There must be at least two nodes and one edge in the graph"))
-    # end
+    
+    if !_check_for_two_distinct_nodes(edges::Vector{Tuple{Int,Int}})
+        throw(ArgumentError("The starting graph must have at least two distinct nodes"))
+    end
+
     while i < n
         #generate a random value between 0 and 1
         x = rand()

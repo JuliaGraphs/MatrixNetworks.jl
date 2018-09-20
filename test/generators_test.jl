@@ -73,7 +73,8 @@ using LinearAlgebra
     @testset "gpa_graph" begin
         @test typeof(gpa_graph(10,0.5,0.3,2)) == MatrixNetwork{Bool}
         @test typeof(gpa_graph(10,0.5,0.3,2,Val{true})) == MatrixNetwork{Bool}
-        @test typeof(gpa_edges!(4,.75,.25,[(1,1)],1)) == Vector{Tuple{Int,Int}}
+        @test typeof(gpa_edges!(4,.75,.25,[(1,2)],1)) == Vector{Tuple{Int,Int}}
+        @test_throws ArgumentError gpa_edges!(4,.75,.25,[(1,1)],1)
         @test typeof(gpa_edges!(4,.75,.25,[(1,1)],1,Val{true})) == Vector{Tuple{Int,Int}}
         @test is_empty(gpa_graph(0,0.0,0.0,0)) == true
         @test all(diag(sparse_transpose(gpa_graph(10, .3,.4, 3))) .== 0.)
