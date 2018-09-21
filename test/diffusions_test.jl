@@ -208,6 +208,7 @@ using Test
         P = _normout(A')
         
         dt = @elapsed x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
+        dt = @elapsed x = pagerank_power!(x,y,P,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
         P2 = MatrixNetworks._create_stochastic_mult(A)
         dt2 = @elapsed y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
         dt2 = @elapsed y = pagerank_power!(y,z,P2,0.85,v,tol,maxiter,MatrixNetworks._noiterfunc)
