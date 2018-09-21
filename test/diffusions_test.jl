@@ -88,7 +88,6 @@ using Test
         @test norm(x -xtrue,1) <= n*eps(Float64)
 
         n = 10
-        #A = spdiagm(ones(n-1),-1,n,n)'
         A = spdiagm(1=>ones(n-1))
         v = 1.0/n
         tol = 1e-8
@@ -203,7 +202,6 @@ using Test
         z = zeros(n)
         v = 1.0/n
         tol = 1e-8
-        #A = spones(sprand(n,n,25/n))
         A = LinearAlgebra.fillstored!(copy(sprand(n,n,25/n)), 1)
         P = _normout(A')
         
