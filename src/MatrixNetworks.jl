@@ -18,7 +18,7 @@ Module ``MatrixNetworks``: Documentation on the module
 - Option 2: start with row and column indexes for the nonzeros in the matrix
 - example: ``M = MatrixNetwork(ei,ej)``
 
-Available functions: (use ?function_name to get more documentation)
+Some available functions: (use ?function_name to get more documentation)
 - bfs
 - bipartite_matching
 - clustercoeffs
@@ -34,6 +34,10 @@ Available functions: (use ?function_name to get more documentation)
 - mst_prim
 - scomponents
 - sparse_to_csr
+- pagerank
+- erdos_renyi_undirected
+- biconnected_components
+- triangles
 
 You can check the readme file here: \n
 "https://github.com/nassarhuda/MatrixNetworks.jl/blob/master/README.md"
@@ -91,5 +95,8 @@ export erdos_renyi_undirected, erdos_renyi_directed,
 
 include("biconnected.jl")
 export biconnected_components, biconnected_components!
+
+include("triangles.jl")
+export unzip_triangles,triangles
 
 end # end module

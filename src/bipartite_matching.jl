@@ -181,6 +181,8 @@ function bipartite_matching_primal_dual(rp::Vector{Int64}, ci::Vector{Int64},
                     ai::Vector{T}, m::Int64, n::Int64) where T
     
     # variables used for the primal-dual algorithm
+    # normalize ai values # updated on 2-19-2019
+    ai ./= maximum(abs.(ai))
     alpha=zeros(Float64,m)
     bt=zeros(Float64,m+n)#beta
     queue=zeros(Int64,m)

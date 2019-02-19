@@ -32,7 +32,8 @@ all_tests = [
              "mst_prim",
              "scomponents",
              "spectral",
-             "sparse_to_csr"
+             "sparse_to_csr",
+             "triangles"
              ]
 
 #for t in all_tests
