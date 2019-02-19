@@ -15,7 +15,7 @@ using LinearAlgebra
     M1 = bipartite_matching(A)
     (m1,m2) = edge_list(M1)
      
-    @test M1.weight == 25 && isequal(m1,m2)
+    @test M1.weight == 25/maximum(abs.(A)) && isequal(m1,m2)
     
     A = ones(Int64,6,5) - Matrix(I,6,5)
     A = sparse(A')
@@ -29,12 +29,12 @@ using LinearAlgebra
     mitrue = zeros(Int64,length(av))
     mitrue[1:5] .= 1
     
-    @test M2.weight == 25 && isequal(m1,m2) && sum(mi) ==5 && isequal(mi,mitrue)
+    @test M2.weight == 25/maximum(abs.(av)) && isequal(m1,m2) && sum(mi) ==5 && isequal(mi,mitrue)
     
     M2 = bipartite_matching(av,ai,aj,maximum(ai),maximum(aj))
     mi = MatrixNetworks.edge_indicator(M2,ai,aj)
     mitrue = zeros(Int64,length(av))
     mitrue[1:5] .= 1
     
-    @test M2.weight == 25 && isequal(m1,m2) && sum(mi) ==5 && isequal(mi,mitrue)
+    @test M2.weight == 25/maximum(abs.(av)) && isequal(m1,m2) && sum(mi) ==5 && isequal(mi,mitrue)
 end

@@ -263,6 +263,15 @@ end
 z = collect(mytriangles)
 ei,ej,ek = unzip_triangles(z)
 ```
+A quick example to access the first triangle:
+-------
+```
+julia> tri = first(mytriangles)
+MatrixNetworks.tri_struct(1, 2, 3)
+
+julia> tri.v1,tri.v2,tri.v3
+(1, 2, 3)
+```
 """
 function triangles(M::MatrixNetwork{T},S::Union{UnitRange{Int64},Vector{Int64},Int};symmetries=false) where T
 
