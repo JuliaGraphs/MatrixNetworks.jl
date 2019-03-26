@@ -16,78 +16,6 @@ struct triangles_iterator
     windicator::Vector{Bool}#only needed for the unique case
 end
 
-function next_triangle!(tri::tri_struct,triinfo::tri_struct,
-    S::Union{UnitRange{Int64},Vector{Int64},Int},
-    rp::Vector{Int},
-    ci::Vector{Int},
-    vindicator::Vector{Bool}) 
-    v,w,x = (tri.v1,tri.v2,tri.v3)
-    vi,wi,xi = (triinfo.v1,triinfo.v2,triinfo.v3)
-    # start with checking x
-    wrng = rp[v]:rp[v+1]-1
-    xrng = rp[w]:rp[w+1]-1
-    if xi < length(xrng)
-        xi += 1
-        new_x = ci[xrng[xi]]
-        while vindicator[new_x] == 0 && xi < length(xrng) 
-        # while A[v,new_x] == 0 && xi < length(xrng) 
-            xi += 1
-            new_x = ci[xrng[xi]]
-        end # either A[v,new_x] = 1 or out of spots
-        if vindicator[new_x] != 0
-        # if A[v,new_x] != 0
-            return tri_struct(v,w,new_x),tri_struct(vi,wi,xi)
-        end
-    end
-
-    while wi < length(wrng)
-        wi += 1
-        new_w = ci[wrng[wi]]
-
-        xrng = rp[new_w]:rp[new_w+1]-1
-        xi = 1
-        new_x = ci[xrng[xi]]
-
-        while vindicator[new_x] == 0 && xi < length(xrng) 
-        # equivalently (and more expensive): while A[v,new_x] == 0 && xi < length(xrng) 
-            xi += 1
-            new_x = ci[xrng[xi]]
-        end
-        if vindicator[new_x]
-        # reach here if A[v,new_x] != 0
-            return tri_struct(v,new_w,new_x),tri_struct(vi,wi,xi)
-        end
-    end
-    while vi < length(S)
-        vi += 1
-        new_v = S[vi]
-        update_vindicator!(vindicator,new_v,rp,ci)
-
-        wrng = rp[new_v]:rp[new_v+1]-1
-        wi = 0
-        while wi < length(wrng)
-            wi += 1
-            new_w = ci[wrng[wi]]
-
-            xrng = rp[new_w]:rp[new_w+1]-1
-            xi = 1
-            new_x = ci[xrng[xi]]
-
-            while vindicator[new_x] == 0 && xi < length(xrng) 
-            # while A[new_v,new_x] == 0 && xi < length(xrng) 
-                xi += 1
-                new_x = ci[xrng[xi]]
-            end
-            if vindicator[new_x]
-            # if A[new_v,new_x] != 0
-                return tri_struct(new_v,new_w,new_x),tri_struct(vi,wi,xi)
-            end
-        end
-    end
-    # if this was reached, no more triangles
-    return tri_struct(0,0,0),tri_struct(0,0,0)
-end
-
 function next_triangle_unique!(tri::tri_struct,triinfo::tri_struct,
     S::Union{UnitRange{Int64},Vector{Int64},Int},
     rp::Vector{Int},
@@ -167,13 +95,58 @@ function next_triangle_unique!(tri::tri_struct,triinfo::tri_struct,
     # if this was reached, no more triangles
     return tri_struct(0,0,0),tri_struct(0,0,0)
 end
+# this implemetation loops over the unique triangles only and for each unique triangle creates the 5 remaining permutations
+# this turned out to be much faster in practice -- as the graph gets bigger we would need to look for more non-unique triangles
+# in contrast here, we just fetch the 5 remaining permutations of the unique triangle found
+#=
+For a small 10-by-10 clique:
+new implementation:
+julia> size(A)
+(10, 10)
+
+julia> @btime collect(triangles(A;symmetries=true))
+  33.490 μs (18 allocations: 53.23 KiB)
+
+old:
+julia> @btime collect(triangles(A;symmetries=true))
+  51.747 μs (18 allocations: 53.23 KiB)
+=#
+function next_triangle!(tri::tri_struct,triinfo::tri_struct,
+    S::Union{UnitRange{Int64},Vector{Int64},Int},
+    rp::Vector{Int},
+    ci::Vector{Int},
+    vindicator::Vector{Bool},
+    windicator::Vector{Bool},
+    step_tri::Int)
+    if step_tri <= 4
+        return _iterate_on_current_triangle(tri,step_tri),triinfo
+    else
+        return next_triangle_unique!(tri_struct(tri.v3,tri.v2,tri.v1),triinfo,S,rp,ci,vindicator,windicator)
+    end
+end
 
 function triprint(t::tri_struct)
     @show t.v1,t.v2,t.v3
 end
 
-function Base.iterate(iter::triangles_iterator, state=(iter.tri, iter.triinfo))
-    element, elinfo = state
+function _iterate_on_current_triangle(cur_tri::tri_struct,step::Int)
+    # only 5 cases, enumerate
+    if step == 0
+        return tri_struct(cur_tri.v1,cur_tri.v3,cur_tri.v2)
+    elseif step == 1
+        return tri_struct(cur_tri.v3,cur_tri.v1,cur_tri.v2)
+    elseif step == 2
+        return tri_struct(cur_tri.v1,cur_tri.v3,cur_tri.v2)
+    elseif step == 3
+        return tri_struct(cur_tri.v2,cur_tri.v3,cur_tri.v1)
+    elseif step == 4
+        return tri_struct(cur_tri.v1,cur_tri.v3,cur_tri.v2)
+    else 
+        error("This error should not be reached. Step must be 0 <= step <= 4")
+    end
+end
+function Base.iterate(iter::triangles_iterator, state=(iter.tri, iter.triinfo,0))
+    element, elinfo, step_tri = state
 
     if element == tri_struct(0, 0, 0)
         update_vindicator!(iter.vindicator,iter.S[1],iter.rp,iter.ci)
@@ -182,11 +155,13 @@ function Base.iterate(iter::triangles_iterator, state=(iter.tri, iter.triinfo))
     end
 
     if iter.symmetries
-        v1,v2 = next_triangle!(element,elinfo,iter.S,iter.rp,iter.ci,iter.vindicator)
+        v1,v2 = next_triangle!(element,elinfo,iter.S,iter.rp,iter.ci,iter.vindicator,iter.windicator,step_tri)
+        step_tri += 1
+        step_tri %= 6
     else
         v1,v2 = next_triangle_unique!(element,elinfo,iter.S,iter.rp,iter.ci,iter.vindicator,iter.windicator)
     end
-    return (element, (v1,v2))
+    return (element, (v1,v2,step_tri))
 end
 
 function find_first_triangle(S::Union{UnitRange{Int64},Vector{Int64},Int},

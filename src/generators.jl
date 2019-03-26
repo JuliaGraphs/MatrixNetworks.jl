@@ -61,6 +61,9 @@ function erdos_renyi_undirected(n::Int, p::Float64)
     if p >= 1. # interpret as average degree
         p = p/n # convert to probability
     end
+    if isnan(p)
+        _matrix_network_direct(spzeros(n,n),1)
+    end
     A = sprand(n,n,p)
     if n > 0
         Aup = triu(A,1)
@@ -70,13 +73,7 @@ function erdos_renyi_undirected(n::Int, p::Float64)
     Asym = max.(Aup,Aup')
     return _matrix_network_direct(Asym,1)
 end
-function erdos_renyi_undirected(n::Int, d::Int) 
-    if d == 0 # due to sprand(n,n,p) requires 0<p<1 and p of type Float (with Julia 1.2+) - case of p==1 is taken care of later.
-        _matrix_network_direct(spzeros(n,n),1)
-    else
-        erdos_renyi_undirected(n, d/n)
-    end
-end
+erdos_renyi_undirected(n::Int, d::Int) = erdos_renyi_undirected(n, d/n)
 
 erdős_rényi_undirected = erdos_renyi_undirected 
 
@@ -119,6 +116,9 @@ function erdos_renyi_directed(n::Int, p::Float64)
     if p >= 1. # interpret as average degree
         p = p/n # convert to probability
     end
+    if isnan(p)
+        _matrix_network_direct(spzeros(n,n))
+    end
     
     A = sprand(n,n,p)
     
@@ -126,14 +126,7 @@ function erdos_renyi_directed(n::Int, p::Float64)
     return _matrix_network_direct(A-spdiagm(0 => diag(A))) # directions don't matter
 end
 
-function erdos_renyi_directed(n::Int, d::Int) 
-    if d == 0 # due to sprand(n,n,p) requires 0<p<1 and p of type Float (with Julia 1.2+) - case of p==1 is taken care of later.
-        _matrix_network_direct(spzeros(n,n))
-    else
-        erdos_renyi_directed(n, d/n)
-    end
-end
-
+erdos_renyi_directed(n::Int, d::Int) = erdos_renyi_directed(n,d/n)
 
 erdős_rényi_directed = erdos_renyi_directed
 
