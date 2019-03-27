@@ -62,7 +62,7 @@ function erdos_renyi_undirected(n::Int, p::Float64)
         p = p/n # convert to probability
     end
     if isnan(p)
-        _matrix_network_direct(spzeros(n,n),1)
+        return _matrix_network_direct(spzeros(n,n),1)
     end
     A = sprand(n,n,p)
     if n > 0
@@ -117,7 +117,7 @@ function erdos_renyi_directed(n::Int, p::Float64)
         p = p/n # convert to probability
     end
     if isnan(p)
-        _matrix_network_direct(spzeros(n,n))
+        return _matrix_network_direct(spzeros(n,n))
     end
     
     A = sprand(n,n,p)
