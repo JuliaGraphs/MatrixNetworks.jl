@@ -176,18 +176,19 @@ function find_first_triangle(S::Union{UnitRange{Int64},Vector{Int64},Int},
         v = S[vi]
         rng = rp[v]:rp[v+1]-1
     end
+    vindicator = zeros(Bool,n)
+    windicator = zeros(Bool,n)
+    
     #either reached the end and the last value is invalid, thus there are no triangles
     if vi == length(S) && !(length(rng)>0)
-        return tri_struct(0,0,0),tri_struct(0,0,0) # this graph has no edges!
+        return tri_struct(0,0,0),tri_struct(0,0,0),vindicator,windicator # this graph has no edges!
     else
-        vindicator = zeros(Bool,n)
         @inbounds for rpi = rp[v]:rp[v+1]-1
             w = ci[rpi]
             vindicator[w] = true
         end
         wi = 1
         w = ci[rng[wi]]
-        windicator = zeros(Bool,n)
         vec1,vec2 = next_triangle_unique!(tri_struct(v,w,0),tri_struct(vi,wi,0),S,rp,ci,vindicator,windicator)
         return vec1,vec2,vindicator,windicator
     end
