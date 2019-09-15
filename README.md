@@ -97,7 +97,7 @@ BM.weight
 BM.cardinality
 BM.match
 create_sparse(BM) # get the sparse matrix
-edge_list(BM)) # get the edgelist
+edge_list(BM) # get the edgelist
 edge_indicator(BM,ei,ej) # get edge indicators
 ```
 
