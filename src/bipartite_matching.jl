@@ -67,7 +67,7 @@ function bipartite_matching_setup(A::SparseMatrixCSC{T,Int64}) where T
     
     rp = ones(Int64,m+1) # csr matrix with extra edges
     ci = zeros(Int64,nedges+m)
-    ai = zeros(Float64,nedges+m)
+    ai = zeros(T,nedges+m)
     
     
     rp[1]=0
@@ -122,7 +122,7 @@ function bipartite_matching_setup(x::Vector{T},ei::Vector{Int64},
     
     rp = ones(Int64,m+1) # csr matrix with extra edges
     ci = zeros(Int64,nedges+m)
-    ai = zeros(Float64,nedges+m)
+    ai = zeros(T,nedges+m)
     tripi = zeros(Int64,nedges+m)
     # 1. build csr representation with a set of extra edges from vertex i to
     # vertex m+i
