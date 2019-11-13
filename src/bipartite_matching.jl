@@ -2,7 +2,7 @@
 """
 BIPARTITE MATCHING
 ------------------
-    return a maximum weight bipartite matching of a graph
+    return a maximum weight bipartite / maximum cardinality bipartite_matching matching of a graph
 
 Functions
 ---------
@@ -12,6 +12,8 @@ Functions
 - Matching_Output = bipartite_matching{T}(A::SparseMatrixCSC{T,Int64})
 - Matching_Output = bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},ej::Vector{Int64},m::Int64,n::Int64)
 - Matching_Output = bipartite_matching{T}(w::Vector{T},ei::Vector{Int64},ej::Vector{Int64})
+- Matching_Output = bipartite_cardinality_matching(ei::Vector{Int64},ej::Vector{Int64},m::Int64,n::Int64; ei_sorted=false)
+- Matching_Output = bipartite_cardinality_matching(ei::Vector{Int64},ej::Vector{Int64}; ei_sorted=false)
 - ind = bipartite_matching_indicator{T}(w::Vector{T},ei::Vector{Int64},ej::Vector{Int64})
 - (m1,m2) = edge_list(M_output::Matching_output)
 - S = create_sparse(M_output::Matching_output)\n
@@ -283,6 +285,141 @@ function bipartite_matching_primal_dual(rp::Vector{Int64}, ci::Vector{Int64},
     return M_output
 end
 
+function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, m, n; ei_sorted=false)
+    @assert length(ei_in) == length(ej_in)
+    @assert m <= n
+    ei = ei_in
+    ej = ej_in
+    if !ei_sorted
+        perm = sortperm(ei_in)
+        ei = ei_in[perm]
+        ej = ej_in[perm]
+    end
+    
+    len = length(ei)
+    matching_ei = zeros(Int, m)
+    matching_ej = zeros(Int, n)
+    
+    # create initial matching
+    match_len = 0
+    for (ei_i,ej_i) in zip(ei,ej)
+        if matching_ei[ei_i] == 0 && matching_ej[ej_i] == 0
+            matching_ei[ei_i] = ej_i
+            matching_ej[ej_i] = ei_i
+            match_len += 1
+        end
+    end
+
+
+    if match_len < m
+        # creating indices be able to get edges a vertex is connected to
+        # only works if l is sorted
+        index_ei = zeros(Int, m+1)
+        last = ei[1]
+        c = 2
+        for i = 2:len
+            if ei[i] != last
+                index_ei[last+1] = c
+                last = ei[i]
+            end
+            c += 1
+        end
+        index_ei[ei[end]+1] = c
+
+        index_ei[1] = 1
+
+
+        process_nodes = zeros(Int, m+n)
+        depths = zeros(Int, m+n)
+        parents = zeros(Int, m+n)
+        used_ei = zeros(Bool, m)
+        used_ej = zeros(Bool, n)
+        found = false
+
+        # find augmenting path
+        while match_len < m
+            pend = 1
+            pstart = 1
+            for ei_i in ei
+                # free vertex
+                if matching_ei[ei_i] == 0
+                    process_nodes[pstart] = ei_i
+                    depths[pstart] = 1
+                    break
+                end
+            end
+
+            begin
+            while pstart <= pend
+                node = process_nodes[pstart]
+                depth = depths[pstart]
+                
+                # from left to right
+                if depth % 2 == 1
+                    used_ei[node] = true
+                    # only works if l is sorted
+                    for ej_i=index_ei[node]:index_ei[node+1]-1
+                        child_node = ej[ej_i]
+                        # don't use matching edge
+                        if matching_ej[child_node] != node && !used_ej[child_node]
+                            used_ej[child_node] = true
+                            pend += 1
+                            depths[pend] = depth+1
+                            process_nodes[pend] = child_node
+                            parents[pend] = pstart
+                        end
+                    end
+                else # right to left (only matching edge)
+                    # if matching edge
+                    match_to = matching_ej[node]
+                    if match_to != 0
+                        if !used_ei[match_to]
+                            used_ei[match_to] = true
+                            pend += 1
+                            depths[pend] = depth+1
+                            process_nodes[pend] = match_to
+                            parents[pend] = pstart
+                        end
+                    else
+                        # found augmenting path
+                        parent = pstart
+                        last = 0
+                        c = 0
+                        while parent != 0
+                            current = process_nodes[parent]
+                            if last != 0 
+                                if c % 2 == 1
+                                    matching_ej[last] = current
+                                    matching_ei[current] = last
+                                end
+                            end
+                            c += 1
+                            last = current
+                            parent = parents[parent]
+                        end
+                        # break because we found a path
+                        found = true
+                        break
+                    end
+                end
+                pstart += 1
+            end
+            if found
+                match_len += 1
+                if match_len < m
+                    used_ei .= false
+                    used_ej .= false
+                end
+                found = false
+            else 
+                break
+            end
+            end
+        end
+    end
+    return Matching_output(m, n, match_len, match_len, matching_ei)
+end
+
 function bipartite_matching_primal_dual(M_setup::Matching_setup)
     return bipartite_matching_primal_dual(M_setup.rp, M_setup.ci, M_setup.ai,
                                           M_setup.m, M_setup.n)
@@ -306,6 +443,12 @@ function bipartite_matching(w::Vector{T},ei::Vector{Int64},
                                      ej::Vector{Int64}) where T
     return bipartite_matching_primal_dual(bipartite_matching_setup(
         w,ei,ej,maximum(ei),maximum(ej)))
+end
+
+# cardinality matching
+function bipartite_cardinality_matching(ei::Vector{Int64},
+    ej::Vector{Int64}; ei_sorted=false)
+    return bipartite_cardinality_matching(ei,ej,maximum(ei),maximum(ej); ei_sorted=false)
 end
 
 ####################
