@@ -287,7 +287,6 @@ end
 
 function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, m, n; ei_sorted=false)
     @assert length(ei_in) == length(ej_in)
-    @assert m <= n
     ei = ei_in
     ej = ej_in
     if !ei_sorted
@@ -311,7 +310,7 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
     end
 
 
-    if match_len < m
+    if match_len < m && match_len < n
         # creating indices be able to get edges a vertex is connected to
         # only works if l is sorted
         index_ei = zeros(Int, m+1)
@@ -449,6 +448,11 @@ end
 function bipartite_cardinality_matching(ei::Vector{Int64},
     ej::Vector{Int64}; ei_sorted=false)
     return bipartite_cardinality_matching(ei,ej,maximum(ei),maximum(ej); ei_sorted=false)
+end
+
+function bipartite_cardinality_matching(A::SparseMatrixCSC{T,Int64}) where T 
+    ei,ej,w = findnz(A)
+    return bipartite_cardinality_matching(ei,ej,A.m,A.n; ei_sorted=false)
 end
 
 ####################
