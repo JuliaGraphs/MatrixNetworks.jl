@@ -350,11 +350,10 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
                 node = process_nodes[pstart]
                 depth = depths[pstart]
                 
-                # from left to right
+                # from ei to ej
                 if depth % 2 == 1
-                    used_ei[node] = true
-                    # only works if l is sorted
-                    for ej_i=index_ei[node]:index_ei[node+1]-1
+                    # only works if ei is sorted
+                    for ej_i = index_ei[node]:index_ei[node+1]-1
                         child_node = ej[ej_i]
                         # don't use matching edge
                         if matching_ej[child_node] != node && !used_ej[child_node]
@@ -365,7 +364,7 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
                             parents[pend] = pstart
                         end
                     end
-                else # right to left (only matching edge)
+                else # ej to ei (only matching edge)
                     # if matching edge
                     match_to = matching_ej[node]
                     if match_to != 0
