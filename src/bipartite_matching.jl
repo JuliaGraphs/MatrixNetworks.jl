@@ -316,7 +316,7 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
         index_ei = zeros(Int, m+1)
         last = ei[1]
         c = 2
-        for i = 2:len
+        @inbounds for i = 2:len
             if ei[i] != last
                 index_ei[last+1] = c
                 last = ei[i]
@@ -324,9 +324,7 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
             c += 1
         end
         index_ei[ei[end]+1] = c
-
         index_ei[1] = 1
-
 
         process_nodes = zeros(Int, m+n)
         depths = zeros(Int, m+n)
@@ -336,7 +334,7 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
         found = false
 
         # find augmenting path
-        while match_len < m
+        @inbounds while match_len < m
             pend = 1
             pstart = 1
             for ei_i in ei
@@ -348,7 +346,6 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
                 end
             end
 
-            begin
             while pstart <= pend
                 node = process_nodes[pstart]
                 depth = depths[pstart]
@@ -412,7 +409,6 @@ function bipartite_cardinality_matching(ei_in::Vector{Int}, ej_in::Vector{Int}, 
                 found = false
             else 
                 break
-            end
             end
         end
     end
