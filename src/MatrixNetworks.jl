@@ -58,7 +58,6 @@ include("dfs.jl")
 include("clustercoeffs.jl")
 include("corenums.jl")
 include("floydwarshall.jl")
-
 include("manage_data.jl")
 export load_matrix_network, load_matrix_network_metadata, load_matrix_network_all,
     matrix_network_datasets
@@ -67,7 +66,8 @@ include("cosineknn.jl")
 include("dirclustercoeffs.jl")
 include("dijkstra.jl")
 include("mst_prim.jl")
-
+include("TuranShadow.jl")
+expoert TuranShadow
 include("spectral.jl")
 export fiedler_vector, sweepcut, spectral_cut, bestset, SweepcutProfile
 
@@ -90,7 +90,7 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     pa_graph, preferential_attachment_graph,
     pa_edges!, preferential_attachment_edges!,
     gpa_graph, generalized_preferential_attachment_graph,
-    gpa_edges!, generalized_preferential_attachment_edges!, 
+    gpa_edges!, generalized_preferential_attachment_edges!,
     roach_graph, lollipop_graph
 
 include("biconnected.jl")
