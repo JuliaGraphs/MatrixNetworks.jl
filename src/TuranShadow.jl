@@ -1,13 +1,3 @@
-# # Turan shadow work:
-# # XXX force undirected and unweighted
-# # notes to check: set vs vector accumulations (for T and S), which is better (now I have the fastest configuration)
-# # this version finds the random cliques as well
-#
-# using SparseArrays
-# using LinearAlgebra
-# using MatrixNetworks
-# using StatsBase
-
 struct OneShadow
     parents::Vector{Int}
     vertices::Vector{Int}
