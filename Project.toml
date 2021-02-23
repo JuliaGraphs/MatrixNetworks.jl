@@ -1,6 +1,6 @@
 name = "MatrixNetworks"
 uuid = "4f449596-a032-5618-b826-5a251cb6dc11"
-authors = ["nassarhuda <hnassar@purdue.edu>"]
+authors = ["nassarhuda <nassar.huda@gmail.com>"]
 version = "1.0.2"
 
 [deps]
