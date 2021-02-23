@@ -7,7 +7,7 @@
 This package consists of a collection of network algorithms.
 In short, the major difference between MatrixNetworks.jl and packages like LightGraphs.jl or Graphs.jl is the way graphs are treated.
 
-In [LightGraphs.jl](https://github.com/JuliaGraphs/LightGraphs.jl), graphs are created through Graph() and DiGraph() which are based on the representation of G as G = (V,E). Similar types exist in [Graphs.jl](https://github.com/JuliaLang/Graphs.jl) (EdgeList, AdjacencyList, IncidenceList, Graph) - this is again based on viewing a graph G as a set of nodes and edges. Our viewpoint is different.
+In [LightGraphs.jl](https://github.com/JuliaGraphs/LightGraphs.jl), graphs are created through Graph() and DiGraph() which are based on the representation of G as G = (V,E). Our viewpoint is different.
 
 MatrixNetworks is based on the philosophy that there should be no distinction between a matrix and a network - thus the name.
 
