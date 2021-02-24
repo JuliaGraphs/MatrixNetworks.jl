@@ -1,7 +1,7 @@
 name = "MatrixNetworks"
 uuid = "4f449596-a032-5618-b826-5a251cb6dc11"
 authors = ["nassarhuda <nassar.huda@gmail.com>"]
-version = "1.0.2"
+version = "1.0.3"
 
 [deps]
 Arpack = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
