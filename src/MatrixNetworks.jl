@@ -52,6 +52,7 @@ export MatrixNetwork, sparse_transpose,
 include("scomponents.jl")
 include("csr_to_sparse.jl")
 include("sparse_to_csr.jl")
+export findnz 
 include("bipartite_matching.jl")
 include("bfs.jl")
 include("dfs.jl")
