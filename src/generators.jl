@@ -836,16 +836,16 @@ Input
 -----
 - 'A::MatrixNetwork{T}': seed matrix network 
 - `steps::Int': The number of steps to run the procedure
-- `new_edge_p::Float64': the probability 
+- `p::Float64': the probability 
 
 Output
 ------
 - a new matrix network generated through the partial duplication procedure. 
 """ 
-function partial_duplication(A::MatrixNetwork{T},steps::Integer, new_edge_p::Float64) where T
+function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) where T
  
     is_undirected(A) || throw(ArgumentError("A must be undirected."))
-    (new_edge_p >= 0 && new_edge_p <= 1) || throw(ArgumentError("new_edge_p must be a probability."))
+    (p >= 0 && p <= 1) || throw(ArgumentError("new_edge_p must be a probability."))
     steps >= 0 || throw(ArgumentError("Must take a non-negative number of steps."))
     # let it steps equal 0 for testing purposes
 
@@ -867,7 +867,7 @@ function partial_duplication(A::MatrixNetwork{T},steps::Integer, new_edge_p::Flo
 
         dup_vertex = rand(1:n)
         for (neighbor,weight) in A_edge_list[dup_vertex]
-            if rand() < new_edge_p
+            if rand() < p
                 push!(A_edge_list[n+1],(neighbor,weight))
                 push!(A_edge_list[neighbor],(n+1,weight))
             end
