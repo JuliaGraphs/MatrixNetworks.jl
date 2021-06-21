@@ -128,4 +128,50 @@ using LinearAlgebra
         @test nnz(Asub) == 5*4
 
     end
+
+    @testset "partial duplication" begin 
+        
+        A = sprand(100,100,.2)
+        A = max.(A,A')
+        B = MatrixNetwork(A)
+
+        @testset "get row" begin 
+            
+            row_idx = rand(1:100)
+            SA_Is, SA_Vs = findnz(A[row_idx,:])
+
+            get_row = (C,i)->(C.ci[C.rp[i]:C.rp[i+1]-1],C.vals[C.rp[i]:C.rp[i+1]-1])
+            MN_Is, MN_Vs = get_row(B,row_idx)
+
+            @test MN_Is == SA_Is 
+            @test MN_Vs == SA_Vs 
+            
+        end 
+
+        @testset "partial duplication" begin 
+
+            @test_throws ArgumentError partial_duplication(B,-1,.1)
+            @test_throws ArgumentError partial_duplication(B,1,-.1)
+            @test_throws ArgumentError partial_duplication(B,1,1.1)
+            @test_throws ArgumentError partial_duplication(MatrixNetwork(sprand(20,10,.1)),1,.1)
+
+            #check edge list creation and conversion
+            C = partial_duplication(B,0,1.0)
+            @test is_undirected(C)
+            @test sparse(C) == A
+
+            @inferred partial_duplication(B,100,.5)
+            #check symmetry is preserved
+            C = partial_duplication(B,100,.5)
+            @test is_undirected(C)
+            C = partial_duplication(B,100,.1)
+            @test is_undirected(C)
+
+            #check extremal proability case 
+            C = partial_duplication(B,100,0.0)
+            @test norm(sparse(C),2) == norm(A,2) # no new entries added
+
+        end
+
+    end
 end

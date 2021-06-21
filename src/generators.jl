@@ -814,3 +814,88 @@ Usage
 `A = forest_fire_graph(c, k, p)` returns a forest-fire sample. 
 `A = forest_fire_graph(A0, k, p)` 
 """
+
+
+"""
+`partial_duplication`
+=====================
+
+A random graph model based off of the evolution of protein-protein interaction
+networks. The method takes an undirected graph and runs a number of steps 
+which randomly selects an existing vertex, duplicates the node, and keeps the
+edges between its neighbor with a given probability. In the original work 
+the authors prove that new vertices will tend to become isolated for 
+p <= 0.567143. 
+
+ src: https://arxiv.org/pdf/1408.0904.pdf
+
+Input
+-----
+- 'A::MatrixNetwork{T}': seed matrix network 
+- `steps::Int': The number of steps to run the procedure
+- `new_edge_p::Float64': the probability 
+
+Output
+------
+- a new matrix network generated through the partial duplication procedure. 
+""" 
+function partial_duplication(A::MatrixNetwork{T},steps::Integer, new_edge_p::Float64) where T
+ 
+    is_undirected(A)                      || throw(ArgumentError("A must be undirected."))
+    (new_edge_p >= 0 && new_edge_p <= 1)  || throw(ArgumentError("new_edge_p must be a probability."))
+    steps >= 0                            || throw(ArgumentError("Must take a non-negative number of steps."))
+    # let it steps equal 0 for testing purposes
+
+    n,_ = size(A) # n will be updated
+
+    get_row = (csr_A,i)->(csr_A.ci[csr_A.rp[i]:csr_A.rp[i+1]-1],
+                          csr_A.vals[csr_A.rp[i]:csr_A.rp[i+1]-1])
+
+    #store A as an edge list so it's fast to sample
+    A_edge_list = Array{Array{Tuple{Int,T},1},1}(undef,n+steps)
+    for i = 1:n
+        A_edge_list[i] = collect(zip(get_row(A,i)...))
+    end
+    for i = n+1:n+steps
+        A_edge_list[i] = Array{Tuple{Int,T},1}(undef,0)
+    end
+
+    for step in 1:steps
+
+        dup_vertex = rand(1:n)
+        for (neighbor,weight) in A_edge_list[dup_vertex]
+            if rand() < new_edge_p
+                push!(A_edge_list[n+1],(neighbor,weight))
+                push!(A_edge_list[neighbor],(n+1,weight))
+            end
+        end
+        n += 1
+    end
+
+
+    #convert edge list back into a MatrixNetwork
+    total_edges = 0
+    for i=1:n
+        total_edges += length(A_edge_list[i])
+    end
+
+    Is = Array{Int,1}(undef,total_edges)
+    Js = Array{Int,1}(undef,total_edges)
+    Vs = Array{T,1}(undef,total_edges)
+
+    edge_idx = 1
+    for i=1:n
+        for (n_j,weight) in A_edge_list[i]
+            Is[edge_idx] = i 
+            Js[edge_idx] = n_j
+            Vs[edge_idx] = weight
+            edge_idx += 1
+        end
+    end
+
+    #compress to csr 
+    At = sparse(Js,Is,Vs,n,n)
+    return MatrixNetwork(n,At.colptr,At.rowval,At.nzval)
+
+end
+
