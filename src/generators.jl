@@ -827,7 +827,10 @@ edges between its neighbor with a given probability. In the original work
 the authors prove that new vertices will tend to become isolated for 
 p <= 0.567143. 
 
- src: https://arxiv.org/pdf/1408.0904.pdf
+paper src: 
+    Large-scale behavior of the partial duplication random graph
+    Felix Hermann & Peter Pfaffelhuber
+    https://arxiv.org/pdf/1408.0904.pdf
 
 Input
 -----
