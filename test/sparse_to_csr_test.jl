@@ -27,18 +27,3 @@
 end
 
 
-
-@testset "findnz" begin 
-    #compare against findnz from SparseArrays
-
-    SA_A = sprand(100,80,0.01)
-    SA_nzs = Set(zip(findnz(SA_A)...))
-    # SparseArrays uses CSC, use set to ensure output is the same.
-
-    MN_A = MatrixNetwork(SA_A)
-    @inferred findnz(MN_A)
-    MN_nzs = Set(zip(findnz(MN_A)...))
-
-    @test SA_nzs == MN_nzs
-
-end

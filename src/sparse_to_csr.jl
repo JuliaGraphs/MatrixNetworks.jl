@@ -29,39 +29,3 @@ function sparse_to_csr(nzi::Array{Int64,1},nzj::Array{Int64,1},
     At = sparse(nzj,nzi,nzv)
     return (At.colptr,At.rowval,At.nzval,At.m)
 end
-
-
-import SparseArrays: findnz   #import function to extend to MatrixNetwork type
-"""
-findnz
-======
-Returns the uncompressed non-zeros of the CSR representation of a MatrixNetwork.
-Js and Vs are copied from the CSR format, and Is is computed. 
-
-Output
-------
-- Is::Array{Integer,1}: the row indices.
-- Js::Array{Integer,1}: the columb indices.
-- Vs::Array{Integer,1}: the non-zero values.
-
-Example
--------
-Is, Js, Vs = findnz(A)
-"""
-function findnz(A::MatrixNetwork{T}) where T
-
-    Is = zeros(Int64,length(A.vals))
-    Js = copy(A.ci)
-    Vs = copy(A.vals)
-
-    idx = 1
-    for i in 1:(length(A.rp)-1)
-        row_nz = A.rp[i+1] - A.rp[i]
-        for _ in 1:row_nz
-            Is[idx] = i
-            idx += 1 
-        end
-    end
-
-    return Is,Js,Vs
-end
