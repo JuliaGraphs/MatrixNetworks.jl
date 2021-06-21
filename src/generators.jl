@@ -827,7 +827,7 @@ edges between its neighbor with a given probability. In the original work
 the authors prove that new vertices will tend to become isolated for 
 p <= 0.567143. 
 
-paper src: 
+src: 
     Large-scale behavior of the partial duplication random graph
     Felix Hermann & Peter Pfaffelhuber
     https://arxiv.org/pdf/1408.0904.pdf
@@ -844,9 +844,9 @@ Output
 """ 
 function partial_duplication(A::MatrixNetwork{T},steps::Integer, new_edge_p::Float64) where T
  
-    is_undirected(A)                      || throw(ArgumentError("A must be undirected."))
-    (new_edge_p >= 0 && new_edge_p <= 1)  || throw(ArgumentError("new_edge_p must be a probability."))
-    steps >= 0                            || throw(ArgumentError("Must take a non-negative number of steps."))
+    is_undirected(A) || throw(ArgumentError("A must be undirected."))
+    (new_edge_p >= 0 && new_edge_p <= 1) || throw(ArgumentError("new_edge_p must be a probability."))
+    steps >= 0 || throw(ArgumentError("Must take a non-negative number of steps."))
     # let it steps equal 0 for testing purposes
 
     n,_ = size(A) # n will be updated
