@@ -851,13 +851,11 @@ function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) whe
 
     n,_ = size(A) # n will be updated
 
-    get_row = (csr_A,i)->(csr_A.ci[csr_A.rp[i]:csr_A.rp[i+1]-1],
-                          csr_A.vals[csr_A.rp[i]:csr_A.rp[i+1]-1])
 
     #store A as an edge list so it's fast to sample
     A_edge_list = Array{Array{Tuple{Int,T},1},1}(undef,n+steps)
     for i = 1:n
-        A_edge_list[i] = collect(zip(get_row(A,i)...))
+        A_edge_list[i] = collect(zip(_get_row(A,i)...))
     end
     for i = n+1:n+steps
         A_edge_list[i] = Array{Tuple{Int,T},1}(undef,0)
@@ -902,3 +900,20 @@ function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) whe
 
 end
 
+"""
+'_get_row'
+==========
+Helper function to extract out a row of a MatrixNetwork.
+
+Output
+------
+- 'nz_indices'::Array{Int,1}: non-zero column indices.
+- 'nz_weights'::Array{T,1}: non-zero weights.
+
+"""
+function _get_row(A::MatrixNetwork{T},i::Int) where T
+
+   (i >= 1 && i <= size(A,1)) || throw(ArgumentError("i must be in {1,...,size(A,1)}"))
+   return A.ci[A.rp[i]:A.rp[i+1]-1],A.vals[A.rp[i]:A.rp[i+1]-1]
+
+end
