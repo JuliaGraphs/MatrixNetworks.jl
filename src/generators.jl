@@ -840,6 +840,7 @@ Output
 ------
 - A new undirected matrix network generated through the partial duplication 
   procedure. 
+- 'duplicated_vertices::Array{Int,1}': The list of vertices duplicated. 
 """ 
 function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) where T
  
@@ -849,7 +850,7 @@ function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) whe
     # let it steps equal 0 for testing purposes
 
     n,_ = size(A) # n will be updated
-
+    duplicated_vertices = Array{Integer,1}(undef,steps)
 
     #store A as an edge list so it's fast to sample
     A_edge_list = Array{Array{Tuple{Int,T},1},1}(undef,n+steps)
@@ -863,6 +864,7 @@ function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) whe
     for step in 1:steps
 
         dup_vertex = rand(1:n)
+        duplicated_vertices[step] = dup_vertex
         for (neighbor,weight) in A_edge_list[dup_vertex]
             if rand() < p
                 push!(A_edge_list[n+1],(neighbor,weight))
@@ -895,7 +897,7 @@ function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) whe
 
     #compress to csr 
     At = sparse(Js,Is,Vs,n,n)
-    return MatrixNetwork(n,At.colptr,At.rowval,At.nzval)
+    return MatrixNetwork(n,At.colptr,At.rowval,At.nzval), duplicated_vertices
 
 end
 

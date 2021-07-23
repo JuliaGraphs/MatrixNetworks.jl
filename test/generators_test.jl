@@ -142,19 +142,23 @@ using LinearAlgebra
         @test_throws ArgumentError partial_duplication(MatrixNetwork(sprand(20,10,.1)),1,.1)
 
         #check edge list creation and conversion
-        C = partial_duplication(B,0,1.0)
+        C,dup_vertices = partial_duplication(B,0,1.0)
+        @test length(dup_vertices) == 0
         @test is_undirected(C)
         @test sparse(C) == A
 
         @inferred partial_duplication(B,100,.5)
+
         #check symmetry is preserved
-        C = partial_duplication(B,100,.5)
+        C,dup_vertices = partial_duplication(B,100,.5)
         @test is_undirected(C)
-        C = partial_duplication(B,100,.1)
+        @test length(dup_vertices) == 100
+        
+        C,_ = partial_duplication(B,100,.1)
         @test is_undirected(C)
 
         #check extremal proability case 
-        C = partial_duplication(B,100,0.0)
+        C,_ = partial_duplication(B,100,0.0)
         @test norm(sparse(C),2) == norm(A,2) # no new entries added
 
     end
