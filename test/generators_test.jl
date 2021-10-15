@@ -163,21 +163,21 @@ using LinearAlgebra
 
     end
 
-    @testset "_get_row" begin
+    @testset "_get_outedges" begin
 
         A = sprand(100,100,.2)
         A = max.(A,A')
         B = MatrixNetwork(A)
 
-        @test_throws ArgumentError MatrixNetworks._get_row(B,-1)
-        @test_throws ArgumentError MatrixNetworks._get_row(B,101)
-        @inferred MatrixNetworks._get_row(B,50)
+        @test_throws ArgumentError MatrixNetworks._get_outedges(B,-1)
+        @test_throws ArgumentError MatrixNetworks._get_outedges(B,101)
+        @inferred MatrixNetworks._get_outedges(B,50)
 
         row_idx = rand(1:100)
         SA_Is, SA_Vs = findnz(A[row_idx,:])
 
 
-        MN_Is, MN_Vs = MatrixNetworks._get_row(B,row_idx)
+        MN_Is, MN_Vs = MatrixNetworks._get_outedges(B,row_idx)
 
         @test MN_Is == SA_Is
         @test MN_Vs == SA_Vs
