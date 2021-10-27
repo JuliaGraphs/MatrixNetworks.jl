@@ -36,7 +36,7 @@ Some available functions: (use ?function_name to get more documentation)
 - sparse_to_csr
 - pagerank
 - erdos_renyi_undirected
-- biconnected_components
+- partial_duplication
 - triangles
 
 You can check the readme file here: \n

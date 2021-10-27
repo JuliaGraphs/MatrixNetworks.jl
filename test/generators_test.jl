@@ -134,8 +134,6 @@ using LinearAlgebra
         A = sprand(100,100,.2)
         A = max.(A,A')
         B = MatrixNetwork(A)
-
-
         @test_throws ArgumentError partial_duplication(B,-1,.1)
         @test_throws ArgumentError partial_duplication(B,1,-.1)
         @test_throws ArgumentError partial_duplication(B,1,1.1)
@@ -175,15 +173,10 @@ using LinearAlgebra
 
         row_idx = rand(1:100)
         SA_Is, SA_Vs = findnz(A[row_idx,:])
-
-
         MN_Is, MN_Vs = MatrixNetworks._get_outedges(B,row_idx)
 
         @test MN_Is == SA_Is
         @test MN_Vs == SA_Vs
 
     end
-
-
-
 end

@@ -874,7 +874,6 @@ function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) whe
         n += 1
     end
 
-
     #convert edge list back into a MatrixNetwork
     total_edges = 0
     for i=1:n
