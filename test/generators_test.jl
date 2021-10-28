@@ -128,4 +128,55 @@ using LinearAlgebra
         @test nnz(Asub) == 5*4
 
     end
+
+    @testset "partial_duplication" begin 
+        
+        A = sprand(100,100,.2)
+        A = max.(A,A')
+        B = MatrixNetwork(A)
+        @test_throws ArgumentError partial_duplication(B,-1,.1)
+        @test_throws ArgumentError partial_duplication(B,1,-.1)
+        @test_throws ArgumentError partial_duplication(B,1,1.1)
+        @test_throws ArgumentError partial_duplication(MatrixNetwork(sprand(20,10,.1)),1,.1)
+
+        #check edge list creation and conversion
+        C,dup_vertices = partial_duplication(B,0,1.0)
+        @test length(dup_vertices) == 0
+        @test is_undirected(C)
+        @test sparse(C) == A
+
+        @inferred partial_duplication(B,100,.5)
+
+        #check symmetry is preserved
+        C,dup_vertices = partial_duplication(B,100,.5)
+        @test is_undirected(C)
+        @test length(dup_vertices) == 100
+        
+        C,_ = partial_duplication(B,100,.1)
+        @test is_undirected(C)
+
+        #check extremal proability case 
+        C,_ = partial_duplication(B,100,0.0)
+        @test norm(sparse(C),2) == norm(A,2) # no new entries added
+
+    end
+
+    @testset "_get_outedges" begin
+
+        A = sprand(100,100,.2)
+        A = max.(A,A')
+        B = MatrixNetwork(A)
+
+        @test_throws ArgumentError MatrixNetworks._get_outedges(B,-1)
+        @test_throws ArgumentError MatrixNetworks._get_outedges(B,101)
+        @inferred MatrixNetworks._get_outedges(B,50)
+
+        row_idx = rand(1:100)
+        SA_Is, SA_Vs = findnz(A[row_idx,:])
+        MN_Is, MN_Vs = MatrixNetworks._get_outedges(B,row_idx)
+
+        @test MN_Is == SA_Is
+        @test MN_Vs == SA_Vs
+
+    end
 end

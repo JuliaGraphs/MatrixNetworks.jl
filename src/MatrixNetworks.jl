@@ -36,7 +36,7 @@ Some available functions: (use ?function_name to get more documentation)
 - sparse_to_csr
 - pagerank
 - erdos_renyi_undirected
-- biconnected_components
+- partial_duplication
 - triangles
 
 You can check the readme file here: \n
@@ -91,7 +91,7 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     pa_edges!, preferential_attachment_edges!,
     gpa_graph, generalized_preferential_attachment_graph,
     gpa_edges!, generalized_preferential_attachment_edges!, 
-    roach_graph, lollipop_graph
+    roach_graph, lollipop_graph, partial_duplication
 
 include("biconnected.jl")
 export biconnected_components, biconnected_components!

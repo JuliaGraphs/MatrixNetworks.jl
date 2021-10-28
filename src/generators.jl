@@ -814,3 +814,106 @@ Usage
 `A = forest_fire_graph(c, k, p)` returns a forest-fire sample. 
 `A = forest_fire_graph(A0, k, p)` 
 """
+
+
+"""
+`partial_duplication`
+=====================
+
+A random graph model based off of the evolution of protein-protein interaction
+networks. The method takes an undirected graph and runs a number of steps 
+which randomly selects an existing vertex, duplicates the node, and keeps the
+edges between its neighbor with a given probability.
+
+Input
+-----
+- 'A::MatrixNetwork{T}': an undirected seed MatrixNetwork. 
+- `steps::Int': The number of steps to run the procedure.
+- `p::Float64': the probability to included each edge after duplication.
+
+Reference: 
+    A duplication growth model of gene expression networks 
+    Ashish Bhan, David J Galas, T. Gregory Dewey
+    https://doi.org/10.1093/bioinformatics/18.11.1486
+
+Output
+------
+- A new undirected matrix network generated through the partial duplication 
+  procedure. 
+- 'duplicated_vertices::Array{Int,1}': The list of vertices duplicated. 
+""" 
+function partial_duplication(A::MatrixNetwork{T},steps::Integer, p::Float64) where T
+ 
+    is_undirected(A) || throw(ArgumentError("A must be undirected."))
+    (p >= 0 && p <= 1) || throw(ArgumentError("new_edge_p must be a probability."))
+    steps >= 0 || throw(ArgumentError("Must take a non-negative number of steps."))
+    # let it steps equal 0 for testing purposes
+
+    n,_ = size(A) # n will be updated
+    duplicated_vertices = Array{Integer,1}(undef,steps)
+
+    #store A as an edge list so it's fast to sample
+    A_edge_list = Array{Array{Tuple{Int,T},1},1}(undef,n+steps)
+    for i = 1:n
+        A_edge_list[i] = collect(zip(_get_outedges(A,i)...))
+    end
+    for i = n+1:n+steps
+        A_edge_list[i] = Array{Tuple{Int,T},1}(undef,0)
+    end
+
+    for step in 1:steps
+
+        dup_vertex = rand(1:n)
+        duplicated_vertices[step] = dup_vertex
+        for (neighbor,weight) in A_edge_list[dup_vertex]
+            if rand() < p
+                push!(A_edge_list[n+1],(neighbor,weight))
+                push!(A_edge_list[neighbor],(n+1,weight))
+            end
+        end
+        n += 1
+    end
+
+    #convert edge list back into a MatrixNetwork
+    total_edges = 0
+    for i=1:n
+        total_edges += length(A_edge_list[i])
+    end
+
+    Is = Array{Int,1}(undef,total_edges)
+    Js = Array{Int,1}(undef,total_edges)
+    Vs = Array{T,1}(undef,total_edges)
+
+    edge_idx = 1
+    for i=1:n
+        for (n_j,weight) in A_edge_list[i]
+            Is[edge_idx] = i 
+            Js[edge_idx] = n_j
+            Vs[edge_idx] = weight
+            edge_idx += 1
+        end
+    end
+
+    #compress to csr 
+    At = sparse(Js,Is,Vs,n,n)
+    return MatrixNetwork(n,At.colptr,At.rowval,At.nzval), duplicated_vertices
+
+end
+
+"""
+'_get_outedges'
+==========
+Helper function to extract out a row of a MatrixNetwork.
+
+Output
+------
+- 'nz_indices'::Array{Int,1}: non-zero column indices.
+- 'nz_weights'::Array{T,1}: non-zero weights.
+
+"""
+function _get_outedges(A::MatrixNetwork{T},i::Int) where T
+
+   (i >= 1 && i <= size(A,1)) || throw(ArgumentError("i must be in {1,...,size(A,1)}"))
+   return A.ci[A.rp[i]:A.rp[i+1]-1],A.vals[A.rp[i]:A.rp[i+1]-1]
+
+end
