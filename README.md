@@ -5,9 +5,9 @@
 
 # MatrixNetworks
 This package consists of a collection of network algorithms.
-In short, the major difference between MatrixNetworks.jl and packages like LightGraphs.jl or Graphs.jl is the way graphs are treated.
+In short, the major difference between MatrixNetworks.jl and packages like [LightGraphs.jl](https://github.com/JuliaGraphs/LightGraphs.jl) or [Graphs.jl](https://github.com/JuliaGraphs/Graphs.jl) is the way graphs are treated.
 
-In [LightGraphs.jl](https://github.com/JuliaGraphs/LightGraphs.jl), graphs are created through Graph() and DiGraph() which are based on the representation of G as G = (V,E).
+In LightGraphs.jl, graphs are created through `Graph()` and `DiGraph()` which are based on the representation of $G$ as $G=(V,E)$.
 Our viewpoint is different.
 
 MatrixNetworks is based on the philosophy that there should be no distinction between a matrix and a network - thus the name.
@@ -46,31 +46,31 @@ load_matrix_network("clique-10")
 ```
 
 ## Some examples:
-##### largest_component: Return the largest connected component of a graph
-Acc is a sparse matrix containing the largest connected piece of a directed graph A
-p is a logical vector indicating which vertices in A were chosen
+##### `largest_component`: Return the largest connected component of a graph
+- `Acc` is a sparse matrix containing the largest connected piece of a directed graph `A`
+- `p` is a logical vector indicating which vertices in `A` were chosen
 ```
 A = load_matrix_network("dfs_example")
 Acc,p = largest_component(A)
 ```
 
-##### clustercoeffs: Compute undirected clustering coefficients for a graph
-cc is the clustering coefficients
+##### `clustercoeffs`: Compute undirected clustering coefficients for a graph
+- `cc` is the clustering coefficients
 ```
 A = load_matrix_network("clique-10")
 cc = clustercoeffs(MatrixNetwork(A))
 ```
 
-##### bfs: Compute breadth first search distances starting from a node in a graph
-d is a vector containing the distances of all nodes from node u (1 in the example below)
-dt is a vector containing the discover times of all the nodes
-pred is a vector containing the predecessors of each of the nodes
+##### `bfs`: Compute breadth first search distances starting from a node in a graph
+- `d` is a vector containing the distances of all nodes from node `u` (`1` in the example below)
+- `dt` is a vector containing the discover times of all the nodes
+- `pred` is a vector containing the predecessors of each of the nodes
 ```
 A = load_matrix_network("bfs_example")
 d,dt,pred = bfs(A,1)
 ```
 
-##### scomponents: Compute the strongly connected components of a graph
+##### `scomponents`: Compute the strongly connected components of a graph
 ```
 A = load_matrix_network("cores_example")
 sc = scomponents(A)
@@ -83,14 +83,14 @@ sc_enrich.reduction_matrix
 sc_enrich.transitive_map
 sc_enrich.transitive_order
 ```
-Can work on ei,ej:
+Can work on `ei`,`ej`:
 ```
 ei = [1;2;3]
 ej = [2;4;1]
 scomponents(ei,ej)
 ```
 
-##### bipartite_matching: Return a maximum weight bipartite matching of a graph
+##### `bipartite_matching`: Return a maximum weight bipartite matching of a graph
 ```
 ei = [1;2;3]
 ej = [3;2;4]
