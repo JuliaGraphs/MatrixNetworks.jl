@@ -14,7 +14,7 @@ MatrixNetworks is based on the philosophy that there should be no distinction be
 
 For example, `d,dt,p = bfs(A,1)` computes the bfs distance from the node represented by row 1 to all other nodes of the graph with adjacency matrix A. (A can be of type `SparseMatrixCSC` or `MatrixNetwork`). This representation can be easier to work with and handle.
 
-The package provides documentation with sample runs for all functions - viewable through Juila’s REPL. These sample runs come with sample data, which makes it easier for users to get started on `MatrixNetworks`.
+The package provides documentation with sample runs for all functions - viewable through Julia’s REPL. These sample runs come with sample data, which makes it easier for users to get started on `MatrixNetworks`.
 
 
 ## Package Installation:
