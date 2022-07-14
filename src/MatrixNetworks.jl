@@ -4,7 +4,7 @@ using DataStructures
 using SparseArrays
 using LinearAlgebra
 using Printf
-using Arpack
+using GenericArpack
 using DelimitedFiles
 using Random
 using Statistics
