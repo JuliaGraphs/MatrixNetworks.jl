@@ -3,9 +3,7 @@ using Test
 using Random
 using Statistics
 using SparseArrays
-using Arpack
 using LinearAlgebra
-#using Lint
 
 # Todo
 # 1. Add core MatrixNetworks tests

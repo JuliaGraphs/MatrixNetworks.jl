@@ -45,18 +45,13 @@ function _symeigs_smallest_arpack(
 
     # setup options
     mode = 1
-    sym = true
-    iscmplx = false
-    bmat = String("I")
+    bmat = Val(:I)
     ncv = min(max(2*nev,20),n-1)
 
-    whichstr = String("SA")
+    which = :SA
     ritzvec = true
-    sigma = 0.
+    sigmar = zero(V)
 
-    #TOL = Array{V}(undef,1)
-    #TOL[1] = tol
-    TOL = Ref(tol)
     lworkl = ncv*(ncv + 8)
     v = Array{V}(undef, n, ncv)
     workd = Array{V}(undef, 3*n)
@@ -65,12 +60,11 @@ function _symeigs_smallest_arpack(
 
     resid[:] = v0[:]
 
-    info = zeros(BlasInt, 1)
-    info[1] = 1
+    info = 1
 
     iparam = zeros(BlasInt, 11)
     ipntr = zeros(BlasInt, 11)
-    ido = zeros(BlasInt, 1)
+    ido = Ref{Int}(0)
 
     iparam[1] = BlasInt(1)
     iparam[3] = BlasInt(maxiter)
@@ -79,25 +73,27 @@ function _symeigs_smallest_arpack(
     # this is a helpful indexing vector
     zernm1 = 0:(n-1)
 
+    state = ArpackState{V}()
+
     while true
         # This is the reverse communication step that ARPACK does
         # we need to extract the desired vector and multiply it by A
         # unless the code says to stop
-        Arpack.saupd(
-            ido, bmat, n, whichstr, nev, TOL, resid, ncv, v, n,
-            iparam, ipntr, workd, workl, lworkl, info)
+        ierr = GenericArpack.dsaupd!(
+            ido, bmat, n, which, nev, tol, resid, ncv, v, n,
+            iparam, ipntr, workd, workl, lworkl, info; state)
 
         load_idx = ipntr[1] .+ zernm1
         store_idx = ipntr[2] .+ zernm1
 
         x = workd[load_idx]
 
-        if ido[1] == 1
+        if ido[] == 1
             workd[store_idx] = A*x
-        elseif ido[1] == 99
+        elseif ido[] == 99
             break
         else
-            error("unexpected ARPACK behavior")
+            error("unexpected ARPACK behavior, ierr = $(ierr)")
         end
     end
 
@@ -105,16 +101,15 @@ function _symeigs_smallest_arpack(
     # eigenvectors.
 
     # calls to eupd
-    howmny = String("A")
+    howmny = :A 
     select = Array{BlasInt}(undef, ncv)
 
     d = Array{V}(undef, nev)
-    sigmar = ones(V,1)*sigma
     ldv = n
-    Arpack.seupd(ritzvec, howmny, select, d, v, ldv, sigmar,
-        bmat, n, whichstr, nev, TOL, resid, ncv, v, ldv,
-        iparam, ipntr, workd, workl, lworkl, info)
-    if info[1] != 0
+    ierr = GenericArpack.simple_dseupd!(ritzvec, select, d, v, sigmar,
+        bmat, n, which, nev, tol, resid, ncv, v, 
+        iparam, ipntr, workd, workl)
+    if ierr != 0
         error("unexpected ARPACK exception")
     end
 
