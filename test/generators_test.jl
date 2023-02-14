@@ -129,6 +129,23 @@ using LinearAlgebra
 
     end
 
+    @testset "forest_fire_graph" begin 
+        
+        clique_size = 10 
+        #ensure default seed network is a clique
+        G,_ = forest_fire_graph(clique_size,clique_size,.4)
+        @test (nnz(G) == clique_size^2 - clique_size) && (sum(G[1:clique_size+1:clique_size^2]) == 0)
+
+        target_size = 50
+        A,_ = forest_fire_graph(target_size,clique_size,.4)
+        @test size(A,1) == target_size
+        @test sum(A[1:(target_size+1):target_size^2]) == 0 #no diagonals
+        @test maximum(A.nzval) == 1 #each edge is only added once
+        (B,_) = largest_component(A)
+        @test size(B) == size(A) # check for a connected graph
+
+    end 
+
     @testset "partial_duplication" begin 
         
         A = sprand(100,100,.2)

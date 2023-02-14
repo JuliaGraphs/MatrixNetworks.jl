@@ -28,6 +28,7 @@ all_tests = [
              "floydwarshall",
              "largest_component",
              "mst_prim",
+             "network_formatting",
              "scomponents",
              "spectral",
              "sparse_to_csr",
