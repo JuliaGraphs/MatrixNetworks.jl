@@ -72,7 +72,7 @@ include("spectral.jl")
 export fiedler_vector, sweepcut, spectral_cut, bestset, SweepcutProfile
 
 # export everything to make them accessible as functions
-export bipartite_matching, edge_list, create_sparse,
+export bipartite_matching, bipartite_cardinality_matching, edge_list, create_sparse,
 bipartite_matching_setup, bipartite_matching_indicator, bfs,
 dfs, clustercoeffs, corenums, scomponents, strong_components_map,
 enrich, csr_to_sparse, floydwarshall, largest_component,
