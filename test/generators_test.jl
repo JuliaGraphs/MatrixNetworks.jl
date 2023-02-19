@@ -1,5 +1,6 @@
 using LinearAlgebra
 
+
 @testset "generators" begin
     @testset "erdos_renyi" begin
         @test_throws DomainError erdos_renyi_undirected(10,11.)
@@ -132,17 +133,43 @@ using LinearAlgebra
     @testset "forest_fire_graph" begin 
         
         clique_size = 10 
+        p = .4
         #ensure default seed network is a clique
-        G,_ = forest_fire_graph(clique_size,clique_size,.4)
-        @test (nnz(G) == clique_size^2 - clique_size) && (sum(G[1:clique_size+1:clique_size^2]) == 0)
+        G,_ = forest_fire_graph(clique_size, clique_size, p)
+        @test (nnz(G) == clique_size^2 - clique_size) && all(G[1:clique_size+1:clique_size^2] .== 0)
 
         target_size = 50
-        A,_ = forest_fire_graph(target_size,clique_size,.4)
-        @test size(A,1) == target_size
-        @test sum(A[1:(target_size+1):target_size^2]) == 0 #no diagonals
-        @test maximum(A.nzval) == 1 #each edge is only added once
-        (B,_) = largest_component(A)
-        @test size(B) == size(A) # check for a connected graph
+
+        G = MatrixNetwork(G)
+        @inferred forest_fire_graph(G,target_size, p)
+        @inferred forest_fire_graph(target_size,clique_size, p)
+        
+        sp_A,_ = forest_fire_graph(target_size, clique_size, p)
+        @test size(sp_A,1) == target_size
+        @test all(sp_A[1:(target_size+1):target_size^2] .== 0) #no diagonals
+        (B,_) = largest_component(sp_A)
+        @test size(B) == size(sp_A) # check for a connected graph
+        @test maximum(sp_A.nzval) == 1 #each edge is only added once
+        
+
+        mn_A,_ = forest_fire_graph(G,target_size, p)
+        @test size(mn_A,1) == target_size
+        @test maximum(mn_A.vals) == 1
+        @test scomponents(mn_A).sizes[1] == target_size
+        #NOTE: missing diagonal entries testing
+
+
+        @testset "burn" begin 
+
+            @inferred MatrixNetworks.burn(G,1,p)
+
+            walk_neighbor_list = MatrixNetworks.burn(G,1,p)
+            A = MatrixNetworks.list_of_list_to_matrix(typeof(G),walk_neighbor_list)
+
+            @test is_undirected(A)  
+            @test length(walk_neighbor_list) == size(G,1) + 1
+
+        end 
 
     end 
 
@@ -196,4 +223,25 @@ using LinearAlgebra
         @test MN_Vs == SA_Vs
 
     end
+
+    @testset "_get_inedges" begin
+
+        n = 100 
+        A = sprand(n,n,.2)
+        A = max.(A,A')
+
+        @test_throws ArgumentError MatrixNetworks._get_inedges(A,-1)
+        @test_throws ArgumentError MatrixNetworks._get_inedges(A,101)
+        @inferred MatrixNetworks._get_inedges(A,50)
+
+        col_idx = rand(1:n)
+        SA_brackets_Is, SA_brackets_Vs = findnz(A[:,col_idx])
+        SA_Is, SA_Vs = MatrixNetworks._get_inedges(A,col_idx)
+
+        @test SA_brackets_Is == SA_Is
+        @test SA_brackets_Vs == SA_Vs
+
+    end
+
 end
+

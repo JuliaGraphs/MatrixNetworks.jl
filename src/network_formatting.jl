@@ -1,32 +1,37 @@
-matrix_to_list_of_list(A::SparseMatrixCSC) = matrix_to_list_of_list(eltype(A.rowval),A)
-
-function matrix_to_list_of_list(::Type{S}, A::SparseMatrixCSC) where S 
-
-    neighbors = Vector{Vector{S}}(undef,size(A,1))
-
-    for i = 1:size(A,1)
-        neighbors[i] = A.rowval[A.colptr[i]:A.colptr[i+1]-1]
-    end 
-    return neighbors
-
-end 
-
 matrix_to_list_of_list(A::MatrixNetwork) = matrix_to_list_of_list(eltype(A.ci),A)
+matrix_to_list_of_list(A::SparseMatrixCSC) = matrix_to_list_of_list(eltype(A.rowval),A)
 
 
 function matrix_to_list_of_list(::Type{S}, A::MatrixNetwork) where S 
     
-    neighbors = Vector{Vector{S}}(undef,size(A,1))
+    neighbors = Vector{Vector{S}}(undef,A.n)
 
-    for i = 1:size(A,1)
-        neighbors[i] = A.ci[A.rp[i]:A.rp[i+1]-1]
+    for i = 1:A.n
+        @inbounds neighbors[i],_ = _get_outedges(A,i)
+    end 
+    return neighbors
+
+end 
+
+function matrix_to_list_of_list(::Type{S}, A::SparseMatrixCSC) where S 
+    
+    At = copy(A')
+
+    neighbors = Vector{Vector{S}}(undef,At.n)
+
+    for i = 1:At.n
+        @inbounds neighbors[i],_ = _get_inedges(At,i)
     end 
     return neighbors
 
 end 
 
 
-function list_of_list_to_sparse_matrix(neighbors::Vector{Vector{S}}) where S 
+function list_of_list_to_matrix(::Type{MatrixNetwork{T}}, neighbors::Vector{Vector{S}}) where {S,T}
+    return MatrixNetwork(list_of_list_to_matrix(SparseMatrixCSC{T,S},neighbors))
+end 
+
+function list_of_list_to_matrix(::Type{SparseMatrixCSC{T1,T2}}, neighbors::Vector{Vector{S}}) where {S,T1,T2} 
 
     Is = S[]
     Js = S[] 

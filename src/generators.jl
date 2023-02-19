@@ -815,11 +815,11 @@ from a random pre-existing node.
 Input
 -----
 - 'A::Union{MatrixNetwork,SparseMatrixCSC}': An undirected seed Network. 
-- `target_sizes::Int': The final number of vertices of the target graph.
-- `burn_p::Float64': The probability of success when drawing the number of 
+- 'target_sizes::Int': The final number of vertices of the target graph.
+- 'burn_p::Float64': The probability of success when drawing the number of 
    neighbors to burn from a geometric distribution. 
-- `seed::Union{Nothing,UInt}' - An optional seed for the network.
-- `random_node'::Int -> Int  - The function to randomly select parents. 
+- 'seed::Union{Nothing,UInt}' - An optional seed for the network.
+- 'random_node::Int -> Int'  - The function to randomly select parents. 
 Reference: 
 
     (section 4.2.1) Graph Evolution: Densification and Shrinking Diameters
@@ -828,17 +828,17 @@ Reference:
 
 Functions
 ---------
-* `forest_fire_graph(n)` Generate an n node graph from a 10 node clique with a .4 
+* 'forest\\_fire\\_graph(n)' Generate an n node graph from a 10 node clique with a .4 
    burn probability. 
-* `forest_fire_graph(G,n,p)` Generate an n node graph from the seed graph G, with a 
+* 'forest\\_fire\\_graph(G,n,p)' Generate an n node graph from the seed graph G, with a 
    burn probability of p. 
-* `forest_fire_graph(::Type{S},G,n,p)` Generate an n node graph from the seed 
+* 'forest\\_fire\\_graph(::Type{S},G,n,p)' Generate an n node graph from the seed 
    graph G, with a probability of p for vertex labels of type S. 
 
 Output
 ------
-- `A` - the newly generated network of the same type as `seed_network`.
-- 'parents::Array{Int,1}': The list of vertices selected to start the random
+- 'G' - the newly generated network of the same type as `seed_network`.
+- 'parents::Vector{Int}': The list of vertices selected to start the random
    walks from. Vertices who are their own parents are from the seed_network.
 """ 
 function forest_fire_graph(target_size::Int,m::Int=10, 
@@ -849,17 +849,16 @@ function forest_fire_graph(target_size::Int,m::Int=10,
     return forest_fire_graph(eltype(clique.rowval),clique,target_size,burn_p;kwargs...)
 end 
 
-forest_fire_graph(seed_network::Union{MatrixNetwork,SparseMatrixCSC},target_size::Int, burn_p::Float64;kwargs...) = 
+forest_fire_graph(seed_network::SparseMatrixCSC,target_size::Int, burn_p::Float64;kwargs...) = 
                 forest_fire_graph(eltype(seed_network.rowval),seed_network,target_size, burn_p; kwargs...)
+
+forest_fire_graph(seed_network::MatrixNetwork,target_size::Int, burn_p::Float64;kwargs...) = 
+                forest_fire_graph(eltype(seed_network.ci),seed_network,target_size, burn_p; kwargs...)
 
 function forest_fire_graph(::Type{S},seed_network::Union{MatrixNetwork,SparseMatrixCSC}, 
                            target_size::Int, burn_p::Float64;
-                           seed::Union{Nothing,UInt}=nothing,
-                           random_node=x->rand(1:x)) where S
-
-    if !(seed === nothing)
-        seed!(seed)
-    end 
+                           rng::AbstractRNG=Random.GLOBAL_RNG,
+                           random_node=x->rand(rng,1:x)) where S
 
     graph_size = size(seed_network,1)
     steps = target_size - graph_size
@@ -883,27 +882,96 @@ function forest_fire_graph(::Type{S},seed_network::Union{MatrixNetwork,SparseMat
         parent = random_node(graph_size)
         
         new_v = graph_size+1
-        _burn!(neighbors,new_v,parent,burn_p,
-                     toburn,burnt,burning,alive)
+        burn!(neighbors,new_v,parent,burn_p,
+              toburn,burnt,burning,alive;rng)
 
         parents[v_i] = parent
-        for v_j in neighbors[new_v]
-            push!(neighbors[v_j],new_v)
-        end 
         graph_size += 1
 
     end 
     
-    A =  list_of_list_to_sparse_matrix(neighbors)
-    if typeof(seed_network) === MatrixNetwork
-        A = MatrixNetwork(A)
-    end
-    return A, parents
+    return list_of_list_to_matrix(typeof(seed_network),neighbors), parents
+end 
+
+"""
+`burn`
+======
+
+produce an edge list of the vertices randomly traversed (a.k.a "burning") 
+starting from `v0` in a graph `A`. The number of edges selected at each 
+step is determined by a geometric distribution with success rate `p`.
+
+Input
+-----
+- 'A::Union{MatrixNetwork,SparseMatrixCSC}': An undirected seed Network. 
+- 'v0::Int': The starting node of the random walk. 
+- 'p::Float64': The geometric distribution's success probability for selecting
+  the edges in the random walk. 
+
+Output
+------
+- 'neighbors::Vector{S}': The final produced neighbor list from the burn 
+  process. 
+
+See also [`forest_fire_graph`](@ref), [`burn!`](@ref)
+""" 
+function burn(A::Union{MatrixNetwork,SparseMatrixCSC},v0::S,p;kwargs...) where S
+
+    neighbors = matrix_to_list_of_list(A)
+    push!(neighbors,Vector{S}(undef,0))
+    burn!(neighbors,A.n+1,v0,p;kwargs...)
+    return neighbors
+
 end 
 
 
-function _burn!(neighbors::Vector{Vector{S}},new_v::Int,v0::Int,burn_p::Float64,
-                      toburn,burnt,burning,alive) where S 
+"""
+`burn!`
+=====================
+
+Update an graph's edge list `neighbors` with new vertices which connect to the
+vertices traversed in a random walk (a.k.a "burning") . `new_v` is assumed to be
+a valid index in `neighbors`, and starts the walk from `v0`. The number of edges
+selected at each step is determined by a geometric distribution with success 
+rate `p`.
+
+Input
+-----
+- 'neighbor_list::Vector{Vector}': An edge list representation of A.
+- 'new_v <: Integer': The new vertex which gains neighbors from the walk. 
+- 'v0 <: Integer': The starting vertex of the random walk. 
+- 'p::Float64': The geometric distribution's success probability for selecting
+  the edges in the random walk. 
+
+Functions
+---------
+* burn!(neighbors,new_v,v0,p) Same as below, but returns initialized variables
+  for reuse (fewer allocations). 
+* burn!(neighbors,new\\_v,v0,p,toburn,burnt,burning,alive) Updates the edge list
+  `neighbors` with a new node `new_v` with edges from a random walk starting at 
+  `v0`, which keeps edges proportional to geomdist(`p`). `toburn`, `burnt`, 
+  `burning`,and `alive` are variables used for running the walk, and are returned
+  for reuse if the routine is going to be run multiple times. These variables have
+  no assumption of their contents and have `empty!` called on them at the
+  beginning of the routine. 
+
+See also [`forest_fire_graph`](@ref), [`burn`](@ref)
+""" 
+function burn!(neighbors::Vector{Vector{S}},new_v::S,v0::S,p::Float64;kwargs...) where S
+
+    toburn = Set{S}()
+    burnt = Set{S}()
+    burning = Set{S}()
+    alive = Vector{S}(undef,0)
+    burn!(neighbors,new_v,v0,p,toburn,burnt,burning,alive)
+    
+    return toburn,burnt,burning,alive
+        # returned for optional reuse
+end
+
+function burn!(neighbors::Vector{Vector{S}},new_v::Int,v0::Int,p::Float64,
+               toburn::Set{S},burnt::Set{S},burning::Set{S},alive::Vector{S};
+               rng::AbstractRNG=Random.GLOBAL_RNG) where S 
 
     empty!(toburn)
     empty!(burnt)
@@ -938,8 +1006,8 @@ function _burn!(neighbors::Vector{Vector{S}},new_v::Int,v0::Int,burn_p::Float64,
                 
                 shuffle!(alive)
 
-                y = Int(floor(log(rand())/log(burn_p))) 
-                             # geometric_dist(1-burn_p)
+                y = Int(floor(log(rand(rng))/log(p))) 
+                             # geometric_dist(1-p)
                 new_edges = min(y, length(alive))
 
                 for i=1:new_edges
@@ -947,11 +1015,14 @@ function _burn!(neighbors::Vector{Vector{S}},new_v::Int,v0::Int,burn_p::Float64,
                     push!(burnt,alive[i])
                     push!(neighbors[new_v],alive[i])
                 end
-
             end 
         end 
     end
 
+    #symmetrize the neighbor list with the new neighbors of new_v
+    for v_j in neighbors[new_v]
+        push!(neighbors[v_j],new_v)
+    end 
 end 
 
 
@@ -1054,7 +1125,25 @@ Output
 """
 function _get_outedges(A::MatrixNetwork{T},i::Int) where T
 
-   (i >= 1 && i <= size(A,1)) || throw(ArgumentError("i must be in {1,...,size(A,1)}"))
-   return A.ci[A.rp[i]:A.rp[i+1]-1],A.vals[A.rp[i]:A.rp[i+1]-1]
+    @boundscheck (i >= 1 && i <= size(A,1)) || throw(ArgumentError("i must be in {1,...,$(size(A,1))}"))
+    return A.ci[A.rp[i]:A.rp[i+1]-1],A.vals[A.rp[i]:A.rp[i+1]-1]
 
 end
+
+"""
+'_get_inedges'
+==========
+Helper function to extract out a column of a SparseMatrixCSC.
+
+Output
+------
+- 'nz_indices'::Array{Int,1}: non-zero column indices.
+- 'nz_weights'::Array{T,1}: non-zero weights.
+
+"""
+function _get_inedges(A::SparseMatrixCSC{S,T},i::Int) where {S,T}
+
+    @boundscheck (i >= 1 && i <= size(A,1)) || throw(ArgumentError("i must be in {1,...,$(size(A,1))}"))
+    return A.rowval[A.colptr[i]:A.colptr[i+1]-1],A.nzval[A.colptr[i]:A.colptr[i+1]-1]
+ 
+ end

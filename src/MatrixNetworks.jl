@@ -94,7 +94,7 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     gpa_graph, generalized_preferential_attachment_graph,
     gpa_edges!, generalized_preferential_attachment_edges!, 
     roach_graph, lollipop_graph, partial_duplication,
-    forest_fire_graph
+    forest_fire_graph, burn, burn! 
 
 include("biconnected.jl")
 export biconnected_components, biconnected_components!
