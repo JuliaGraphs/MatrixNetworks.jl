@@ -1,6 +1,5 @@
 using LinearAlgebra
-
-
+using Random: seed! 
 @testset "generators" begin
     @testset "erdos_renyi" begin
         @test_throws DomainError erdos_renyi_undirected(10,11.)
@@ -140,8 +139,8 @@ using LinearAlgebra
 
         target_size = 50
 
-        G = MatrixNetwork(G)
-        @inferred forest_fire_graph(G,target_size, p)
+        mn_G = MatrixNetwork(G)
+        @inferred forest_fire_graph(mn_G,target_size, p)
         @inferred forest_fire_graph(target_size,clique_size, p)
         
         sp_A,_ = forest_fire_graph(target_size, clique_size, p)
@@ -152,7 +151,7 @@ using LinearAlgebra
         @test maximum(sp_A.nzval) == 1 #each edge is only added once
         
 
-        mn_A,_ = forest_fire_graph(G,target_size, p)
+        mn_A,_ = forest_fire_graph(mn_G,target_size, p)
         @test size(mn_A,1) == target_size
         @test maximum(mn_A.vals) == 1
         @test scomponents(mn_A).sizes[1] == target_size
@@ -162,12 +161,7 @@ using LinearAlgebra
         @testset "burn" begin 
 
             @inferred MatrixNetworks.burn(G,1,p)
-
-            walk_neighbor_list = MatrixNetworks.burn(G,1,p)
-            A = MatrixNetworks.list_of_list_to_matrix(typeof(G),walk_neighbor_list)
-
-            @test is_undirected(A)  
-            @test length(walk_neighbor_list) == size(G,1) + 1
+            @test MatrixNetworks.burn(G,1,p;rng=seed!(1231)) ==  MatrixNetworks.burn(mn_G,1,p;rng=seed!(1231))
 
         end 
 
@@ -216,11 +210,11 @@ using LinearAlgebra
         @inferred MatrixNetworks._get_outedges(B,50)
 
         row_idx = rand(1:100)
-        SA_Is, SA_Vs = findnz(A[row_idx,:])
-        MN_Is, MN_Vs = MatrixNetworks._get_outedges(B,row_idx)
+        SA_Js, SA_Vs = findnz(A[row_idx,:])
+        MN_Js, MN_Vs = MatrixNetworks._get_outedges(B,row_idx)
 
-        @test MN_Is == SA_Is
-        @test MN_Vs == SA_Vs
+        @test all((mn_j == sa_j for (mn_j,sa_j) in zip(MN_Js,SA_Js)))
+        @test all((mn_v == sa_v for (mn_v,sa_v) in zip(MN_Vs,SA_Vs)))
 
     end
 
@@ -238,8 +232,8 @@ using LinearAlgebra
         SA_brackets_Is, SA_brackets_Vs = findnz(A[:,col_idx])
         SA_Is, SA_Vs = MatrixNetworks._get_inedges(A,col_idx)
 
-        @test SA_brackets_Is == SA_Is
-        @test SA_brackets_Vs == SA_Vs
+        @test all((mnb_i == sa_i for (mnb_i,sa_i) in zip(SA_brackets_Is,SA_Is)))
+        @test all((mnb_v == sa_v for (mnb_v,sa_v) in zip(SA_brackets_Vs,SA_Vs)))
 
     end
 

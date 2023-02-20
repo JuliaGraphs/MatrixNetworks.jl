@@ -7,7 +7,8 @@ function matrix_to_list_of_list(::Type{S}, A::MatrixNetwork) where S
     neighbors = Vector{Vector{S}}(undef,A.n)
 
     for i = 1:A.n
-        @inbounds neighbors[i],_ = _get_outedges(A,i)
+        @inbounds edges,_ = _get_outedges(A,i)
+        neighbors[i] = collect(edges)
     end 
     return neighbors
 
@@ -20,7 +21,8 @@ function matrix_to_list_of_list(::Type{S}, A::SparseMatrixCSC) where S
     neighbors = Vector{Vector{S}}(undef,At.n)
 
     for i = 1:At.n
-        @inbounds neighbors[i],_ = _get_inedges(At,i)
+        @inbounds edges,_ = _get_inedges(At,i)
+        neighbors[i] = collect(edges)
     end 
     return neighbors
 
