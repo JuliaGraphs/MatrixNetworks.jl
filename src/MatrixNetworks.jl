@@ -83,6 +83,8 @@ include("diffusions.jl")
 export pagerank, pagerank_power!, personalized_pagerank, seeded_pagerank, stochastic_mult!,
         seeded_stochastic_heat_kernel, stochastic_heat_kernel_series!
 
+include("network_formatting.jl")
+
 include("generators.jl")
 export erdos_renyi_undirected, erdos_renyi_directed,
     erdős_rényi_undirected, erdős_rényi_directed,
@@ -91,7 +93,8 @@ export erdos_renyi_undirected, erdos_renyi_directed,
     pa_edges!, preferential_attachment_edges!,
     gpa_graph, generalized_preferential_attachment_graph,
     gpa_edges!, generalized_preferential_attachment_edges!, 
-    roach_graph, lollipop_graph, partial_duplication
+    roach_graph, lollipop_graph, partial_duplication,
+    forest_fire_graph, burn, burn! 
 
 include("biconnected.jl")
 export biconnected_components, biconnected_components!
