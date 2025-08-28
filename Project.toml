@@ -1,7 +1,7 @@
 name = "MatrixNetworks"
 uuid = "4f449596-a032-5618-b826-5a251cb6dc11"
 authors = ["nassarhuda <nassar.huda@gmail.com>"]
-version = "1.0.4"
+version = "1.0.5"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
