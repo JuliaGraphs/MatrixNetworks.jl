@@ -1,5 +1,5 @@
 using LinearAlgebra
-
+using Random: seed! 
 @testset "generators" begin
     @testset "erdos_renyi" begin
         @test_throws DomainError erdos_renyi_undirected(10,11.)
@@ -129,6 +129,44 @@ using LinearAlgebra
 
     end
 
+    @testset "forest_fire_graph" begin 
+        
+        clique_size = 10 
+        p = .4
+        #ensure default seed network is a clique
+        G,_ = forest_fire_graph(clique_size, clique_size, p)
+        @test (nnz(G) == clique_size^2 - clique_size) && all(G[1:clique_size+1:clique_size^2] .== 0)
+
+        target_size = 50
+
+        mn_G = MatrixNetwork(G)
+        @inferred forest_fire_graph(mn_G,target_size, p)
+        @inferred forest_fire_graph(target_size,clique_size, p)
+        
+        sp_A,_ = forest_fire_graph(target_size, clique_size, p)
+        @test size(sp_A,1) == target_size
+        @test all(sp_A[1:(target_size+1):target_size^2] .== 0) #no diagonals
+        (B,_) = largest_component(sp_A)
+        @test size(B) == size(sp_A) # check for a connected graph
+        @test maximum(sp_A.nzval) == 1 #each edge is only added once
+        
+
+        mn_A,_ = forest_fire_graph(mn_G,target_size, p)
+        @test size(mn_A,1) == target_size
+        @test maximum(mn_A.vals) == 1
+        @test scomponents(mn_A).sizes[1] == target_size
+        #NOTE: missing diagonal entries testing
+
+
+        @testset "burn" begin 
+
+            @inferred MatrixNetworks.burn(G,1,p)
+            @test MatrixNetworks.burn(G,1,p;rng=seed!(1231)) ==  MatrixNetworks.burn(mn_G,1,p;rng=seed!(1231))
+
+        end 
+
+    end 
+
     @testset "partial_duplication" begin 
         
         A = sprand(100,100,.2)
@@ -172,11 +210,32 @@ using LinearAlgebra
         @inferred MatrixNetworks._get_outedges(B,50)
 
         row_idx = rand(1:100)
-        SA_Is, SA_Vs = findnz(A[row_idx,:])
-        MN_Is, MN_Vs = MatrixNetworks._get_outedges(B,row_idx)
+        SA_Js, SA_Vs = findnz(A[row_idx,:])
+        MN_Js, MN_Vs = MatrixNetworks._get_outedges(B,row_idx)
 
-        @test MN_Is == SA_Is
-        @test MN_Vs == SA_Vs
+        @test all((mn_j == sa_j for (mn_j,sa_j) in zip(MN_Js,SA_Js)))
+        @test all((mn_v == sa_v for (mn_v,sa_v) in zip(MN_Vs,SA_Vs)))
 
     end
+
+    @testset "_get_inedges" begin
+
+        n = 100 
+        A = sprand(n,n,.2)
+        A = max.(A,A')
+
+        @test_throws ArgumentError MatrixNetworks._get_inedges(A,-1)
+        @test_throws ArgumentError MatrixNetworks._get_inedges(A,101)
+        @inferred MatrixNetworks._get_inedges(A,50)
+
+        col_idx = rand(1:n)
+        SA_brackets_Is, SA_brackets_Vs = findnz(A[:,col_idx])
+        SA_Is, SA_Vs = MatrixNetworks._get_inedges(A,col_idx)
+
+        @test all((mnb_i == sa_i for (mnb_i,sa_i) in zip(SA_brackets_Is,SA_Is)))
+        @test all((mnb_v == sa_v for (mnb_v,sa_v) in zip(SA_brackets_Vs,SA_Vs)))
+
+    end
+
 end
+
